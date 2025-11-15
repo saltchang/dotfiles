@@ -309,6 +309,10 @@ if command -v proto &>/dev/null; then
 fi
 # ==================================================================================================
 
+# ===> Kubernetes ==================================================================================
+export KUBECONFIG=~/.kube/config
+# ==================================================================================================
+
 # ===> Base Directory of Projects ==================================================================
 PROJS_BASE=$HOME/projects
 [ ! -d "$PROJS_BASE" ] && mkdir -p "$PROJS_BASE"
@@ -495,29 +499,6 @@ GIT_EDITOR="vim"
 git config --global pull.ff only              # set git pull --ff-only
 git config --global init.defaultBranch main   # set default init branch
 git config --global core.editor "$GIT_EDITOR" # set default editor
-# ==================================================================================================
-
-# ===> Docker Deamon (Optional for WSL) ============================================================
-# if [ $SYS_IS_WSL ]; then
-#     DOCKER_GROUP_NAME="docker"
-#     if [ $(getent group $DOCKER_GROUP_NAME) ]; then # check if group docker is installed
-#         DOCKER_DISTRO=$DISTRO_NAME                  # Run `wsl -l -q` in Powershell to see all distros
-#         DOCKER_DIR=/mnt/wsl/shared-docker
-#         DOCKER_SOCK="$DOCKER_DIR/docker.sock"
-#         export DOCKER_HOST="unix://$DOCKER_SOCK"
-#         if [ ! -S "$DOCKER_SOCK" ]; then
-#             mkdir -p "$DOCKER_DIR"
-#             chmod o=,ug=rwx "$DOCKER_DIR"
-#             chgrp docker "$DOCKER_DIR"
-#             /mnt/c/Windows/System32/wsl.exe -d $DOCKER_DISTRO sh -c "nohup sudo -b dockerd < /dev/null > $DOCKER_DIR/dockerd.log 2>&1"
-
-#             # An symbolink config for VSCode
-#             if [ ! -L "/run/docker.sock" ]; then
-#                 sudo sh -c "ln -s $DOCKER_SOCK /run/docker.sock"
-#             fi
-#         fi
-#     fi
-# fi
 # ==================================================================================================
 
 # ===> Google Cloud (Optional) =====================================================================
