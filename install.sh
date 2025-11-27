@@ -2,6 +2,7 @@
 
 # ===> Colors ======================================================================================
 GREEN="\033[32m"
+WARNING="\033[33m"
 NC="\033[0m"
 # ==================================================================================================
 
@@ -18,6 +19,30 @@ Linux)
     OS_NAME=$LINUX
     ;;
 esac
+
+
+# ===> Check lsb_release ===========================================================================
+# lsb_release is required for OS detection in .zshrc and .p10k.zsh
+case $OS_NAME in
+"$LINUX")
+    if ! command -v lsb_release &> /dev/null; then
+        echo
+        echo -e "${WARNING}Error: lsb_release command not found!${NC}"
+        echo
+        echo "lsb_release is required for detecting your Linux distribution."
+        echo "Please install it first:"
+        echo
+        echo "  Arch Linux:       sudo pacman -S lsb-release"
+        echo "  Debian/Ubuntu:    sudo apt-get install lsb-release"
+        echo "  RHEL/CentOS:      sudo yum install redhat-lsb-core"
+        echo "  Fedora:           sudo dnf install redhat-lsb-core"
+        echo
+        exit 1
+    fi
+    ;;
+esac
+# ==================================================================================================
+
 
 # ===> Prompt User for the repo to clone ===========================================================
 printf "Please enter the terminal-setup github repo to clone (default: saltchang/terminal-setup): \n> "
@@ -50,13 +75,13 @@ case $OS_NAME in
 esac
 # ==================================================================================================
 
-# ===> Prompt User for using alacritty as terminal app =============================================
+# ===> Prompt User for using kitty as terminal app ================================================
 if [ "$USE_ITERM2" != "y" ]; then
-    printf "\nDo you want to use Alacritty(https://alacritty.org) as terminal app? (y/n, default: n): \n> "
-    read -r USE_ALACRITTY </dev/tty
+    printf "\nDo you want to use Kitty(https://sw.kovidgoyal.net/kitty/) as terminal app? (y/n, default: n): \n> "
+    read -r USE_KITTY </dev/tty
 
-    if [ -z "$USE_ALACRITTY" ]; then
-        USE_ALACRITTY="n"
+    if [ -z "$USE_KITTY" ]; then
+        USE_KITTY="n"
     fi
 fi
 # ==================================================================================================
@@ -108,6 +133,11 @@ case $OS_NAME in
 "$LINUX")
     # install jump if it's not installed
     if ! [ -x "$(command -v jump)" ]; then
+        if ! [ -x "$(command -v snap)" ]; then
+            echo -e "${WARNING}snap is not installed, skip installing jump.${NC}"
+            echo -e "${WARNING}You can install it from https://github.com/gsamokovarov/jump?tab=readme-ov-file#installation${NC}"
+        fi
+
         sudo snap install jump
     fi
     echo -e "${GREEN}jump is already installed${NC}"
@@ -122,7 +152,7 @@ case $OS_NAME in
 "$MACOS")
     if ! [ -f "/Library/Fonts/MesloLGLNerdFont-Regular.ttf" ]; then
         echo "Installing Meslo..."
-        curl -s -L -o /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Meslo.zip
+        curl -s -L -o /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip
         unzip /tmp/Meslo.zip -d /tmp/Meslo
         cp /tmp/Meslo/*.ttf /Library/Fonts
     fi
@@ -137,7 +167,7 @@ case $OS_NAME in
     ;;
 "$LINUX")
     if ! [ -f "/usr/local/share/fonts/MesloLGLNerdFont-Regular.ttf" ]; then
-        curl -s -L -o /tmp/Meslo.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Meslo.tar.xz
+        curl -s -L -o /tmp/Meslo.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz
         mkdir -p /tmp/Meslo
         tar xvf /tmp/Meslo.tar.xz -C /tmp/Meslo
         sudo cp /tmp/Meslo/*.ttf /usr/local/share/fonts
@@ -181,21 +211,29 @@ if [ "$USE_ITERM2" = "y" ]; then
 fi
 # ==================================================================================================
 
-# ===> Install alacritty ===========================================================================
-if [ "$USE_ALACRITTY" = "y" ]; then
+# ===> Install kitty ===============================================================================
+if [ "$USE_KITTY" = "y" ]; then
     case $OS_NAME in
     "$MACOS")
-        if ! [ -x "$(command -v alacritty)" ]; then
-            echo "Installing alacritty..."
-            brew install alacritty
+        if ! [ -x "$(command -v kitty)" ]; then
+            echo "Installing kitty..."
+            brew install --cask kitty
         fi
-        echo -e "${GREEN}alacritty is already installed${NC}"
+        echo -e "${GREEN}kitty is already installed${NC}"
         ;;
     "$LINUX")
-        if ! [ -x "$(command -v alacritty)" ]; then
-            sudo snap install alacritty --classic
+        if ! [ -x "$(command -v kitty)" ]; then
+            echo "Installing kitty..."
+            curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+            # Create desktop integration
+            ln -sf ~/.local/kitty.app/bin/kitty ~/.local/bin/
+            # Place the kitty.desktop file somewhere it can be found by the OS
+            cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
+            # Update the paths to the kitty and its icon in the kitty.desktop file
+            sed -i "s|Icon=kitty|Icon=$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty.desktop
+            sed -i "s|Exec=kitty|Exec=$HOME/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty.desktop
         fi
-        echo -e "${GREEN}alacritty is already installed${NC}"
+        echo -e "${GREEN}kitty is already installed${NC}"
         ;;
     *) ;;
     esac
@@ -242,8 +280,8 @@ cd terminal-setup || exit 1
 
 echo
 
-if [ "$USE_ALACRITTY" = "y" ]; then
-    ./setup.sh --setup-alacritty
+if [ "$USE_KITTY" = "y" ]; then
+    ./setup.sh --setup-kitty
 elif [ "$USE_ITERM2" = "y" ]; then
     ./setup.sh --setup-iterm2
 else

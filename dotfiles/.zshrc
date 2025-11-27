@@ -15,6 +15,38 @@ if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh" ]; the
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh"
 fi
 
+# ===> Set zsh history =============================================================================
+# --- History Config ---
+HISTFILE="$HOME/.zsh_history"
+
+# Define the number of commands to keep in memory
+HISTSIZE=10000
+
+# Define the number of commands to keep in the file
+SAVEHIST=10000
+
+# --- History Options ---
+# Append to the file after each command, instead of writing at the end of the shell (to prevent loss)
+setopt APPEND_HISTORY
+
+# Share history records in real time between multiple terminal windows (very useful for Hyprland + Kitty multi-window)
+setopt SHARE_HISTORY
+
+# Ignore duplicate commands
+setopt HIST_IGNORE_DUPS
+
+# Ignore commands that start with a blank key (sensitive commands that you don't want to record can be prefixed with a blank)
+setopt HIST_IGNORE_SPACE
+
+# Remove extra spaces
+setopt HIST_REDUCE_BLANKS
+# ==================================================================================================
+
+# ===> Load .zprofile ==============================================================================
+# Source .zprofile for non-login shells to load environment variables and helper functions
+[[ -f $HOME/.zprofile ]] && source $HOME/.zprofile
+# ==================================================================================================
+
 # ===> Terminal Setup Cache ========================================================================
 TERMINAL_SETUP_CACHE="$HOME/.terminal-setup-cache"
 # ==================================================================================================
@@ -34,6 +66,7 @@ MS="Microsoft"
 UBUNTU="Ubuntu"
 DEBIAN="Debian"
 RHEL="RedHatEnterpriseServer"
+ARCH="Arch"
 LINUX="Linux"
 MACOS="macOS"
 
@@ -68,7 +101,7 @@ Darwin)
 
 Linux)
     OS_NAME=$LINUX
-    OS_INFO=$(lsb_release -a)
+    OS_INFO=$(lsb_release -a 2>/dev/null)
 
     case $OS_INFO in
     *"$UBUNTU"*)
@@ -79,6 +112,9 @@ Linux)
         ;;
     *"$RHEL"*)
         DISTRO_NAME=$RHEL
+        ;;
+    *"$ARCH"*)
+        DISTRO_NAME=$ARCH
         ;;
     esac
     ;;
@@ -148,7 +184,11 @@ case $OS_NAME in
         ;;
     esac
     ;;
-"$LINUX") ;;
+"$LINUX")
+    # Keybindings for Home and End
+    bindkey '^[[H' beginning-of-line
+    bindkey '^[[F' end-of-line
+    ;;
 esac
 
 # Bind keys for history-substring-search
@@ -162,8 +202,15 @@ function _bind_keys_for_history_substring_search() {
     "$LINUX")
         # https://superuser.com/a/1296543
         # key dict is defined in /etc/zsh/zshrc
-        bindkey "$key[Up]" history-substring-search-up
-        bindkey "$key[Down]" history-substring-search-down
+        if (( ${+key} )); then
+            bindkey "$key[Up]" history-substring-search-up
+            bindkey "$key[Down]" history-substring-search-down
+        else
+            bindkey '^[[A' history-substring-search-up
+            bindkey '^[[B' history-substring-search-down
+            bindkey '^[OA' history-substring-search-up
+            bindkey '^[OB' history-substring-search-down
+        fi
         ;;
     esac
 }
@@ -175,12 +222,6 @@ if [ $OS_NAME = "$LINUX" ] && [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
 fi
 # ==================================================================================================
 
-# ===> Go ==========================================================================================
-export GOROOT=/usr/local/go
-export GOPATH=$HOME/go
-addToPATH $GOPATH/bin
-addToPATH $GOROOT/bin:$PATH
-# ==================================================================================================
 
 # ===> Python ======================================================================================
 # --------> pyenv ----------------------------------------------------------------------------------
@@ -411,7 +452,17 @@ case $OS_NAME in
 "$LINUX")
     case $DISTRO_NAME in
     "$RHEL") ;;
-    *)
+    "$ARCH")
+        unu() {
+            if command -v paru &>/dev/null; then
+                paru -Syu
+            else
+                sudo pacman -Syu
+            fi
+        }
+        ;;
+    "$UBUNTU") ;;
+    "$DEBIAN")
         unu() {
             sudo apt-get update && sudo apt-get upgrade
         }
@@ -484,7 +535,7 @@ case $OS_NAME in
         case $DISTRO_NAME in
         "$RHEL") ;;
         *)
-            echo "net-tools is not installed, please run 'sudo apt-get -y install net-tools' to install it."
+            echo "net-tools is not installed, please install it first."
             ;;
         esac
     fi

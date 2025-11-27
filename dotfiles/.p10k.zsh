@@ -5,8 +5,15 @@
 # sparse, many icons, concise, instant_prompt=verbose.
 # Type `p10k configure` to generate another config.
 
+UBUNTU="Ubuntu"
+DEBIAN="Debian"
+RHEL="RedHatEnterpriseServer"
+ARCH="Arch"
 LINUX="Linux"
 MACOS="macOS"
+
+ARM64="arm64"
+X86_64="x86_64"
 
 case $(uname) in
 
@@ -26,7 +33,7 @@ Darwin)
 
 Linux)
     OS_NAME=$LINUX
-    OS_INFO=$(lsb_release -a)
+    OS_INFO=$(lsb_release -a 2>/dev/null)
 
     case $OS_INFO in
     *"$UBUNTU"*)
@@ -37,6 +44,9 @@ Linux)
         ;;
     *"$RHEL"*)
         DISTRO_NAME=$RHEL
+        ;;
+    *"$ARCH"*)
+        DISTRO_NAME=$ARCH
         ;;
     esac
     ;;
@@ -153,6 +163,10 @@ esac
       "$RHEL")
           POWERLEVEL9K_LINUX_ICON="\uF316"      # For RedHat
           POWERLEVEL9K_OS_ICON_FOREGROUND="197" # For Redhat
+          ;;
+
+      "$ARCH")
+          POWERLEVEL9K_OS_ICON_FOREGROUND="039" # For Arch Linux (cyan/blue)
           ;;
       esac
 

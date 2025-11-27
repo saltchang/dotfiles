@@ -14,8 +14,8 @@ for i in "$@"; do
         SETUP_ITERM2=true
         shift
         ;;
-    --setup-alacritty)
-        SETUP_ALACRITTY=true
+    --setup-kitty)
+        SETUP_KITTY=true
         shift
         ;;
     *) ;;
@@ -107,8 +107,8 @@ ln -s "$P10K_SOURCE" "$P10KZSH_FILE" && echo -e "${GREEN}Created a new symbolic 
 
 ln -s "$PROTOTOOLS_SOURCE" "$PROTOTOOLS_FILE" && echo -e "${GREEN}Created a new symbolic link from $PROTOTOOLS_FILE to $PROTOTOOLS_SOURCE${NC}"
 
-if [ "$SETUP_ALACRITTY" = true ]; then
-    ./scripts/setup-alacritty.sh
+if [ "$SETUP_KITTY" = true ]; then
+    ./scripts/setup-kitty.sh
 fi
 
 if [ "$SETUP_ITERM2" = true ]; then

@@ -28,6 +28,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
 - Terminal Integration
   - [iTerm2](https://iterm2.com) (macOS)
   - [Alacritty](https://alacritty.org) (macOS, Linux, Windows)
+  - [Kitty](https://sw.kovidgoyal.net/kitty/) (macOS, Linux)
   - [Windows Terminal](https://github.com/microsoft/terminal) (Windows or WSL)
 
 ## Auto Installation (Recommended)
@@ -50,7 +51,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
     6. Create a soft link from `$HOME/.p10k.zsh` to the one in this project
     7. Create a soft link from `$HOME/.local/terminal-setup/bin` to the one in this project
     8. Optionally install pnpm
-    9. Optionally install and setup terminal (iTerm2 or Alacritty)
+    9. Optionally install and setup terminal (iTerm2 or Kitty)
 
 3. After the installation, restart your terminal or run `source $HOME/.zshrc`, you should see the new face of the shell
 
@@ -73,16 +74,27 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
 4. After you setup: Other Actions > Set as Default
 5. Restart iTerm
 
-#### Install Alacritty (macOS, Linux)
+#### Install Kitty (macOS, Linux)
 
-1. Install [Alacritty](https://alacritty.org)
-2. You can setup the config by copying the [Alacritty Config](./terminal-config/alacritty/alacritty.toml) to your `~/.config/alacritty/alacritty.toml` or run the install script:
+1. Install [Kitty](https://sw.kovidgoyal.net/kitty/)
 
+    macOS:
     ```bash
-    ./setup-alacritty.sh
+    brew install --cask kitty
     ```
 
-    It will create a symbolic link to the config from your `~/.config/alacritty/alacritty.toml`
+    Linux (Ubuntu/Debian):
+    ```bash
+    curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+    ```
+
+2. You can setup the config by copying the [Kitty Config](./terminal-config/kitty/kitty.conf) to your `~/.config/kitty/kitty.conf` or run the install script:
+
+    ```bash
+    ./scripts/setup-kitty.sh
+    ```
+
+    It will create a symbolic link to the config from your `~/.config/kitty/kitty.conf`
 
 ### Customize Your Configs
 
@@ -113,10 +125,9 @@ brew install pipx
 
 ### Install Nerd Fonts
 
-Please install at least one of the below fonts for your terminal, [Menlo](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Meslo.zip) is recommended.
+Please install at least one of the below fonts for your terminal, [Menlo](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip) is recommended.
 
-- [Menlo](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/Meslo.zip)
-- [FuraCode](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip)
+- [Menlo](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip)
 
 See all [Nerd Fonts](https://www.nerdfonts.com/font-downloads).
 
