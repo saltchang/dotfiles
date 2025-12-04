@@ -30,6 +30,11 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
   - [Alacritty](https://alacritty.org) (macOS, Linux, Windows)
   - [Kitty](https://sw.kovidgoyal.net/kitty/) (macOS, Linux)
   - [Windows Terminal](https://github.com/microsoft/terminal) (Windows or WSL)
+- Neovim Configuration
+  - Modern Neovim setup with Lazy.nvim plugin manager
+  - LSP support with Mason for easy language server installation
+  - Beautiful UI with Telescope, Treesitter, and custom themes
+  - Optimized for productivity with smart keymaps and autocompletion
 
 ## Auto Installation (Recommended)
 
@@ -52,6 +57,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
     7. Create a soft link from `$HOME/.local/terminal-setup/bin` to the one in this project
     8. Optionally install pnpm
     9. Optionally install and setup terminal (iTerm2 or Kitty)
+    10. Optionally install and setup Neovim with configuration
 
 3. After the installation, restart your terminal or run `source $HOME/.zshrc`, you should see the new face of the shell
 
@@ -79,11 +85,13 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
 1. Install [Kitty](https://sw.kovidgoyal.net/kitty/)
 
     macOS:
+
     ```bash
     brew install --cask kitty
     ```
 
     Linux (Ubuntu/Debian):
+
     ```bash
     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
     ```
@@ -95,6 +103,41 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
     ```
 
     It will create a symbolic link to the config from your `~/.config/kitty/kitty.conf`
+
+#### Setup Neovim Config (All Platforms)
+
+1. Install required dependencies:
+   - ripgrep: for Telescope fuzzy finder
+   - fd: for file search
+   - unzip, gzip, tar: for Mason to install LSP servers
+2. Install optinal language server if you don't use version managers:
+   - node.js
+   - python
+   - go
+3. You can setup the config by running the setup script:
+
+    ```bash
+    ./scripts/setup-nvim.sh
+    ```
+
+    Or with the main setup script:
+
+    ```bash
+    ./setup.sh --setup-nvim
+    ```
+
+    It will create a symbolic link from your `~/.config/nvim` to the nvim config in this repository.
+
+4. After setup, open Neovim and the plugins will automatically install:
+
+    ```bash
+    nvim
+
+    # or neovide
+    neovide
+    ```
+
+For more details, see [Neovim Config README](./vim-config/README.md).
 
 ### Customize Your Configs
 
@@ -294,6 +337,15 @@ If automatic Node.js version switching isn't working:
 1. Make sure proto is properly installed and configured.
 2. Check if you have a `.prototools` or `.nvmrc` file in your project directory.
 3. Try activating the correct Node.js version by `proto activate zsh`.
+
+### Neovim Issues
+
+If you encounter issues with Neovim:
+
+1. **Plugins not loading**: Make sure you have internet connection when first opening Neovim. Lazy.nvim will automatically download plugins.
+2. **LSP not working**: Open Neovim and run `:Mason` to check if language servers are installed. You can install them from the Mason UI.
+3. **Clipboard issues on Linux**: Make sure you have clipboard support installed (`wl-clipboard` for Wayland).
+4. **Treesitter errors**: Run `:TSUpdate` in Neovim to update all parser installations.
 
 For any other issues, please open an issue on the GitHub repository.
 

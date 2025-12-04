@@ -188,6 +188,7 @@ case $OS_NAME in
     # Keybindings for Home and End
     bindkey '^[[H' beginning-of-line
     bindkey '^[[F' end-of-line
+    bindkey "^[[3~" delete-char
     ;;
 esac
 
@@ -268,6 +269,15 @@ fi
 if command -v moon &>/dev/null && [[ ! -f "${ZSH_COMPLETIONS_DIR}/_moon" ]]; then
     moon completions >"${ZSH_COMPLETIONS_DIR}/_moon"
 fi
+# ==================================================================================================
+
+# ===> Zsh Completion Options ======================================================================
+# Case insensitive completion
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+
+# Partial completion suggestions
+zstyle ':completion:*' list-suffixes
+zstyle ':completion:*' expand prefix suffix
 # ==================================================================================================
 
 # ===> Zinit & Prezto ==============================================================================
@@ -426,6 +436,10 @@ code-wsl() {
     fi
 }
 
+if command -v neovide &>/dev/null; then
+    alias nv='neovide --fork'
+fi
+
 if [ $SYS_IS_WSL ]; then
     # go to Windows Disk C
     win() {
@@ -550,8 +564,17 @@ alias docker-ls='docker ps --format "{{.Names}} ({{.ID}}): {{.Image}} ({{.Ports}
 
 # ===> Git (Optional) ==============================================================================
 # --------> Global Configuration -------------------------------------------------------------------
-GIT_EDITOR="vim"
-# GIT_EDITOR="code"
+if command -v neovide &>/dev/null; then
+    GIT_EDITOR="neovide"
+elif command -v nvim &>/dev/null; then
+    GIT_EDITOR="nvim"
+elif command -v code &>/dev/null; then
+    GIT_EDITOR="code"
+elif command -v vim &>/dev/null; then
+    GIT_EDITOR="vim"
+else
+    GIT_EDITOR="vi"
+fi
 
 git config --global pull.ff only              # set git pull --ff-only
 git config --global init.defaultBranch main   # set default init branch
