@@ -22,7 +22,18 @@ opt.undofile = true
 
 -- Neovide specific settings (font and animation)
 if vim.g.neovide then
-    vim.o.guifont = "Fira Code:h12"
+    local font_size = 12
+    local os_name = vim.loop.os_uname().sysname
+    
+    if os_name == "Darwin" then
+        font_size = 15
+    elseif os_name == "Linux" then
+        font_size = 12
+    elseif os_name == "Windows_NT" then
+        font_size = 12
+    end
+    
+    vim.o.guifont = "Fira Code:h" .. font_size
     vim.g.neovide_cursor_animation_length = 0.07 -- cursor animation speed
     vim.g.neovide_opacity = 0.75
     vim.g.neovide_normal_opacity = 0.75
