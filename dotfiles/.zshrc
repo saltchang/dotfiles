@@ -228,14 +228,14 @@ fi
 # --------> pyenv ----------------------------------------------------------------------------------
 # to install pyenv run the following command
 # curl https://pyenv.run | bash
-export PYENV_ROOT="$HOME/.pyenv"
-addToPATH "$PYENV_ROOT/bin"
+# export PYENV_ROOT="$HOME/.pyenv"
+# addToPATH "$PYENV_ROOT/bin"
 
 # init pyenv if pyenv is installed
-if [ -d "$PYENV_ROOT/bin" ]; then
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-fi
+# if [ -d "$PYENV_ROOT/bin" ]; then
+    # eval "$(pyenv init -)"
+    # eval "$(pyenv virtualenv-init -)"
+# fi
 # ==================================================================================================
 
 # ===> Deno (Optional) =============================================================================

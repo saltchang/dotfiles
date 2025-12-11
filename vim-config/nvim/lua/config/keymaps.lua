@@ -48,3 +48,8 @@ map("n", "<leader>P", '"+P', { desc = "Paste from system clipboard (before)" })
 
 -- drop whatever cut by x
 map("n", "x", '"_x')
+
+-- macOS ctrl-D (delete) to scroll down
+if is_mac then
+    map("n", "<Delete>", "<C-d>", { desc = "Scroll down" })
+end
