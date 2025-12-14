@@ -96,7 +96,7 @@ esac
     node_version
     go_version
     rust_version
-    pyenv
+    # pyenv
     # =========================[ Line #2 ]=========================
     newline
     status
