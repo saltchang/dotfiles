@@ -18,6 +18,10 @@ for i in "$@"; do
         SETUP_KITTY=true
         shift
         ;;
+    --setup-nvim)
+        SETUP_NVIM=true
+        shift
+        ;;
     *) ;;
     esac
 done
@@ -113,6 +117,10 @@ fi
 
 if [ "$SETUP_ITERM2" = true ]; then
     ./scripts/setup-iterm2.sh
+fi
+
+if [ "$SETUP_NVIM" = true ]; then
+    ./scripts/setup-nvim.sh
 fi
 
 echo

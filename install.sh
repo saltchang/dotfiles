@@ -75,7 +75,7 @@ case $OS_NAME in
 esac
 # ==================================================================================================
 
-# ===> Prompt User for using kitty as terminal app ================================================
+# ===> Prompt User for using kitty as terminal app =================================================
 if [ "$USE_ITERM2" != "y" ]; then
     printf "\nDo you want to use Kitty(https://sw.kovidgoyal.net/kitty/) as terminal app? (y/n, default: n): \n> "
     read -r USE_KITTY </dev/tty
@@ -83,6 +83,15 @@ if [ "$USE_ITERM2" != "y" ]; then
     if [ -z "$USE_KITTY" ]; then
         USE_KITTY="n"
     fi
+fi
+# ==================================================================================================
+
+# ===> Prompt User for setup Neovim config =========================================================
+printf "\nDo you want to setup Neovim(https://neovim.io) config? (y/n, default: y): \n> "
+read -r USE_NVIM </dev/tty
+
+if [ -z "$USE_NVIM" ]; then
+    USE_NVIM="y"
 fi
 # ==================================================================================================
 
@@ -280,10 +289,22 @@ cd terminal-setup || exit 1
 
 echo
 
+SETUP_ARGS=""
+
 if [ "$USE_KITTY" = "y" ]; then
-    ./setup.sh --setup-kitty
-elif [ "$USE_ITERM2" = "y" ]; then
-    ./setup.sh --setup-iterm2
-else
+    SETUP_ARGS="$SETUP_ARGS --setup-kitty"
+fi
+
+if [ "$USE_ITERM2" = "y" ]; then
+    SETUP_ARGS="$SETUP_ARGS --setup-iterm2"
+fi
+
+if [ "$USE_NVIM" = "y" ]; then
+    SETUP_ARGS="$SETUP_ARGS --setup-nvim"
+fi
+
+if [ -z "$SETUP_ARGS" ]; then
     ./setup.sh
+else
+    ./setup.sh "$SETUP_ARGS"
 fi
