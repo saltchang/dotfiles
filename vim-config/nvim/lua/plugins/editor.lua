@@ -11,6 +11,19 @@ return {
             -- search old files
             -- { "<leader>?",  "<cmd>Telescope oldfiles<cr>",   desc = "Recent Files" },
         },
+        config = function()
+            local telescope = require("telescope")
+            telescope.setup({
+                pickers = {
+                    live_grep = {
+                        file_ignore_patterns = { " node_modules", ".git", ".venv" },
+                        additional_args = function(_)
+                            return { "--hidden" }
+                        end,
+                    },
+                },
+            })
+        end,
     },
 
     -- syntax highlighting

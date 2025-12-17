@@ -29,11 +29,8 @@ addToPATH() {
 addToPATH "$TERMINAL_SETUP_LOCAL_BIN_DIR"
 
 # --------> Basic Binary ---------------------------------------------------------------------------
-addToPATH "$HOME/bin"
 addToPATH "$HOME/.local/bin"
 addToPATH "/usr/local/bin"
-addToPATH "/snap/bin"
-addToPATH "$HOME/snap/bin"
 
 # -------> pnpm ------------------------------------------------------------------------------------
 export PNPM_HOME="$HOME/.pnpm"
