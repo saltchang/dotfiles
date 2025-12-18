@@ -123,6 +123,8 @@ if [ "$SETUP_NVIM" = true ]; then
     ./scripts/setup-nvim.sh
 fi
 
+./scripts/setup-cheat.sh.sh
+
 echo
 
 echo "Setup completed!"
