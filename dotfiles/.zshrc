@@ -527,6 +527,17 @@ case $OS_NAME in
 "$LINUX")
     alias ffind='find * -type f | fzf' # sudo apt-get -y install fzf
     alias monitor='gotop -r 1s -a -s'  # https://github.com/xxxserxxx/gotop
+
+    if command -v waydroid &>/dev/null; then
+        # use system python path for waydroid
+        alias waydroid='env PATH=/usr/bin:$PATH waydroid'
+    fi
+
+    if command -v paru &>/dev/null; then
+        # use system python path for paru
+        alias paru='env PATH=/usr/bin:$PATH paru'
+    fi
+
     case $DISTRO_NAME in
     "$RHEL") ;;
     *)
