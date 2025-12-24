@@ -29,6 +29,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
   - [iTerm2](https://iterm2.com) (macOS)
   - [Alacritty](https://alacritty.org) (macOS, Linux, Windows)
   - [Kitty](https://sw.kovidgoyal.net/kitty/) (macOS, Linux)
+  - [Ghostty](https://ghostty.org) (macOS, Linux)
   - [Windows Terminal](https://github.com/microsoft/terminal) (Windows or WSL)
 - Neovim Configuration
   - Modern Neovim setup with Lazy.nvim plugin manager
@@ -56,7 +57,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
     6. Create a soft link from `$HOME/.p10k.zsh` to the one in this project
     7. Create a soft link from `$HOME/.local/terminal-setup/bin` to the one in this project
     8. Optionally install pnpm
-    9. Optionally install and setup terminal (iTerm2 or Kitty)
+    9. Optionally install and setup terminal (iTerm2, Kitty, or Ghostty)
     10. Optionally install and setup Neovim with configuration
 
 3. After the installation, restart your terminal or run `source $HOME/.zshrc`, you should see the new face of the shell
@@ -103,6 +104,28 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
     ```
 
     It will create a symbolic link to the config from your `~/.config/kitty/kitty.conf`
+
+#### Install Ghostty (macOS, Linux)
+
+1. Install [Ghostty](https://ghostty.org)
+
+    macOS:
+
+    ```bash
+    brew install --cask ghostty
+    ```
+
+    Linux:
+
+    See [Ghostty installation guide](https://ghostty.org/docs/install) for Linux installation instructions. Ghostty supports various Linux distributions through different package managers or building from source.
+
+2. You can setup the config by copying the [Ghostty Config](./terminal-config/ghostty/config) to your `~/.config/ghostty/config` or run the install script:
+
+    ```bash
+    ./scripts/setup-ghostty.sh
+    ```
+
+    It will create a symbolic link to the config from your `~/.config/ghostty/config`
 
 #### Setup Neovim Config (All Platforms)
 

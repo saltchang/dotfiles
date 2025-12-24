@@ -86,6 +86,17 @@ if [ "$USE_ITERM2" != "y" ]; then
 fi
 # ==================================================================================================
 
+# ===> Prompt User for using ghostty as terminal app ===============================================
+if [ "$USE_ITERM2" != "y" ] && [ "$USE_KITTY" != "y" ]; then
+    printf "\nDo you want to use Ghostty(https://ghostty.org) as terminal app? (y/n, default: n): \n> "
+    read -r USE_GHOSTTY </dev/tty
+
+    if [ -z "$USE_GHOSTTY" ]; then
+        USE_GHOSTTY="n"
+    fi
+fi
+# ==================================================================================================
+
 # ===> Prompt User for setup Neovim config =========================================================
 printf "\nDo you want to setup Neovim(https://neovim.io) config? (y/n, default: y): \n> "
 read -r USE_NVIM </dev/tty
@@ -249,6 +260,29 @@ if [ "$USE_KITTY" = "y" ]; then
 fi
 # ==================================================================================================
 
+# ===> Install ghostty =============================================================================
+if [ "$USE_GHOSTTY" = "y" ]; then
+    case $OS_NAME in
+    "$MACOS")
+        if ! [ -x "$(command -v ghostty)" ]; then
+            echo "Installing ghostty..."
+            brew install --cask ghostty
+        fi
+        echo -e "${GREEN}ghostty is already installed${NC}"
+        ;;
+    "$LINUX")
+        if ! [ -x "$(command -v ghostty)" ]; then
+            echo -e "${WARNING}Please visit https://ghostty.org for installation instructions.${NC}"
+            echo -e "${WARNING}After installation, run ./scripts/setup-ghostty.sh to configure it.${NC}"
+        else
+            echo -e "${GREEN}ghostty is already installed${NC}"
+        fi
+        ;;
+    *) ;;
+    esac
+fi
+# ==================================================================================================
+
 # ===> Setup zsh ===================================================================================
 # install zsh if it's not installed
 if ! [ -x "$(command -v zsh)" ]; then
@@ -293,6 +327,10 @@ SETUP_ARGS=""
 
 if [ "$USE_KITTY" = "y" ]; then
     SETUP_ARGS="$SETUP_ARGS --setup-kitty"
+fi
+
+if [ "$USE_GHOSTTY" = "y" ]; then
+    SETUP_ARGS="$SETUP_ARGS --setup-ghostty"
 fi
 
 if [ "$USE_ITERM2" = "y" ]; then

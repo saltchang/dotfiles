@@ -18,6 +18,10 @@ for i in "$@"; do
         SETUP_KITTY=true
         shift
         ;;
+    --setup-ghostty)
+        SETUP_GHOSTTY=true
+        shift
+        ;;
     --setup-nvim)
         SETUP_NVIM=true
         shift
@@ -113,6 +117,10 @@ ln -s "$PROTOTOOLS_SOURCE" "$PROTOTOOLS_FILE" && echo -e "${GREEN}Created a new 
 
 if [ "$SETUP_KITTY" = true ]; then
     ./scripts/setup-kitty.sh
+fi
+
+if [ "$SETUP_GHOSTTY" = true ]; then
+    ./scripts/setup-ghostty.sh
 fi
 
 if [ "$SETUP_ITERM2" = true ]; then

@@ -1,0 +1,33 @@
+# Salty Nozo Theme for Ghostty
+
+# Primary colors
+foreground = e5c49e
+background = 001209
+
+# Cursor colors
+cursor-color = ff8317
+cursor-text = 0c131f
+
+# Selection colors
+selection-background = 265b75
+selection-foreground = bf9729
+
+# Normal colors (0-7)
+palette = 0=#1d485f
+palette = 1=#e76d54
+palette = 2=#84c47e
+palette = 3=#e1d471
+palette = 4=#5fb1c2
+palette = 5=#9e56b4
+palette = 6=#a6dfeb
+palette = 7=#c6e8f1
+
+# Bright colors (8-15)
+palette = 8=#008eab
+palette = 9=#ff8274
+palette = 10=#69f197
+palette = 11=#fedaae
+palette = 12=#77dbf4
+palette = 13=#b682d8
+palette = 14=#0bc7e3
+palette = 15=#ffffff
