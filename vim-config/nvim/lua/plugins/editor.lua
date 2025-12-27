@@ -24,6 +24,38 @@ return {
                     },
                 },
             },
+            picker = {
+                sources = {
+                    explorer = {
+                        hidden = true,
+                        ignored = true,
+                        exclude = {
+                            ".git",
+                        },
+                    },
+                    grep = {
+                        hidden = true,
+                        ignored = true,
+                        exclude = {
+                            ".git",
+                        },
+                    },
+                    grep_word = {
+                        hidden = true,
+                        ignored = true,
+                        exclude = {
+                            ".git",
+                        },
+                    },
+                    files = {
+                        hidden = true,
+                        ignored = true,
+                        exclude = {
+                            ".git",
+                        },
+                    },
+                },
+            },
         },
     },
 
