@@ -440,6 +440,16 @@ if command -v neovide &>/dev/null; then
     alias nv='neovide --fork'
 fi
 
+if command -v yazi &>/dev/null; then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        IFS= read -r -d '' cwd < "$tmp"
+        [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+        rm -f -- "$tmp"
+    }
+fi
+
 if [ $SYS_IS_WSL ]; then
     # go to Windows Disk C
     win() {
@@ -577,15 +587,22 @@ alias docker-ls='docker ps --format "{{.Names}} ({{.ID}}): {{.Image}} ({{.Ports}
 # --------> Global Configuration -------------------------------------------------------------------
 if command -v neovide &>/dev/null; then
     GIT_EDITOR="neovide"
+    EDITOR="neovide --fork"
 elif command -v nvim &>/dev/null; then
     GIT_EDITOR="nvim"
+    EDITOR="nvim"
 elif command -v code &>/dev/null; then
     GIT_EDITOR="code"
+    EDITOR="code"
 elif command -v vim &>/dev/null; then
     GIT_EDITOR="vim"
+    EDITOR="vim"
 else
     GIT_EDITOR="vi"
+    EDITOR="vi"
 fi
+
+export EDITOR
 
 git config --global pull.ff only              # set git pull --ff-only
 git config --global init.defaultBranch main   # set default init branch

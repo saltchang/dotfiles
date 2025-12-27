@@ -21,16 +21,17 @@ esac
 addToPATH() {
     case ":$PATH:" in
     *":$1:"*) : ;;        # already there
-    *) PATH="$1:$PATH" ;; # or PATH="$PATH:$1"
+    *) PATH="$PATH:$1" ;; # or PATH="$PATH:$1"
     esac
 }
 
+# --------> Basic Binary ---------------------------------------------------------------------------
+addToPATH "/usr/bin"
+addToPATH "/usr/local/bin"
+addToPATH "$HOME/.local/bin"
+
 # --------> Load bins of terminal-setup ------------------------------------------------------------
 addToPATH "$TERMINAL_SETUP_LOCAL_BIN_DIR"
-
-# --------> Basic Binary ---------------------------------------------------------------------------
-addToPATH "$HOME/.local/bin"
-addToPATH "/usr/local/bin"
 
 # -------> pnpm ------------------------------------------------------------------------------------
 export PNPM_HOME="$HOME/.pnpm"
