@@ -8,7 +8,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
 
 - Cross-platform support (macOS, Ubuntu/Debian, and Windows)
 - Customizable zsh configuration
-- [Powerline10k](https://github.com/romkatv/powerlevel10k) theme for a beautiful and informative prompt
+- [Powerlevel10k](https://github.com/romkatv/powerlevel10k) theme for a beautiful and informative prompt
 - Zinit plugin manager with the following plugins:
   - [zdharma-continuum/fast-syntax-highlighting](https://github.com/zdharma-continuum/fast-syntax-highlighting): Provides syntax highlighting for commands while they are typed
   - [zsh-users/zsh-completions](https://github.com/zsh-users/zsh-completions): Additional completion definitions for Zsh
@@ -49,7 +49,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
 
     It will setup the terminal by the below steps:
 
-    1. Install homebrew, coreutils, python and pipx for macOS
+    1. Install homebrew, coreutils, python for macOS
     2. Install fonts: Meslo & Fira Code
     3. Install and setup zsh
     4. Clone this project into `$HOME/projects/personal/terminal-setup`
@@ -133,7 +133,7 @@ Terminal setup for zsh in macOS, Ubuntu/Debian, and Windows.
    - ripgrep: for Telescope fuzzy finder
    - fd: for file search
    - unzip, gzip, tar: for Mason to install LSP servers
-2. Install optinal language server if you don't use version managers:
+2. Install optional language server if you don't use version managers:
    - node.js
    - python
    - go
@@ -182,11 +182,10 @@ To customize your own configs, you can fork this project before the below steps.
 brew install coreutils
 ```
 
-#### Install Python & Pipx
+#### Install Python
 
 ```bash
 brew install python
-brew install pipx
 ```
 
 ### Install Nerd Fonts

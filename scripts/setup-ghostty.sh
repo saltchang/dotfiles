@@ -16,16 +16,14 @@ GHOSTTY_THEMES_SOURCE="$(pwd)/$GHOSTTY_THEMES_SOURCE_REL"
 
 [ ! -e "$GHOSTTY_CONFIG_SOURCE" ] && echo -e "${ERROR}File not found: \"./$GHOSTTY_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1${NC}" && exit 1
 
-chmod 600 "$GHOSTTY_CONFIG_SOURCE"
-
-if $(uname) == "Darwin"; then
+if [ "$(uname)" = "Darwin" ]; then
     GHOSTTY_CONFIG_FILE=$HOME/Library/Application\ Support/com.mitchellh.ghostty/config
     GHOSTTY_THEMES_DIR=$HOME/Library/Application\ Support/com.mitchellh.ghostty/themes
 else
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
- 
+
     [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && echo -e "${GREEN}Created new directory: $GHOSTTY_CONFIG_DIR${NC}"
- 
+
     GHOSTTY_CONFIG_FILE="$HOME/.config/ghostty/config"
     GHOSTTY_THEMES_DIR="$HOME/.config/ghostty/themes"
 fi

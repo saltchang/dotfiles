@@ -1,0 +1,20 @@
+{
+    "custom/fcitx": {
+        "icon": {
+            "english": "英",
+            "chinese": "中",
+            "default": "英"
+        },
+        "label": "",
+        "tooltip": "",
+        "truncationSize": -1,
+        "execute": "~/.config/hyprpanel/scripts/fcitx_status.sh",
+        "executeOnAction": "",
+        "interval": 500,
+        "hideOnEmpty": false,
+        "scrollThreshould": 1,
+        "actions": {
+            "onRightClick": ""
+        }
+    }
+}

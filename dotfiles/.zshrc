@@ -502,7 +502,7 @@ alias edit-rc='edit $HOME/.zshrc'
 alias go-rc-repo="cd $PROJS_BASE/personal/terminal-setup"
 alias edit-ssh='edit $HOME/.ssh/config'
 alias source-rc='source $HOME/.zshrc'
-alias paths='echo && echo -e ${PATH//:/\\n} | sort -n'
+alias paths='echo && echo -e ${PATH//:/\\n}'
 alias weather='curl wttr.in && echo && curl v2.wttr.in'
 alias ai="aichat -e" # https://github.com/sigoden/aichat
 
@@ -546,6 +546,11 @@ case $OS_NAME in
     if command -v paru &>/dev/null; then
         # use system python path for paru
         alias paru='env PATH=/usr/bin:$PATH paru'
+    fi
+
+    if command -v hyprpanel &>/dev/null; then
+        # use system python path for hyprpanel
+        alias hyprpanel='env PATH=/usr/bin:$PATH hyprpanel'
     fi
 
     case $DISTRO_NAME in
@@ -727,8 +732,7 @@ load-activate-proto
 # ==================================================================================================
 
 # ===> Path Configuration ==========================================================================
-export PATH
-typeset -U path # remove duplicates in $PATH
+typeset -U path PATH # remove duplicates in $PATH
 # ==================================================================================================
 
 # ===> Run commands before the prompt is displayed =================================================

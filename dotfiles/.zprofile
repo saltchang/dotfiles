@@ -21,7 +21,7 @@ esac
 addToPATH() {
     case ":$PATH:" in
     *":$1:"*) : ;;        # already there
-    *) PATH="$PATH:$1" ;; # or PATH="$PATH:$1"
+    *) PATH="$1:$PATH" ;; # or PATH="$PATH:$1"
     esac
 }
 
