@@ -13,4 +13,4 @@
 * Audio Server: `pipewire`
 * Input Method: `fcitx5` + `rime`
 * AUR Helper: `paru`
-* Editor: `neovim` + `neovide`
+* Editor: `neovim` + `neovide`, `zed`

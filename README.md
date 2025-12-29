@@ -3,7 +3,7 @@
 ## Installation
 
 > [WARNING] Before using the dotfiles or configs, fork this repository first,
-review the scripts and settings and do the customization before applying them.
+> review the scripts and settings and do the customization before applying them.
 > You should know what your are doing before the installation and use it at your own risk.
 
 ### Use the installation script
