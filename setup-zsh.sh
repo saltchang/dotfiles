@@ -7,9 +7,9 @@ ERROR="\033[31m"
 NC="\033[0m"
 # ==================================================================================================
 
-TERMINAL_SETUP_LOCAL_DIR="$HOME/.local/terminal-setup/"
-TERMINAL_SETUP_LOCAL_BIN_DIR="$TERMINAL_SETUP_LOCAL_DIR/bin"
-TERMINAL_SETUP_REPO_BIN_DIR="$(pwd)/bin"
+LOCAL_DOTFILES_ROOT_DIR="$HOME/.local/dotfiles/"
+LOCAL_DOTFILES_BIN_DIR="$LOCAL_DOTFILES_ROOT_DIR/bin"
+SOURCE_BIN_DIR="$(pwd)/bin"
 
 ZPROFILE_SOURCE_REL="dotfiles/.zprofile"
 ZPROFILE_SOURCE="$(pwd)/$ZPROFILE_SOURCE_REL"
@@ -26,7 +26,7 @@ P10K_SOURCE="$(pwd)/$P10K_SOURCE_REL"
 PROTOTOOLS_SOURCE_REL="dotfiles/.prototools"
 PROTOTOOLS_SOURCE="$(pwd)/$PROTOTOOLS_SOURCE_REL"
 
-[ ! -d "$TERMINAL_SETUP_REPO_BIN_DIR" ] && echo -e "${ERROR}Directory not found: \"$TERMINAL_SETUP_REPO_BIN_DIR\". You may be in the wrong directory >>> Exit 1${NC}" && exit 1
+[ ! -d "$SOURCE_BIN_DIR" ] && echo -e "${ERROR}Directory not found: \"$SOURCE_BIN_DIR\". You may be in the wrong directory >>> Exit 1${NC}" && exit 1
 
 [ ! -e "$ZPROFILE_SOURCE" ] && echo -e "${ERROR}File not found: \"./$ZPROFILE_SOURCE_REL\". You may be in the wrong directory >>> Exit 1${NC}" && exit 1
 
@@ -71,15 +71,15 @@ echo
 
 [ -e "$PROTOTOOLS_FILE" ] && rm "$PROTOTOOLS_FILE" 2>/dev/null && echo -e "${GREEN}Removed original .prototools${NC}"
 
-[ -d "$TERMINAL_SETUP_LOCAL_BIN_DIR" ] && rm -rf "$TERMINAL_SETUP_LOCAL_BIN_DIR" 2>/dev/null && echo -e "${GREEN}Removed original directory: $TERMINAL_SETUP_LOCAL_BIN_DIR${NC}"
+[ -d "$LOCAL_DOTFILES_BIN_DIR" ] && rm -rf "$LOCAL_DOTFILES_BIN_DIR" 2>/dev/null && echo -e "${GREEN}Removed original directory: $LOCAL_DOTFILES_BIN_DIR${NC}"
 
 echo
 echo "Check and create new symbolic links..."
 echo
 
-[ ! -d "$TERMINAL_SETUP_LOCAL_DIR" ] && mkdir -p "$TERMINAL_SETUP_LOCAL_DIR" && echo -e "${GREEN}Created new directory: $TERMINAL_SETUP_LOCAL_DIR${NC}"
+[ ! -d "$LOCAL_DOTFILES_ROOT_DIR" ] && mkdir -p "$LOCAL_DOTFILES_ROOT_DIR" && echo -e "${GREEN}Created new directory: $LOCAL_DOTFILES_ROOT_DIR${NC}"
 
-ln -s "$TERMINAL_SETUP_REPO_BIN_DIR" "$TERMINAL_SETUP_LOCAL_BIN_DIR" && echo -e "${GREEN}Created a new symbolic link from $TERMINAL_SETUP_LOCAL_BIN_DIR to $TERMINAL_SETUP_REPO_BIN_DIR${NC}"
+ln -s "$SOURCE_BIN_DIR" "$LOCAL_DOTFILES_BIN_DIR" && echo -e "${GREEN}Created a new symbolic link from $LOCAL_DOTFILES_BIN_DIR to $SOURCE_BIN_DIR${NC}"
 
 ln -s "$ZPROFILE_SOURCE" "$ZPROFILE_FILE" && echo -e "${GREEN}Created a new symbolic link from $ZPROFILE_FILE to $ZPROFILE_SOURCE${NC}"
 

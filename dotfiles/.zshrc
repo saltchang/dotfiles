@@ -47,8 +47,8 @@ setopt HIST_REDUCE_BLANKS
 [[ -f $HOME/.zprofile ]] && source $HOME/.zprofile
 # ==================================================================================================
 
-# ===> Terminal Setup Cache ========================================================================
-TERMINAL_SETUP_CACHE="$HOME/.terminal-setup-cache"
+# ===> Dotfiles Cache ========================================================================
+DOTFILES_CACHE="$HOME/.dotfiles-cache"
 # ==================================================================================================
 
 # ===> Colors ======================================================================================
@@ -499,7 +499,7 @@ esac
 # ===> Alias: Shortcut =============================================================================
 alias c='clear'
 alias edit-rc='edit $HOME/.zshrc'
-alias go-rc-repo="cd $PROJS_BASE/personal/terminal-setup"
+alias cddf="cd $PROJS_BASE/personal/dotfiles"
 alias edit-ssh='edit $HOME/.ssh/config'
 alias source-rc='source $HOME/.zshrc'
 alias paths='echo && echo -e ${PATH//:/\\n}'
@@ -625,7 +625,7 @@ if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-clou
 # ===> Check Git Version ===========================================================================
 function check_git_version() {
     local LAST_CHECK_TIME=0
-    local LAST_CHECK_FILE="${TERMINAL_SETUP_CACHE}/.git_last_check"
+    local LAST_CHECK_FILE="${DOTFILES_CACHE}/.git_last_check"
 
     local CHECK_INTERVAL_DAYS=1
     local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
@@ -637,7 +637,7 @@ function check_git_version() {
     if [[ -f $LAST_CHECK_FILE ]]; then
         LAST_CHECK_TIME=$(cat $LAST_CHECK_FILE)
     else
-        mkdir -p ${TERMINAL_SETUP_CACHE} >/dev/null 2>&1
+        mkdir -p ${DOTFILES_CACHE} >/dev/null 2>&1
         SHOULD_FIRST_CHECK=YES
     fi
 
@@ -664,7 +664,7 @@ function check_git_version() {
 # ===> Check Rust Version ==========================================================================
 function cargo() {
     local LAST_CHECK_TIME=0
-    local LAST_CHECK_FILE="${TERMINAL_SETUP_CACHE}/.rust_last_check"
+    local LAST_CHECK_FILE="${DOTFILES_CACHE}/.rust_last_check"
 
     local CHECK_INTERVAL_DAYS=1
     local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
@@ -676,7 +676,7 @@ function cargo() {
     if [[ -f $LAST_CHECK_FILE ]]; then
         LAST_CHECK_TIME=$(cat $LAST_CHECK_FILE)
     else
-        mkdir -p ${TERMINAL_SETUP_CACHE} >/dev/null 2>&1
+        mkdir -p ${DOTFILES_CACHE} >/dev/null 2>&1
         SHOULD_FIRST_CHECK=YES
     fi
 

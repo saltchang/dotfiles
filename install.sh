@@ -69,11 +69,11 @@ case $DISTRO_NAME in
 esac
 
 # ===> Prompt User for the repo to clone ===========================================================
-printf "Please enter the terminal-setup github repo to clone (default: saltchang/terminal-setup): \n> "
+printf "Please enter the dotfiles github repo to clone (default: saltchang/dotfiles): \n> "
 read -r REPO </dev/tty
 
 if [ -z "$REPO" ]; then
-    REPO="saltchang/terminal-setup"
+    REPO="saltchang/dotfiles"
 fi
 # ==================================================================================================
 
@@ -335,10 +335,10 @@ echo -e "${GREEN}zsh is already set as default shell${NC}"
 mkdir -p "$HOME/projects/personal"
 cd "$HOME/projects/personal" || exit 1
 
-if [ -d "$HOME/projects/personal/terminal-setup" ]; then
-    echo -e "${GREEN}terminal-setup is already cloned${NC}"
+if [ -d "$HOME/projects/personal/dotfiles" ]; then
+    echo -e "${GREEN}The dotfiles repo is already cloned${NC}"
 else
-    echo "Cloning terminal-setup..."
+    echo "Cloning dotfiles..."
     # check if git ssh key is setup
     if [ -f "$HOME/.ssh/id_rsa" ] || [ -f "$HOME/.ssh/id_ed25519" ]; then
         git clone "git@github.com:$REPO.git" || (echo -e "\nFailed to clone the repo via ssh, try https..\n" && git clone "https://github.com/$REPO.git")
@@ -347,7 +347,7 @@ else
     fi
 fi
 
-cd terminal-setup || exit 1
+cd dotfiles || exit 1
 
 echo
 

@@ -3,7 +3,7 @@ LINUX="Linux"
 MACOS="macOS"
 
 # ===> Terminal Setup Bin ==========================================================================
-TERMINAL_SETUP_LOCAL_BIN_DIR="$HOME/.local/terminal-setup/bin"
+DOTFILES_LOCAL_BIN_DIR="$HOME/.local/dotfiles/bin"
 # ==================================================================================================
 
 case $(uname) in
@@ -30,8 +30,8 @@ addToPATH "/usr/bin"
 addToPATH "/usr/local/bin"
 addToPATH "$HOME/.local/bin"
 
-# --------> Load bins of terminal-setup ------------------------------------------------------------
-addToPATH "$TERMINAL_SETUP_LOCAL_BIN_DIR"
+# --------> Load bins of dotfiles ------------------------------------------------------------
+addToPATH "$DOTFILES_LOCAL_BIN_DIR"
 
 # -------> pnpm ------------------------------------------------------------------------------------
 export PNPM_HOME="$HOME/.pnpm"
