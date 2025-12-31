@@ -97,4 +97,22 @@ return {
             vim.g.suda_smart_edit = 1
         end,
     },
+
+    -- for display images, configuration see: https://github.com/3rd/image.nvim?tab=readme-ov-file#default-configuration
+    {
+        "3rd/image.nvim",
+        build = false, -- so that it doesn't build the rock https://github.com/3rd/image.nvim/issues/91#issuecomment-2453430239
+        opts = {
+            backend = "kitty",
+            processor = "magick_cli",
+            integrations = {
+                markdown = {
+                    only_render_image_at_cursor = true,
+                    only_render_image_at_cursor_mode = "popup", -- or "inline"
+                },
+            },
+            max_height_window_percentage = 70,
+            scale_factor = 1,
+        },
+    },
 }

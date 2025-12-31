@@ -43,8 +43,8 @@ makepkg -si
 ```bash
 # Window Manager & Core
 paru -S hyprland
-paru -S ly                          # Display manager
-paru -S hyprpanel                   # Status bar & notification
+paru -S ly                         # Display manager
+paru -S hyprpanel                  # Status bar & notification
 paru -S hyprpolkitagent            # Authentication agent
 
 # Wayland utilities
@@ -72,6 +72,7 @@ paru -S thunar                     # GUI file manager
 
 # Additional utilities
 paru -S inotify-tools              # File system event monitoring (for waydroid-http-share)
+paru -S imagemagick                # Imagemagick
 ```
 
 ### Terminal

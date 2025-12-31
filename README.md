@@ -72,4 +72,5 @@ If you are using Arch, see the [README_ARCH.md](./README_ARCH.md) about the depe
 
 ## License
 
-MIT
+[MIT](./LICENSE)
+
