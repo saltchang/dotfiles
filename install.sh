@@ -10,6 +10,10 @@ OS_NAME=""
 LINUX="Linux"
 MACOS="macOS"
 
+UBUNTU="Ubuntu"
+DEBIAN="Debian"
+ARCH="Arch"
+
 case $(uname) in
 Darwin)
     OS_NAME=$MACOS
@@ -20,71 +24,123 @@ Linux)
     ;;
 esac
 
-
 # ===> Check lsb_release ===========================================================================
 # lsb_release is required for OS detection in .zshrc and .p10k.zsh
 case $OS_NAME in
 "$LINUX")
-    if ! command -v lsb_release &> /dev/null; then
-        echo
-        echo -e "${WARNING}Error: lsb_release command not found!${NC}"
-        echo
-        echo "lsb_release is required for detecting your Linux distribution."
-        echo "Please install it first:"
-        echo
-        echo "  Arch Linux:       sudo pacman -S lsb-release"
-        echo "  Debian/Ubuntu:    sudo apt-get install lsb-release"
-        echo "  RHEL/CentOS:      sudo yum install redhat-lsb-core"
-        echo "  Fedora:           sudo dnf install redhat-lsb-core"
-        echo
-        exit 1
+    if ! command -v lsb_release &>/dev/null; then
+        if command -v pacman &>/dev/null; then
+            sudo pacman -S lsb-release
+        elif command -v apt &>/dev/null; then
+            sudo apt-get install lsb-release
+        else
+            echo -e "${WARNING}Unsupported Linux Distribution, currently we only support Arch Linux, Ubuntu, and Debian.${NC}"
+        fi
+    else
+        OS_INFO=$(lsb_release -a 2>/dev/null)
+
+        case $OS_INFO in
+        *"$UBUNTU"*)
+            DISTRO_NAME=$UBUNTU
+            ;;
+        *"$DEBIAN"*)
+            DISTRO_NAME=$DEBIAN
+            ;;
+        *"$ARCH"*)
+            DISTRO_NAME=$ARCH
+            ;;
+        esac
     fi
     ;;
 esac
 # ==================================================================================================
 
+# Install paru, see: https://github.com/Morganamilo/paru?tab=readme-ov-file#installation
+case $DISTRO_NAME in
+"$ARCH")
+    if ! command -v paru &>/dev/null; then
+        echo "Installing paru..."
+        sudo pacman -S --needed base-devel
+        git clone https://aur.archlinux.org/paru.git
+        cd paru || exit
+        makepkg -si
+    fi
+    ;;
+esac
 
 # ===> Prompt User for the repo to clone ===========================================================
-printf "Please enter the terminal-setup github repo to clone (default: saltchang/terminal-setup): \n> "
+printf "Please enter the dotfiles github repo to clone (default: saltchang/dotfiles): \n> "
 read -r REPO </dev/tty
 
 if [ -z "$REPO" ]; then
-    REPO="saltchang/terminal-setup"
-fi
-# ==================================================================================================
-
-# ===> Prompt User for installing Pnpm =============================================================
-printf "\nDo you want to install pnpm(https://pnpm.io)? (y/n, default: y): \n> "
-read -r INSTALL_PNPM </dev/tty
-
-if [ -z "$INSTALL_PNPM" ]; then
-    INSTALL_PNPM="y"
+    REPO="saltchang/dotfiles"
 fi
 # ==================================================================================================
 
 # ===> Prompt User for using iTerm2 as terminal app ================================================
 case $OS_NAME in
 "$MACOS")
-    printf "\nDo you want to use iTerm2(https://iterm2.com) as terminal app? (y/n, default: y): \n> "
+    printf "\nDo you want to use iTerm2(https://iterm2.com) as terminal app? (y/n, default: n): \n> "
     read -r USE_ITERM2 </dev/tty
 
     if [ -z "$USE_ITERM2" ]; then
-        USE_ITERM2="y"
+        USE_ITERM2="n"
     fi
     ;;
 esac
 # ==================================================================================================
 
-# ===> Prompt User for using kitty as terminal app ================================================
+# ===> Prompt User for using kitty as terminal app =================================================
 if [ "$USE_ITERM2" != "y" ]; then
-    printf "\nDo you want to use Kitty(https://sw.kovidgoyal.net/kitty/) as terminal app? (y/n, default: n): \n> "
+    printf "\nDo you want to use Kitty(https://sw.kovidgoyal.net/kitty/) as terminal app? (y/n, default: y): \n> "
     read -r USE_KITTY </dev/tty
 
     if [ -z "$USE_KITTY" ]; then
-        USE_KITTY="n"
+        USE_KITTY="y"
     fi
 fi
 # ==================================================================================================
+
+# ===> Prompt User for using ghostty as terminal app ===============================================
+if [ "$USE_ITERM2" != "y" ] && [ "$USE_KITTY" != "y" ]; then
+    printf "\nDo you want to use Ghostty(https://ghostty.org) as terminal app? (y/n, default: y): \n> "
+    read -r USE_GHOSTTY </dev/tty
+
+    if [ -z "$USE_GHOSTTY" ]; then
+        USE_GHOSTTY="y"
+    fi
+fi
+# ==================================================================================================
+
+# ===> Prompt User for setup Neovim config =========================================================
+printf "\nDo you want to setup Neovim(https://neovim.io) config? (y/n, default: y): \n> "
+read -r USE_NVIM </dev/tty
+
+if [ -z "$USE_NVIM" ]; then
+    USE_NVIM="y"
+fi
+# ==================================================================================================
+
+# ===> Prompt User for setup Zed config =========================================================
+printf "\nDo you want to setup Zed(https://zed.dev) config? (y/n, default: y): \n> "
+read -r USE_ZED </dev/tty
+
+if [ -z "$USE_ZED" ]; then
+    USE_ZED="y"
+fi
+# ==================================================================================================
+
+# Hyprland eco for Arch Linux
+case $DISTRO_NAME in
+"$ARCH")
+    printf "\nDo you want to setup hyprland, hyprpanel, rofi, and swappy? (y/n, default: y): \n> "
+    read -r USE_HYPR </dev/tty
+
+    if [ -z "$USE_HYPR" ]; then
+        USE_HYPR="y"
+    fi
+    ;;
+esac
 
 echo
 echo "Check and install necessary stuffs..."
@@ -122,23 +178,18 @@ case $OS_NAME in
         brew install python3
     fi
     echo -e "${GREEN}python3 is already installed via homebrew${NC}"
-
-    # install pipx if it's not installed
-    if ! [ -x "$(command -v pipx)" ]; then
-        echo "Installing pipx..."
-        brew install pipx
-    fi
-    echo -e "${GREEN}pipx is already installed${NC}"
     ;;
 "$LINUX")
     # install jump if it's not installed
     if ! [ -x "$(command -v jump)" ]; then
-        if ! [ -x "$(command -v snap)" ]; then
-            echo -e "${WARNING}snap is not installed, skip installing jump.${NC}"
-            echo -e "${WARNING}You can install it from https://github.com/gsamokovarov/jump?tab=readme-ov-file#installation${NC}"
-        fi
-
-        sudo snap install jump
+        case $DISTRO_NAME in
+        "$ARCH")
+            paru -S --noconfirm jump
+            ;;
+        "$UBUNTU" | "$DEBIAN")
+            wget https://github.com/gsamokovarov/jump/releases/download/v0.67.0/jump_0.67.0_amd64.deb && sudo dpkg -i jump_0.67.0_amd64.deb
+            ;;
+        esac
     fi
     echo -e "${GREEN}jump is already installed${NC}"
     ;;
@@ -152,47 +203,32 @@ case $OS_NAME in
 "$MACOS")
     if ! [ -f "/Library/Fonts/MesloLGLNerdFont-Regular.ttf" ]; then
         echo "Installing Meslo..."
-        curl -s -L -o /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.zip
+        curl -s -L -o /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
         unzip /tmp/Meslo.zip -d /tmp/Meslo
         cp /tmp/Meslo/*.ttf /Library/Fonts
     fi
     echo -e "${GREEN}font \"Meslo\" is already installed${NC}"
 
-    if ! [ -f "/Library/Fonts/FiraCode-Regular.ttf" ]; then
-        curl -s -L -o /tmp/FiraCode_v6.2.zip https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
-        unzip /tmp/FiraCode_v6.2.zip -d /tmp/FiraCode
-        cp /tmp/FiraCode/ttf/*.ttf /Library/Fonts
+    if ! [ -f "/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf" ]; then
+        curl -s -L -o /tmp/JetBrainsMono.zip https://github.com/tonsky/FiraCode/releases/latest/download/JetBrainsMono.zip
+        unzip /tmp/JetBrainsMono.zip -d /tmp/JetBrainsMono
+        cp /tmp/JetBrainsMono/ttf/*.ttf /Library/Fonts
     fi
-    echo -e "${GREEN}font \"Fira Code\" is already installed${NC}"
+    echo -e "${GREEN}font \"JetBrains Mono\" is already installed${NC}"
     ;;
 "$LINUX")
-    if ! [ -f "/usr/local/share/fonts/MesloLGLNerdFont-Regular.ttf" ]; then
-        curl -s -L -o /tmp/Meslo.tar.xz https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz
-        mkdir -p /tmp/Meslo
-        tar xvf /tmp/Meslo.tar.xz -C /tmp/Meslo
-        sudo cp /tmp/Meslo/*.ttf /usr/local/share/fonts
-    fi
-    echo -e "${GREEN}font \"Meslo\" is already installed${NC}"
-
-    if ! [ -f "/usr/local/share/fonts/FiraCode-Regular.ttf" ]; then
-        sudo apt install fonts-firacode
-        sudo fc-cache -f -v
-    fi
-    echo -e "${GREEN}font \"Fira Code\" is already installed${NC}"
+    case $DISTRO_NAME in
+    "$ARCH")
+        paru -S --noconfirm ttf-jetbrains-mono-nerd
+        paru -S --noconfirm ttf-meslo-nerd
+        ;;
+    *)
+        echo -e "${WARNING}Currently we only support install fonts for Arch Linux.\nPlease visit https://github.com/ryanoasis/nerd-fonts to install fonts.${NC}"
+        ;;
+    esac
     ;;
 *) ;;
 esac
-# ==================================================================================================
-
-# ===> Install packages ============================================================================
-# Install pnpm if it's not installed
-if [ "$INSTALL_PNPM" = "y" ]; then
-    if ! [ -x "$(command -v pnpm)" ]; then
-        echo "Installing pnpm..."
-        curl -fsSL https://get.pnpm.io/install.sh | sh -
-    fi
-    echo -e "${GREEN}pnpm is already installed${NC}"
-fi
 # ==================================================================================================
 
 # ===> Install iTerm2 ==============================================================================
@@ -223,17 +259,44 @@ if [ "$USE_KITTY" = "y" ]; then
         ;;
     "$LINUX")
         if ! [ -x "$(command -v kitty)" ]; then
-            echo "Installing kitty..."
-            curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-            # Create desktop integration
-            ln -sf ~/.local/kitty.app/bin/kitty ~/.local/bin/
-            # Place the kitty.desktop file somewhere it can be found by the OS
-            cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
-            # Update the paths to the kitty and its icon in the kitty.desktop file
-            sed -i "s|Icon=kitty|Icon=$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty.desktop
-            sed -i "s|Exec=kitty|Exec=$HOME/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty.desktop
+            case $DISTRO_NAME in
+            "$ARCH")
+                paru -S --noconfirm kitty
+                ;;
+            *)
+                echo -e "${WARNING}Currently we only support install kitty terminal for Arch Linux.\nPlease visit https://github.com/kovidgoyal/kitty to install kitty.${NC}"
+                ;;
+            esac
         fi
         echo -e "${GREEN}kitty is already installed${NC}"
+        ;;
+    *) ;;
+    esac
+fi
+# ==================================================================================================
+
+# ===> Install ghostty =============================================================================
+if [ "$USE_GHOSTTY" = "y" ]; then
+    case $OS_NAME in
+    "$MACOS")
+        if ! [ -x "$(command -v ghostty)" ]; then
+            echo "Installing ghostty..."
+            brew install --cask ghostty
+        fi
+        echo -e "${GREEN}ghostty is already installed${NC}"
+        ;;
+    "$LINUX")
+        if ! [ -x "$(command -v ghostty)" ]; then
+            case $DISTRO_NAME in
+            "$ARCH")
+                paru -S --noconfirm ghostty
+                ;;
+            *)
+                echo -e "${WARNING}Currently we only support install ghostty terminal for Arch Linux.\nPlease visit https://ghostty.org to install ghostty.${NC}"
+                ;;
+            esac
+        fi
+        echo -e "${GREEN}ghostty is already installed${NC}"
         ;;
     *) ;;
     esac
@@ -245,7 +308,15 @@ fi
 if ! [ -x "$(command -v zsh)" ]; then
     case $OS_NAME in
     "$LINUX")
-        sudo apt update && sudo apt -y install zsh
+        case $DISTRO_NAME in
+        "$ARCH")
+            paru -S --noconfirm zsh
+            ;;
+        "$UBUNTU" | "$DEBIAN")
+            sudo apt update && sudo apt -y install zsh
+            ;;
+        *) ;;
+        esac
         ;;
     *) ;;
     esac
@@ -264,10 +335,10 @@ echo -e "${GREEN}zsh is already set as default shell${NC}"
 mkdir -p "$HOME/projects/personal"
 cd "$HOME/projects/personal" || exit 1
 
-if [ -d "$HOME/projects/personal/terminal-setup" ]; then
-    echo -e "${GREEN}terminal-setup is already cloned${NC}"
+if [ -d "$HOME/projects/personal/dotfiles" ]; then
+    echo -e "${GREEN}The dotfiles repo is already cloned${NC}"
 else
-    echo "Cloning terminal-setup..."
+    echo "Cloning dotfiles..."
     # check if git ssh key is setup
     if [ -f "$HOME/.ssh/id_rsa" ] || [ -f "$HOME/.ssh/id_ed25519" ]; then
         git clone "git@github.com:$REPO.git" || (echo -e "\nFailed to clone the repo via ssh, try https..\n" && git clone "https://github.com/$REPO.git")
@@ -276,14 +347,58 @@ else
     fi
 fi
 
-cd terminal-setup || exit 1
+cd dotfiles || exit 1
 
 echo
 
+SETUP_TERMINAL_ARGS=()
+
 if [ "$USE_KITTY" = "y" ]; then
-    ./setup.sh --setup-kitty
-elif [ "$USE_ITERM2" = "y" ]; then
-    ./setup.sh --setup-iterm2
+    echo "Use Kitty as terminal..."
+    SETUP_TERMINAL_ARGS+=("--kitty")
+fi
+
+if [ "$USE_GHOSTTY" = "y" ]; then
+    echo "Use Ghostty as terminal..."
+    SETUP_TERMINAL_ARGS+=("--ghostty")
+fi
+
+if [ "$USE_ITERM2" = "y" ]; then
+    echo "Use iTerm2 as terminal..."
+    SETUP_TERMINAL_ARGS+=("--iterm2")
+fi
+
+SETUP_EDITOR_ARGS=()
+
+if [ "$USE_NVIM" = "y" ]; then
+    echo "Use Neovim as editor..."
+    SETUP_EDITOR_ARGS+=("--nvim")
+fi
+
+if [ "$USE_ZED" = "y" ]; then
+    echo "Use Zed as editor..."
+    SETUP_EDITOR_ARGS+=("--zed")
+fi
+
+./setup-zsh.sh
+
+echo
+
+if ((${#SETUP_TERMINAL_ARGS[@]} > 0)); then
+    ./setup-terminal.sh "${SETUP_TERMINAL_ARGS[@]}"
+    echo
 else
-    ./setup.sh
+    echo -e "${WARNING}Skipping seting up terminal...${NC}"
+fi
+
+if ((${#SETUP_EDITOR_ARGS[@]} > 0)); then
+    ./setup-editor.sh "${SETUP_EDITOR_ARGS[@]}"
+    echo
+else
+    echo -e "${WARNING}Skipping seting up editor...${NC}"
+fi
+
+if [ "$USE_HYPR" = "y" ]; then
+    ./setup-arch.sh
+    echo
 fi

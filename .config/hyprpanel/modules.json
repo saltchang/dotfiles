@@ -1,0 +1,21 @@
+{
+    "custom/fcitx": {
+        "icon": {
+            "english": "英",
+            "bopomofo": "注",
+            "default": "英"
+        },
+        "label": "",
+        "tooltip": "",
+        "truncationSize": -1,
+        "execute": "~/.config/hyprpanel/scripts/fcitx_status.sh",
+        "executeOnAction": "",
+        "interval": 200,
+        "hideOnEmpty": false,
+        "scrollThreshould": 1,
+        "actions": {
+            "onRightClick": "~/.config/hyprpanel/scripts/fcitx_menu.sh",
+            "onLeftClick": "fcitx5-remote -t"
+        }
+    }
+}

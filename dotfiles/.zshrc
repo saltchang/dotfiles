@@ -47,8 +47,8 @@ setopt HIST_REDUCE_BLANKS
 [[ -f $HOME/.zprofile ]] && source $HOME/.zprofile
 # ==================================================================================================
 
-# ===> Terminal Setup Cache ========================================================================
-TERMINAL_SETUP_CACHE="$HOME/.terminal-setup-cache"
+# ===> Dotfiles Cache ========================================================================
+DOTFILES_CACHE="$HOME/.dotfiles-cache"
 # ==================================================================================================
 
 # ===> Colors ======================================================================================
@@ -188,6 +188,7 @@ case $OS_NAME in
     # Keybindings for Home and End
     bindkey '^[[H' beginning-of-line
     bindkey '^[[F' end-of-line
+    bindkey "^[[3~" delete-char
     ;;
 esac
 
@@ -227,14 +228,14 @@ fi
 # --------> pyenv ----------------------------------------------------------------------------------
 # to install pyenv run the following command
 # curl https://pyenv.run | bash
-export PYENV_ROOT="$HOME/.pyenv"
-addToPATH "$PYENV_ROOT/bin"
+# export PYENV_ROOT="$HOME/.pyenv"
+# addToPATH "$PYENV_ROOT/bin"
 
 # init pyenv if pyenv is installed
-if [ -d "$PYENV_ROOT/bin" ]; then
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-fi
+# if [ -d "$PYENV_ROOT/bin" ]; then
+    # eval "$(pyenv init -)"
+    # eval "$(pyenv virtualenv-init -)"
+# fi
 # ==================================================================================================
 
 # ===> Deno (Optional) =============================================================================
@@ -268,6 +269,15 @@ fi
 if command -v moon &>/dev/null && [[ ! -f "${ZSH_COMPLETIONS_DIR}/_moon" ]]; then
     moon completions >"${ZSH_COMPLETIONS_DIR}/_moon"
 fi
+# ==================================================================================================
+
+# ===> Zsh Completion Options ======================================================================
+# Case insensitive completion
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|=*' 'l:|=* r:|=*'
+
+# Partial completion suggestions
+zstyle ':completion:*' list-suffixes
+zstyle ':completion:*' expand prefix suffix
 # ==================================================================================================
 
 # ===> Zinit & Prezto ==============================================================================
@@ -426,6 +436,35 @@ code-wsl() {
     fi
 }
 
+if command -v neovide &>/dev/null; then
+    alias nd='neovide --fork'
+fi
+
+if command -v nvim &>/dev/null; then
+    nv() {
+        for arg in "$@"; do
+            case "$arg" in
+                --help|-h|--version|-v)
+                    nvim "$@"
+                    return
+                    ;;
+            esac
+        done
+
+        kitty --class="neovim" --title="Neovim" -e nvim "$@" > /dev/null 2>&1 &!
+    }
+fi
+
+if command -v yazi &>/dev/null; then
+    function y() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+        yazi "$@" --cwd-file="$tmp"
+        IFS= read -r -d '' cwd < "$tmp"
+        [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+        rm -f -- "$tmp"
+    }
+fi
+
 if [ $SYS_IS_WSL ]; then
     # go to Windows Disk C
     win() {
@@ -475,10 +514,10 @@ esac
 # ===> Alias: Shortcut =============================================================================
 alias c='clear'
 alias edit-rc='edit $HOME/.zshrc'
-alias go-rc-repo="cd $PROJS_BASE/personal/terminal-setup"
+alias cddf="cd $PROJS_BASE/personal/dotfiles"
 alias edit-ssh='edit $HOME/.ssh/config'
 alias source-rc='source $HOME/.zshrc'
-alias paths='echo && echo -e ${PATH//:/\\n} | sort -n'
+alias paths='echo && echo -e ${PATH//:/\\n}'
 alias weather='curl wttr.in && echo && curl v2.wttr.in'
 alias ai="aichat -e" # https://github.com/sigoden/aichat
 
@@ -513,6 +552,22 @@ case $OS_NAME in
 "$LINUX")
     alias ffind='find * -type f | fzf' # sudo apt-get -y install fzf
     alias monitor='gotop -r 1s -a -s'  # https://github.com/xxxserxxx/gotop
+
+    if command -v waydroid &>/dev/null; then
+        # use system python path for waydroid
+        alias waydroid='env PATH=/usr/bin:$PATH waydroid'
+    fi
+
+    if command -v paru &>/dev/null; then
+        # use system python path for paru
+        alias paru='env PATH=/usr/bin:$PATH paru'
+    fi
+
+    if command -v hyprpanel &>/dev/null; then
+        # use system python path for hyprpanel
+        alias hyprpanel='env PATH=/usr/bin:$PATH hyprpanel'
+    fi
+
     case $DISTRO_NAME in
     "$RHEL") ;;
     *)
@@ -550,8 +605,21 @@ alias docker-ls='docker ps --format "{{.Names}} ({{.ID}}): {{.Image}} ({{.Ports}
 
 # ===> Git (Optional) ==============================================================================
 # --------> Global Configuration -------------------------------------------------------------------
-GIT_EDITOR="vim"
-# GIT_EDITOR="code"
+if command -v nvim &>/dev/null; then
+    GIT_EDITOR="nvim"
+    EDITOR="nvim"
+elif command -v code &>/dev/null; then
+    GIT_EDITOR="code"
+    EDITOR="code"
+elif command -v vim &>/dev/null; then
+    GIT_EDITOR="vim"
+    EDITOR="vim"
+else
+    GIT_EDITOR="vi"
+    EDITOR="vi"
+fi
+
+export EDITOR
 
 git config --global pull.ff only              # set git pull --ff-only
 git config --global init.defaultBranch main   # set default init branch
@@ -569,7 +637,7 @@ if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-clou
 # ===> Check Git Version ===========================================================================
 function check_git_version() {
     local LAST_CHECK_TIME=0
-    local LAST_CHECK_FILE="${TERMINAL_SETUP_CACHE}/.git_last_check"
+    local LAST_CHECK_FILE="${DOTFILES_CACHE}/.git_last_check"
 
     local CHECK_INTERVAL_DAYS=1
     local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
@@ -581,7 +649,7 @@ function check_git_version() {
     if [[ -f $LAST_CHECK_FILE ]]; then
         LAST_CHECK_TIME=$(cat $LAST_CHECK_FILE)
     else
-        mkdir -p ${TERMINAL_SETUP_CACHE} >/dev/null 2>&1
+        mkdir -p ${DOTFILES_CACHE} >/dev/null 2>&1
         SHOULD_FIRST_CHECK=YES
     fi
 
@@ -608,7 +676,7 @@ function check_git_version() {
 # ===> Check Rust Version ==========================================================================
 function cargo() {
     local LAST_CHECK_TIME=0
-    local LAST_CHECK_FILE="${TERMINAL_SETUP_CACHE}/.rust_last_check"
+    local LAST_CHECK_FILE="${DOTFILES_CACHE}/.rust_last_check"
 
     local CHECK_INTERVAL_DAYS=1
     local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
@@ -620,7 +688,7 @@ function cargo() {
     if [[ -f $LAST_CHECK_FILE ]]; then
         LAST_CHECK_TIME=$(cat $LAST_CHECK_FILE)
     else
-        mkdir -p ${TERMINAL_SETUP_CACHE} >/dev/null 2>&1
+        mkdir -p ${DOTFILES_CACHE} >/dev/null 2>&1
         SHOULD_FIRST_CHECK=YES
     fi
 
@@ -676,8 +744,7 @@ load-activate-proto
 # ==================================================================================================
 
 # ===> Path Configuration ==========================================================================
-export PATH
-typeset -U path # remove duplicates in $PATH
+typeset -U path PATH # remove duplicates in $PATH
 # ==================================================================================================
 
 # ===> Run commands before the prompt is displayed =================================================
@@ -708,3 +775,11 @@ fi
 # ==================================================================================================
 # End of File
 # ==================================================================================================
+
+# pnpm
+export PNPM_HOME="/home/salt/.pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

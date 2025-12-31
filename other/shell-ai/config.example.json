@@ -1,0 +1,7 @@
+{
+    "OPENAI_API_KEY": "your_api_token",
+    "OPENAI_MODEL": "gpt-4o",
+    "OPENAI_MAX_TOKENS": "2000",
+    "SHAI_SUGGESTION_COUNT": "5",
+    "CTX": false
+}

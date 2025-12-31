@@ -1,0 +1,87 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "relative_line_numbers": "wrapped",
+  "git_panel": {
+    "tree_view": true
+  },
+  "tabs": {
+    "file_icons": true,
+  },
+  "title_bar": {
+    "show_menus": false,
+    "show_branch_icon": true,
+  },
+  "ui_font_family": "JetBrainsMono Nerd Font",
+  "helix_mode": false,
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "vim_mode": true,
+  "terminal": {
+    "font_size": 16.0,
+    "font_family": "JetBrainsMono Nerd Font",
+    "font_fallbacks": [
+      "JetBrains Mono",
+      "Fira Code",
+      "FuraCode Nerd Font",
+      "Menlo",
+      "Monaco",
+      "Courier New",
+      "monospace",
+    ],
+  },
+  "base_keymap": "Cursor",
+  "multi_cursor_modifier": "cmd_or_ctrl",
+  "sticky_scroll": {
+    "enabled": true,
+  },
+  "scroll_sensitivity": 2.0,
+  "minimap": {
+    "show": "auto",
+    "thumb": "always",
+    "max_width_columns": 80,
+  },
+  "cursor_shape": "block",
+  "buffer_font_fallbacks": [
+    "JetBrains Mono",
+    "Fira Code",
+    "FuraCode Nerd Font",
+    "Menlo",
+    "Monaco",
+    "Noto Sans TC",
+    "Courier New",
+    "monospace",
+  ],
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "file_types": {
+    "markdown": ["*.md", "*.mdx"],
+    "dotenv": ["*.env.*", "*.env"],
+    "javascript": ["*.js"],
+    "xml": ["*.svg", "*.xml"],
+    "typescriptreact": ["*.tsx"],
+    "spring-boot-properties": ["application.properties"],
+    "properties": ["*.properties"],
+    "typescript": ["*.ts"],
+    "plaintext": ["LICENSE"],
+    "jsonc": ["*.json"],
+    "php": ["*.module"],
+  },
+  "colorize_brackets": true,
+  "show_whitespaces": "boundary",
+  "show_edit_predictions": true,
+  "ensure_final_newline_on_save": true,
+  "preferred_line_length": 120,
+  "soft_wrap": "bounded",
+  "icon_theme": "Material Icon Theme",
+  "ui_font_size": 16.0,
+  "buffer_font_size": 15.0,
+  "theme": "Tokyo Night",
+  "lsp_document_colors": "background",
+}

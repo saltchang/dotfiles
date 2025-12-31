@@ -1,0 +1,34 @@
+customization:
+  distribution_code_name: Weasel
+  distribution_version: 0.16.1
+  generator: "Weasel::UIStyleSettings"
+  modified_time: "Tue Sep 24 18:45:45 2024"
+  rime_version: 1.11.2
+patch:
+  "preset_color_schemes/salty":
+      name: "Salty"
+      author: "Salt Chang<saltchang.tw@gmail.com>"
+      font_weight: 500
+      horizontal: false
+      back_color: "0x181A12"
+      border_color: "0x181A12"
+      text_color: "0x7BC0E5"
+      hilited_text_color: "0x6F59EF"
+      hilited_back_color: "0x7BC0E5"
+      hilited_candidate_text_color: "0xDBD5C1"
+      hilited_candidate_back_color: "0x0070BA"
+      hilited_candidate_label_color: "0xDBD5C1"
+      hilited_comment_text_color: "0xDBD5C1"
+      candidate_text_color: "0x7BC0E5"
+      label_color: "0x7BC0E5"
+      comment_text_color: "0x7BC0E5"
+  "style/color_scheme": steam
+  "style/font_face": "獅尾B2加糖宋體:semibold"
+  # "style/font_face": "Noto Serif TC:black"
+  "style/label_font_face": "MesloLGL Nerd Font Mono"
+  "style/font_point": 18
+  "style/label_font_point": 11
+  "style/layout/linespacing": 10
+  "style/layout/spacing": 20
+  "style/layout/hilite_padding": 10
+  "style/layout/hilite_spacing": 10
