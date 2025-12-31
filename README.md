@@ -4,6 +4,8 @@
 
 ![Screenshot 2](./images/screenshot-2.jpg)
 
+![Screenshot 3](./images/screenshot-3.jpg)
+
 ## Installation
 
 > [WARNING] Before using the dotfiles or configs, fork this repository first,
