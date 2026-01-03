@@ -85,39 +85,39 @@ if [ -f $PROC_VERSION_PATH ]; then
 fi
 
 case $(uname) in
-Darwin)
-    OS_NAME=$MACOS
+    Darwin)
+        OS_NAME=$MACOS
 
-    case $(uname -m) in
+        case $(uname -m) in
 
-    $ARM64)
-        PROCESSOR_ARCHITECTURE=$ARM64
+            $ARM64)
+                PROCESSOR_ARCHITECTURE=$ARM64
+                ;;
+            $X86_64)
+                PROCESSOR_ARCHITECTURE=$X86_64
+                ;;
+        esac
         ;;
-    $X86_64)
-        PROCESSOR_ARCHITECTURE=$X86_64
-        ;;
-    esac
-    ;;
 
-Linux)
-    OS_NAME=$LINUX
-    OS_INFO=$(lsb_release -a 2>/dev/null)
+    Linux)
+        OS_NAME=$LINUX
+        OS_INFO=$(lsb_release -a 2>/dev/null)
 
-    case $OS_INFO in
-    *"$UBUNTU"*)
-        DISTRO_NAME=$UBUNTU
+        case $OS_INFO in
+            *"$UBUNTU"*)
+                DISTRO_NAME=$UBUNTU
+                ;;
+            *"$DEBIAN"*)
+                DISTRO_NAME=$DEBIAN
+                ;;
+            *"$RHEL"*)
+                DISTRO_NAME=$RHEL
+                ;;
+            *"$ARCH"*)
+                DISTRO_NAME=$ARCH
+                ;;
+        esac
         ;;
-    *"$DEBIAN"*)
-        DISTRO_NAME=$DEBIAN
-        ;;
-    *"$RHEL"*)
-        DISTRO_NAME=$RHEL
-        ;;
-    *"$ARCH"*)
-        DISTRO_NAME=$ARCH
-        ;;
-    esac
-    ;;
 esac
 # ==================================================================================================
 
@@ -128,26 +128,26 @@ APPLE_TERMINAL="Apple_Terminal"
 ALACRITTY="alacritty"
 
 case $OS_NAME in
-"$MACOS")
-    case $TERM_PROGRAM in
-    $ITERM)
-        TERMINAL_APP=$ITERM
+    "$MACOS")
+        case $TERM_PROGRAM in
+            $ITERM)
+                TERMINAL_APP=$ITERM
+                ;;
+            $APPLE_TERMINAL)
+                TERMINAL_APP=$APPLE_TERMINAL
+                ;;
+            $ALACRITTY)
+                TERMINAL_APP=$ALACRITTY
+                ;;
+        esac
         ;;
-    $APPLE_TERMINAL)
-        TERMINAL_APP=$APPLE_TERMINAL
+    "$LINUX")
+        case $TERM_PROGRAM in
+            $ALACRITTY)
+                TERMINAL_APP=$ALACRITTY
+                ;;
+        esac
         ;;
-    $ALACRITTY)
-        TERMINAL_APP=$ALACRITTY
-        ;;
-    esac
-    ;;
-"$LINUX")
-    case $TERM_PROGRAM in
-    $ALACRITTY)
-        TERMINAL_APP=$ALACRITTY
-        ;;
-    esac
-    ;;
 esac
 # ==================================================================================================
 
@@ -174,45 +174,45 @@ export LC_MESSAGES="en_US.UTF-8"
 
 # ===> Bind Keys ===================================================================================
 case $OS_NAME in
-"$MACOS")
-    case $TERMINAL_APP in
-    "$ALACRITTY")
-        bindkey '^[[1;9D' beginning-of-line
-        bindkey '^[[1;9C' end-of-line
-        bindkey '^B' backward-word
-        bindkey '^F' forward-word
+    "$MACOS")
+        case $TERMINAL_APP in
+            "$ALACRITTY")
+                bindkey '^[[1;9D' beginning-of-line
+                bindkey '^[[1;9C' end-of-line
+                bindkey '^B' backward-word
+                bindkey '^F' forward-word
+                ;;
+        esac
         ;;
-    esac
-    ;;
-"$LINUX")
-    # Keybindings for Home and End
-    bindkey '^[[H' beginning-of-line
-    bindkey '^[[F' end-of-line
-    bindkey "^[[3~" delete-char
-    ;;
+    "$LINUX")
+        # Keybindings for Home and End
+        bindkey '^[[H' beginning-of-line
+        bindkey '^[[F' end-of-line
+        bindkey "^[[3~" delete-char
+        ;;
 esac
 
 # Bind keys for history-substring-search
 # See: https://github.com/zsh-users/zsh-history-substring-search/issues/110#issuecomment-650832313
 function _bind_keys_for_history_substring_search() {
     case $OS_NAME in
-    "$MACOS")
-        bindkey '^[[A' history-substring-search-up
-        bindkey '^[[B' history-substring-search-down
-        ;;
-    "$LINUX")
-        # https://superuser.com/a/1296543
-        # key dict is defined in /etc/zsh/zshrc
-        if (( ${+key} )); then
-            bindkey "$key[Up]" history-substring-search-up
-            bindkey "$key[Down]" history-substring-search-down
-        else
+        "$MACOS")
             bindkey '^[[A' history-substring-search-up
             bindkey '^[[B' history-substring-search-down
-            bindkey '^[OA' history-substring-search-up
-            bindkey '^[OB' history-substring-search-down
-        fi
-        ;;
+            ;;
+        "$LINUX")
+            # https://superuser.com/a/1296543
+            # key dict is defined in /etc/zsh/zshrc
+            if (( ${+key} )); then
+                bindkey "$key[Up]" history-substring-search-up
+                bindkey "$key[Down]" history-substring-search-down
+            else
+                bindkey '^[[A' history-substring-search-up
+                bindkey '^[[B' history-substring-search-down
+                bindkey '^[OA' history-substring-search-up
+                bindkey '^[OB' history-substring-search-down
+            fi
+            ;;
     esac
 }
 # ==================================================================================================
@@ -233,8 +233,8 @@ fi
 
 # init pyenv if pyenv is installed
 # if [ -d "$PYENV_ROOT/bin" ]; then
-    # eval "$(pyenv init -)"
-    # eval "$(pyenv virtualenv-init -)"
+# eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"
 # fi
 # ==================================================================================================
 
@@ -483,31 +483,31 @@ fi
 
 # ===> Alias: Update & Upgrade Packages ============================================================
 case $OS_NAME in
-"$MACOS")
-    unu() {
-        brew update -v && brew upgrade -v
-    }
-    ;;
-"$LINUX")
-    case $DISTRO_NAME in
-    "$RHEL") ;;
-    "$ARCH")
+    "$MACOS")
         unu() {
-            if command -v paru &>/dev/null; then
-                paru -Syu
-            else
-                sudo pacman -Syu
-            fi
+            brew update -v && brew upgrade -v
         }
         ;;
-    "$UBUNTU") ;;
-    "$DEBIAN")
-        unu() {
-            sudo apt-get update && sudo apt-get upgrade
-        }
+    "$LINUX")
+        case $DISTRO_NAME in
+            "$RHEL") ;;
+            "$ARCH")
+                unu() {
+                    if command -v paru &>/dev/null; then
+                        paru -Syu
+                    else
+                        sudo pacman -Syu
+                    fi
+                }
+                ;;
+            "$UBUNTU") ;;
+            "$DEBIAN")
+                unu() {
+                    sudo apt-get update && sudo apt-get upgrade
+                }
+                ;;
+        esac
         ;;
-    esac
-    ;;
 esac
 # ==================================================================================================
 
@@ -548,53 +548,53 @@ alias gpuoc='git push -u origin $(git branch --show-current)'
 # --------------------------------------------------------------------------------------------------
 
 case $OS_NAME in
-"$MACOS") ;;
-"$LINUX")
-    alias ffind='find * -type f | fzf' # sudo apt-get -y install fzf
-    alias monitor='gotop -r 1s -a -s'  # https://github.com/xxxserxxx/gotop
+    "$MACOS") ;;
+    "$LINUX")
+        alias ffind='find * -type f | fzf' # sudo apt-get -y install fzf
+        alias monitor='gotop -r 1s -a -s'  # https://github.com/xxxserxxx/gotop
 
-    if command -v waydroid &>/dev/null; then
-        # use system python path for waydroid
-        alias waydroid='env PATH=/usr/bin:$PATH waydroid'
-    fi
+        if command -v waydroid &>/dev/null; then
+            # use system python path for waydroid
+            alias waydroid='env PATH=/usr/bin:$PATH waydroid'
+        fi
 
-    if command -v paru &>/dev/null; then
-        # use system python path for paru
-        alias paru='env PATH=/usr/bin:$PATH paru'
-    fi
+        if command -v paru &>/dev/null; then
+            # use system python path for paru
+            alias paru='env PATH=/usr/bin:$PATH paru'
+        fi
 
-    if command -v hyprpanel &>/dev/null; then
-        # use system python path for hyprpanel
-        alias hyprpanel='env PATH=/usr/bin:$PATH hyprpanel'
-    fi
+        if command -v hyprpanel &>/dev/null; then
+            # use system python path for hyprpanel
+            alias hyprpanel='env PATH=/usr/bin:$PATH hyprpanel'
+        fi
 
-    case $DISTRO_NAME in
-    "$RHEL") ;;
-    *)
-        # sudo apt-get -y install ncdu
-        alias mand='sudo ncdu --exclude /mnt -e --color=dark /'
+        case $DISTRO_NAME in
+            "$RHEL") ;;
+            *)
+                # sudo apt-get -y install ncdu
+                alias mand='sudo ncdu --exclude /mnt -e --color=dark /'
+                ;;
+        esac
         ;;
-    esac
-    ;;
 esac
 
 # --------> List all ports -------------------------------------------------------------------------
 case $OS_NAME in
-"$MACOS")
-    alias ports='sudo lsof -iTCP -sTCP:LISTEN -n -P'
-    ;;
-"$LINUX")
-    if [ -x "$(command -v netstat)" ]; then
-        alias ports='netstat -tulanp'
-    else
-        case $DISTRO_NAME in
-        "$RHEL") ;;
-        *)
-            echo "net-tools is not installed, please install it first."
-            ;;
-        esac
-    fi
-    ;;
+    "$MACOS")
+        alias ports='sudo lsof -iTCP -sTCP:LISTEN -n -P'
+        ;;
+    "$LINUX")
+        if [ -x "$(command -v netstat)" ]; then
+            alias ports='netstat -tulanp'
+        else
+            case $DISTRO_NAME in
+                "$RHEL") ;;
+                *)
+                    echo "net-tools is not installed, please install it first."
+                    ;;
+            esac
+        fi
+        ;;
 esac
 # ==================================================================================================
 
@@ -667,13 +667,17 @@ function check_git_version() {
         fi
 
         echo
-        
+
         echo ${CURRENT_TIME} >${LAST_CHECK_FILE}
     fi
 }
 # ==================================================================================================
 
-# ===> Check Rust Version ==========================================================================
+# ===> Rust ========================================================================================
+if [ -d $HOME/.cargo/bin ]; then
+    addToPATH $HOME/.cargo/bin
+fi
+
 function cargo() {
     local LAST_CHECK_TIME=0
     local LAST_CHECK_FILE="${DOTFILES_CACHE}/.rust_last_check"
@@ -779,7 +783,7 @@ fi
 # pnpm
 export PNPM_HOME="/home/salt/.pnpm"
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end

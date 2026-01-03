@@ -6,6 +6,7 @@ return {
                 json = { "biome" },
                 jsonc = { "biome" },
                 sh = { "shfmt" },
+                zsh = { "beautysh" },
             })
         end,
     },
