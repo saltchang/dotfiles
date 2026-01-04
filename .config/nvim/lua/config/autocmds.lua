@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave", "FocusLost" }, {
     end,
 })
 
-vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter", "FocusGained" }, {
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter", "FocusGained", "BufEnter", "BufWinEnter" }, {
     group = smart_rel_group,
     callback = function()
         if vim.opt.number:get() then
