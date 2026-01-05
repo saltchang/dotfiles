@@ -35,7 +35,7 @@ for i in "$@"; do
         shift
         ;;
     *)
-        echo "Unknown option $i"
+        printf '%s\n' "Unknown option $i"
         exit 1
         ;;
     esac
@@ -43,12 +43,12 @@ done
 # ==================================================================================================
 
 if [ "$SETUP_KITTY" = true ]; then
-    echo -e "Ready to setup kitty"
+    printf '%s\n' "Ready to setup kitty"
 
     KITTY_LOCAL_CONFIG_PATH="./.config/kitty/local.conf"
 
     if [ -e "$KITTY_LOCAL_CONFIG_PATH" ]; then
-        rm "$KITTY_LOCAL_CONFIG_PATH" 2>/dev/null && echo -e "${GREEN}Removed original local kitty config${NC}"
+        rm "$KITTY_LOCAL_CONFIG_PATH" 2>/dev/null && printf '%bRemoved original local kitty config%b\n' "$GREEN" "$NC"
     fi
 
     case $OS_NAME in
@@ -65,14 +65,14 @@ if [ "$SETUP_KITTY" = true ]; then
 fi
 
 if [ "$SETUP_GHOSTTY" = true ]; then
-    echo -e "Ready to setup ghostty"
+    printf '%s\n' "Ready to setup ghostty"
     ./scripts/setup-ghostty.sh
 fi
 
 if [ "$SETUP_ITERM2" = true ]; then
-    echo -e "Ready to setup iterm2"
+    printf '%s\n' "Ready to setup iterm2"
     ./scripts/setup-iterm2.sh
 fi
 
-echo
-echo -e "${GREEN}Terminal Setup Completed!${NC}"
+printf '\n'
+printf '%bTerminal Setup Completed!%b\n' "$GREEN" "$NC"

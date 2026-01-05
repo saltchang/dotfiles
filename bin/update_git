@@ -24,31 +24,31 @@ update_git() {
     local LATEST_GIT_VERSION
     LATEST_GIT_VERSION=$(curl --silent https://mirrors.edge.kernel.org/pub/software/scm/git/ | grep tar | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | sort --version-sort | tail -1)
 
-    echo
-    echo -e "Current Git Version: $LOCAL_GIT_VERSION"
-    echo
-    echo -e "Latest Git Version: $LATEST_GIT_VERSION"
-    echo
+    printf '\n'
+    printf '%s\n' "Current Git Version: $LOCAL_GIT_VERSION"
+    printf '\n'
+    printf '%s\n' "Latest Git Version: $LATEST_GIT_VERSION"
+    printf '\n'
 
     if [ "$LOCAL_GIT_VERSION" = "$LATEST_GIT_VERSION" ]; then
-        echo -e "${GREEN}Git is already up-to-date.${NC}"
+        printf '%b%s%b\n' "$GREEN" "Git is already up-to-date." "$NC"
         return
     fi
 
-    echo -e "Start to update Git..."
-    echo
+    printf '%s\n' "Start to update Git..."
+    printf '\n'
     case $OS_NAME in
     "$MACOS")
         brew list git || brew install git
         brew update && brew upgrade git &&
-            echo -e "${GREEN}Git updated successfully.${NC}" &&
+            printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC" &&
             source "$HOME/.zshrc"
         ;;
     "$LINUX")
         sudo add-apt-repository ppa:git-core/ppa -y &&
             sudo apt-get update &&
             sudo apt-get install git -y &&
-            echo -e "${GREEN}Git updated successfully.${NC}"
+            printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC"
         ;;
     esac
 }

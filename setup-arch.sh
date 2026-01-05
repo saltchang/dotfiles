@@ -5,7 +5,7 @@ GREEN="\033[32m"
 NC="\033[0m"
 # ==================================================================================================
 
-echo -e "${GREEN}Start setting up Arch Linux config files...${NC}"
+printf '%bStart setting up Arch Linux config files...%b\n' "$GREEN" "$NC"
 
 ./scripts/setup-config-dir.sh --name=Hyprland --config-dir=hypr
 
@@ -27,5 +27,4 @@ fi
 
 ./scripts/setup-config-dir.sh --name=Swappy --config-dir=swappy
 
-echo
-echo -e "${GREEN}Setup completed!${NC}"
+printf '\n%bSetup completed!%b\n' "$GREEN" "$NC"

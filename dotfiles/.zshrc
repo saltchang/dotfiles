@@ -42,6 +42,9 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_REDUCE_BLANKS
 # ==================================================================================================
 
+# Set Variable for checking if first start zsh
+typeset -g _ZSH_NOT_FIRST_RUN=false
+
 # ===> Load .zprofile ==============================================================================
 # Source .zprofile for non-login shells to load environment variables and helper functions
 [[ -f $HOME/.zprofile ]] && source $HOME/.zprofile
@@ -408,22 +411,30 @@ cl() {
 
 home() {
     cl "$HOME"
-    printf "\nWelcome home!\n\n"
+    echo
+    echo "Welcome home!"
+    echo
 }
 
 gow() {
     cl "$PROJS_BASE/work"
-    printf "\nOK, ready to work :)\n\n"
+    echo
+    echo "OK, ready to work :)"
+    echo
 }
 
 gop() {
     cl "$PROJS_BASE/personal"
-    printf "\nOK, ready to do something amazing :)\n\n"
+    echo
+    echo "OK, ready to do something amazing :)"
+    echo
 }
 
 gol() {
     cl "$PROJS_BASE/libs"
-    printf "\nHere are the third-party libraries :)\n\n"
+    echo
+    echo "Here are the third-party libraries :)"
+    echo
 }
 
 code-wsl() {
@@ -473,7 +484,9 @@ if [ $SYS_IS_WSL ]; then
     # go to Windows Disk C
     win() {
         cd "/mnt/c" || exit
-        printf "\nOK, you are now in disk: C!\n"
+        echo
+        echo "OK, you are now in disk: C!"
+        echo
     }
     # open with Windows Explorer
     open() {
@@ -521,7 +534,7 @@ alias edit-rc='edit $HOME/.zshrc'
 alias cddf="cd $PROJS_BASE/personal/dotfiles"
 alias edit-ssh='edit $HOME/.ssh/config'
 alias source-rc='source $HOME/.zshrc'
-alias paths='echo && echo -e ${PATH//:/\\n}'
+alias paths='echo && echo ${PATH//:/\\n}'
 alias weather='curl wttr.in && echo && curl v2.wttr.in'
 alias ai="aichat -e" # https://github.com/sigoden/aichat
 
@@ -658,16 +671,16 @@ function check_git_version() {
     fi
 
     if [[ $((CURRENT_TIME - LAST_CHECK_TIME)) -gt ${CHECK_INTERVAL} || ${SHOULD_FIRST_CHECK} == 'YES' ]]; then
-        echo -e "\nChecking Git version..."
+        echo "\nChecking Git version..."
 
         local LOCAL_GIT_VERSION=$(command git --version | cut -d ' ' -f 3)
         local LATEST_GIT_VERSION=$(curl --silent https://mirrors.edge.kernel.org/pub/software/scm/git/ | grep tar | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | sort --version-sort | tail -1)
 
         if [[ $(echo "$LOCAL_GIT_VERSION $LATEST_GIT_VERSION" | tr ' ' '\n' | sort -Vr | head -n 1) != "$LOCAL_GIT_VERSION" ]]; then
-            echo -e "New version of Git is available! ${RED}${LOCAL_GIT_VERSION}${NC} → ${GREEN}${LATEST_GIT_VERSION}${NC}"
-            echo -e "Run the command: ${BLUE}update_git${NC} to update it."
+            echo "New version of Git is available! ${RED}${LOCAL_GIT_VERSION}${NC} → ${GREEN}${LATEST_GIT_VERSION}${NC}"
+            echo "Run the command: ${BLUE}update_git${NC} to update it."
         else
-            echo -e "Your current Git version ${GREEN}${LOCAL_GIT_VERSION}${NC} is up to date."
+            echo "Your current Git version ${GREEN}${LOCAL_GIT_VERSION}${NC} is up to date."
         fi
 
         echo
@@ -701,31 +714,83 @@ function cargo() {
     fi
 
     if [[ $((CURRENT_TIME - LAST_CHECK_TIME)) -gt ${CHECK_INTERVAL} || ${SHOULD_FIRST_CHECK} == 'YES' ]]; then
-        echo -e "\nChecking Rust version..."
+        echo "\nChecking Rust version..."
 
         local LOCAL_RUST_VERSION=$(command rustc --version | cut -d ' ' -f 2)
         local LATEST_RUST_VERSION=$(curl --silent https://github.com/rust-lang/rust/tags | grep /rust-lang/rust/releases/tag/ | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | sort --version-sort | tail -1)
 
         if [[ $(echo "$LOCAL_RUST_VERSION $LATEST_RUST_VERSION" | tr ' ' '\n' | sort -Vr | head -n 1) != "$LOCAL_RUST_VERSION" ]]; then
-            echo -e "New version of Rust is available! ${RED}${LOCAL_RUST_VERSION}${NC} → ${GREEN}${LATEST_RUST_VERSION}${NC}"
-            echo -e "Run the command: ${BLUE}rustup update${NC} to update it."
+            echo "New version of Rust is available! ${RED}${LOCAL_RUST_VERSION}${NC} → ${GREEN}${LATEST_RUST_VERSION}${NC}"
+            echo "Run the command: ${BLUE}rustup update${NC} to update it."
         else
-            echo -e "Your current Rust version ${GREEN}${LOCAL_RUST_VERSION}${NC} is up to date."
+            echo "Your current Rust version ${GREEN}${LOCAL_RUST_VERSION}${NC} is up to date."
         fi
 
         echo
+        echo ${CURRENT_TIME} >${LAST_CHECK_FILE}
     fi
-
-    echo ${CURRENT_TIME} >${LAST_CHECK_FILE}
 
     command cargo "$@"
 }
 # ==================================================================================================
 
 # ===> Zsh hooks ===================================================================================
-# ---> Set terminal title to current directory -----------------------------------------------------
 
 autoload -Uz add-zsh-hook
+
+# ---> Check System Updates ------------------------------------------------------------------------
+function check_system_updates() {
+    if [[ "$_ZSH_NOT_FIRST_RUN" == "false" ]]; then
+        _ZSH_NOT_FIRST_RUN=true
+        return
+    fi
+
+    local PACKAGE_MANAGER=""
+
+    case $OS_NAME in
+        "$MACOS")
+            ;;
+        "$LINUX")
+            if command -v paru &>/dev/null; then
+                PACKAGE_MANAGER="paru"
+            elif command -v pacman &>/dev/null; then
+                PACKAGE_MANAGER="pacman"
+            fi
+            ;;
+    esac
+
+    if [[ -z "$PACKAGE_MANAGER" ]]; then
+        return
+    fi
+
+    local LAST_CHECK_TIME=0
+    local LAST_CHECK_FILE="${DOTFILES_CACHE}/.system_updates_last_check"
+
+    local CHECK_INTERVAL_DAYS=1
+    local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
+
+    local CURRENT_TIME=$(date +%s)
+
+    local SHOULD_FIRST_CHECK=NO
+
+    if [[ -f $LAST_CHECK_FILE ]]; then
+        LAST_CHECK_TIME=$(cat $LAST_CHECK_FILE)
+    else
+        mkdir -p ${DOTFILES_CACHE} >/dev/null 2>&1
+        SHOULD_FIRST_CHECK=YES
+    fi
+
+    if [[ $((CURRENT_TIME - LAST_CHECK_TIME)) -gt ${CHECK_INTERVAL} || ${SHOULD_FIRST_CHECK} == 'YES' ]]; then
+        echo
+        echo "\n\n${GREEN}Please remember to update your system.\n\nRun \`${PACKAGE_MANAGER} -Syu\` to update now!${NC}\n"
+        echo
+        echo ${CURRENT_TIME} >${LAST_CHECK_FILE}
+    fi
+}
+
+add-zsh-hook precmd check_system_updates
+
+# ---> Set terminal title to current directory -----------------------------------------------------
 
 function set-title() {
     local window_title="\033]0;${PWD##*/}\007"

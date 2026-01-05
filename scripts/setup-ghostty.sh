@@ -6,15 +6,15 @@ ERROR="\033[31m"
 NC="\033[0m"
 # ==================================================================================================
 
-echo
-echo "Setting up Ghostty..."
+printf '\n'
+printf '%s\n' "Setting up Ghostty..."
 
 GHOSTTY_CONFIG_SOURCE_REL="terminal-config/ghostty/config"
 GHOSTTY_CONFIG_SOURCE="$(pwd)/$GHOSTTY_CONFIG_SOURCE_REL"
 GHOSTTY_THEMES_SOURCE_REL="terminal-config/ghostty/themes"
 GHOSTTY_THEMES_SOURCE="$(pwd)/$GHOSTTY_THEMES_SOURCE_REL"
 
-[ ! -e "$GHOSTTY_CONFIG_SOURCE" ] && echo -e "${ERROR}File not found: \"./$GHOSTTY_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1${NC}" && exit 1
+[ ! -e "$GHOSTTY_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$GHOSTTY_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 if [ "$(uname)" = "Darwin" ]; then
     GHOSTTY_CONFIG_FILE=$HOME/Library/Application\ Support/com.mitchellh.ghostty/config
@@ -22,26 +22,26 @@ if [ "$(uname)" = "Darwin" ]; then
 else
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 
-    [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && echo -e "${GREEN}Created new directory: $GHOSTTY_CONFIG_DIR${NC}"
+    [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && printf '%b%s%b\n' "$GREEN" "Created new directory: $GHOSTTY_CONFIG_DIR" "$NC"
 
     GHOSTTY_CONFIG_FILE="$HOME/.config/ghostty/config"
     GHOSTTY_THEMES_DIR="$HOME/.config/ghostty/themes"
 fi
 
-echo "Check and remove original file and directory..."
-echo
+printf '%s\n' "Check and remove original file and directory..."
+printf '\n'
 
-[ -e "$GHOSTTY_CONFIG_FILE" ] && rm "$GHOSTTY_CONFIG_FILE" 2>/dev/null && echo -e "${GREEN}Removed original ghostty config file${NC}"
-[ -L "$GHOSTTY_THEMES_DIR" ] && rm "$GHOSTTY_THEMES_DIR" 2>/dev/null && echo -e "${GREEN}Removed original ghostty themes symlink${NC}"
-[ -d "$GHOSTTY_THEMES_DIR" ] && [ ! -L "$GHOSTTY_THEMES_DIR" ] && rm -rf "$GHOSTTY_THEMES_DIR" 2>/dev/null && echo -e "${GREEN}Removed original ghostty themes directory${NC}"
+[ -e "$GHOSTTY_CONFIG_FILE" ] && rm "$GHOSTTY_CONFIG_FILE" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original ghostty config file" "$NC"
+[ -L "$GHOSTTY_THEMES_DIR" ] && rm "$GHOSTTY_THEMES_DIR" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original ghostty themes symlink" "$NC"
+[ -d "$GHOSTTY_THEMES_DIR" ] && [ ! -L "$GHOSTTY_THEMES_DIR" ] && rm -rf "$GHOSTTY_THEMES_DIR" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original ghostty themes directory" "$NC"
 
-echo
-echo "Check and create new symbolic links..."
-echo
+printf '\n'
+printf '%s\n' "Check and create new symbolic links..."
+printf '\n'
 
-ln -s "$GHOSTTY_CONFIG_SOURCE" "$GHOSTTY_CONFIG_FILE" && echo -e "${GREEN}Created a new symbolic link from $GHOSTTY_CONFIG_FILE to $GHOSTTY_CONFIG_SOURCE${NC}"
-ln -s "$GHOSTTY_THEMES_SOURCE" "$GHOSTTY_THEMES_DIR" && echo -e "${GREEN}Created a new symbolic link from $GHOSTTY_THEMES_DIR to $GHOSTTY_THEMES_SOURCE${NC}"
+ln -s "$GHOSTTY_CONFIG_SOURCE" "$GHOSTTY_CONFIG_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $GHOSTTY_CONFIG_FILE to $GHOSTTY_CONFIG_SOURCE" "$NC"
+ln -s "$GHOSTTY_THEMES_SOURCE" "$GHOSTTY_THEMES_DIR" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $GHOSTTY_THEMES_DIR to $GHOSTTY_THEMES_SOURCE" "$NC"
 
-echo
+printf '\n'
 
-echo "Successfully set up Ghostty."
+printf '%s\n' "Successfully set up Ghostty."

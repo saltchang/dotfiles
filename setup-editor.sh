@@ -17,7 +17,7 @@ for i in "$@"; do
         shift
         ;;
     *)
-        echo "Unknown option $i"
+        printf '%s\n' "Unknown option $i"
         exit 1
         ;;
     esac
@@ -25,14 +25,14 @@ done
 # ==================================================================================================
 
 if [ "$SETUP_ZED" = true ]; then
-    echo -e "Ready to setup zed"
+    printf '%s\n' "Ready to setup zed"
     ./scripts/setup-config-dir.sh --name=Zed --config-dir=zed
 fi
 
 if [ "$SETUP_NVIM" = true ]; then
-    echo -e "Ready to setup nvim"
+    printf '%s\n' "Ready to setup nvim"
     ./scripts/setup-config-dir.sh --name=Neovim --config-dir=nvim
 fi
 
-echo
-echo -e "${GREEN}Setup Completed!${NC}"
+printf '\n'
+printf '%b%s%b\n' "$GREEN" "Setup Completed!" "$NC"
