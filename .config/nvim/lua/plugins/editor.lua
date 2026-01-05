@@ -41,28 +41,28 @@ return {
                         hidden = true,
                         ignored = true,
                         exclude = {
-                            ".git",
+                            ".git, .DS_Store",
                         },
                     },
                     grep = {
                         hidden = true,
                         ignored = true,
                         exclude = {
-                            ".git",
+                            ".git, .DS_Store",
                         },
                     },
                     grep_word = {
                         hidden = true,
                         ignored = true,
                         exclude = {
-                            ".git",
+                            ".git, .DS_Store",
                         },
                     },
                     files = {
                         hidden = true,
                         ignored = true,
                         exclude = {
-                            ".git",
+                            ".git, .DS_Store",
                         },
                     },
                 },

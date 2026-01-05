@@ -54,6 +54,10 @@ if vim.g.neovide then
     vim.g.neovide_cursor_vfx_particle_lifetime = 3.0
     vim.g.neovide_cursor_vfx_particle_density = 2.0
     vim.g.neovide_cursor_vfx_particle_speed = 15.0
+else
+    if os_name == "Darwin" then
+        vim.o.guifont = "JetBrainsMono NF:style=Regular:h 16"
+    end
 end
 
 -- Enable this option to avoid conflicts with Prettier.

@@ -201,20 +201,10 @@ esac
 # download and install font if it's not installed: Meslo & Fira Code
 case $OS_NAME in
 "$MACOS")
-    if ! [ -f "/Library/Fonts/MesloLGLNerdFont-Regular.ttf" ]; then
-        echo "Installing Meslo..."
-        curl -s -L -o /tmp/Meslo.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip
-        unzip /tmp/Meslo.zip -d /tmp/Meslo
-        cp /tmp/Meslo/*.ttf /Library/Fonts
-    fi
-    echo -e "${GREEN}font \"Meslo\" is already installed${NC}"
-
-    if ! [ -f "/Library/Fonts/JetBrainsMonoNerdFont-Regular.ttf" ]; then
-        curl -s -L -o /tmp/JetBrainsMono.zip https://github.com/tonsky/FiraCode/releases/latest/download/JetBrainsMono.zip
-        unzip /tmp/JetBrainsMono.zip -d /tmp/JetBrainsMono
-        cp /tmp/JetBrainsMono/ttf/*.ttf /Library/Fonts
-    fi
-    echo -e "${GREEN}font \"JetBrains Mono\" is already installed${NC}"
+    echo "Installing JetBrainsMono Font..."
+    brew install --cask font-jetbrains-mono-nerd-font
+    brew install --cask font-jetbrains-mono
+    echo -e "${GREEN}font \"JetBrainsMono Font\" is already installed${NC}"
     ;;
 "$LINUX")
     case $DISTRO_NAME in

@@ -110,6 +110,7 @@ paru -S zed
 paru -S ripgrep                    # Fast search tool
 paru -S fd                         # Fast find alternative
 paru -S lazygit                    # Git TUI
+paru -S git-delta                  # Git Highlight
 paru -S python                     # Python support
 paru -S python-pip
 paru -S nodejs                     # Node.js support

@@ -451,7 +451,11 @@ if command -v nvim &>/dev/null; then
             esac
         done
 
-        kitty --class="neovim" --title="Neovim" -e nvim "$@" > /dev/null 2>&1 &!
+        if [[ "$OS_NAME" == "$MACOS" ]]; then
+            kitty --title="Neovim" --directory="$PWD" -e nvim "$@" > /dev/null 2>&1 &
+        else
+            kitty --class="neovim" --title="Neovim" -e nvim "$@" > /dev/null 2>&1 &!
+        fi
     }
 fi
 
