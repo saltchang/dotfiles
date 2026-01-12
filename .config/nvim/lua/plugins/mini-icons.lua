@@ -31,8 +31,6 @@ return {
                     dotfiles = { glyph = "󱂀", hl = "MiniIconsPurple" },
                     images = { glyph = "󰉏", hl = "MiniIconsAzure" },
                     scripts = { glyph = "󰲂", hl = "MiniIconsOrange" },
-                    [".vscode"] = { glyph = "", hl = "MiniIconsBlue" },
-                    [".cursor"] = { glyph = "󰆧", hl = "MiniIconsBlue" },
                 },
                 file = {
                     [".gitignore"] = { hl = "MiniIconsOrange" },
