@@ -165,4 +165,20 @@ return {
             return conf
         end,
     },
+
+    {
+        "akinsho/bufferline.nvim",
+        opts = {
+            options = {
+                always_show_bufferline = true,
+            },
+        },
+    },
+
+    -- make tabs and buffers better
+    {
+        "tiagovla/scope.nvim",
+        event = "VeryLazy",
+        config = true,
+    },
 }
