@@ -23,9 +23,6 @@ map("i", "<A-j>", "<Esc><cmd>m .+1<CR>==gi", { desc = "Move line down" })
 map("i", "<A-k>", "<Esc><cmd>m .-2<CR>==gi", { desc = "Move line up" })
 
 -- Helix-style clipboard behavior:
--- y/p/P use internal clipboard (unnamed register)
--- <leader>y/<leader>p/<leader>P use system clipboard
-
 -- System clipboard yank (normal and visual modes)
 map({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
 map({ "n", "v" }, "<leader>Y", '"+Y', { desc = "Yank line to system clipboard" })
@@ -50,8 +47,13 @@ end
 -- don't pollute registers with x
 map("n", "x", '"_x')
 
--- map Delete to page-down (some keyboards)
-map({ "n", "v" }, "<Delete>", "<C-d>", { desc = "Scroll down" })
+-- map Delete to page-down
+map({ "n", "v" }, "<Delete>", "<C-d>", { desc = "Scroll down", noremap = true, silent = true })
+
+-- map super+u to page-down
+if not is_mac then
+    map({ "n", "v" }, "<D-u>", "<C-u>", { desc = "Scroll up", noremap = true, silent = true })
+end
 
 -- comment toggle (terminal often sends <C-_> instead of <C-/>; keep your original binding)
 if is_mac then
