@@ -766,8 +766,8 @@ function check_system_updates() {
     local LAST_CHECK_TIME=0
     local LAST_CHECK_FILE="${DOTFILES_CACHE}/.system_updates_last_check"
 
-    local CHECK_INTERVAL_DAYS=1
-    local CHECK_INTERVAL=$((60 * 60 * 24 * ${CHECK_INTERVAL_DAYS})) # 60s * 60m * 24h * n days
+    local CHECK_INTERVAL_HOURS=20 # check update every 20 hours
+    local CHECK_INTERVAL=$((60 * 60 * ${CHECK_INTERVAL_HOURS}))
 
     local CURRENT_TIME=$(date +%s)
 
