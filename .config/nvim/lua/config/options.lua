@@ -18,6 +18,7 @@ opt.termguicolors = true
 opt.scrolloff = 8
 opt.signcolumn = "yes"
 opt.cursorlineopt = "both"
+opt.modeline = false
 
 opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
 
