@@ -8,6 +8,7 @@ return {
         ---@type avante.Config
         opts = {
             instructions_file = "avante.md",
+            -- provider = "gemini-cli",
             provider = "claude-code",
             -- provider = "claude",
             providers = {

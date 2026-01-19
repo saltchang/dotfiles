@@ -17,6 +17,12 @@ ZPROFILE_SOURCE="$(pwd)/$ZPROFILE_SOURCE_REL"
 ZSHRC_SOURCE_REL="dotfiles/.zshrc"
 ZSHRC_SOURCE="$(pwd)/$ZSHRC_SOURCE_REL"
 
+ZSHRC_LOCAL_SOURCE_REL="dotfiles/.zshrc.local"
+ZSHRC_LOCAL_SOURCE="$(pwd)/$ZSHRC_LOCAL_SOURCE_REL"
+
+ZSHRC_LOCAL_EXAMPLE_SOURCE_REL="dotfiles/.zshrc.local.example"
+ZSHRC_LOCAL_EXAMPLE_SOURCE="$(pwd)/$ZSHRC_LOCAL_EXAMPLE_SOURCE_REL"
+
 ZPREZTORC_SOURCE_REL="dotfiles/.zpreztorc"
 ZPREZTORC_SOURCE="$(pwd)/$ZPREZTORC_SOURCE_REL"
 
@@ -38,6 +44,11 @@ PROTOTOOLS_SOURCE="$(pwd)/$PROTOTOOLS_SOURCE_REL"
 
 [ ! -e "$PROTOTOOLS_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$PROTOTOOLS_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
+if [ ! -e "$ZSHRC_LOCAL_SOURCE" ]; then
+    printf '%b%s%b\n' "$GREEN" "Copying .zshrc.local..." "$NC"
+    cp "$ZSHRC_LOCAL_EXAMPLE_SOURCE" "$ZSHRC_LOCAL_SOURCE"
+fi
+
 chmod 600 "$ZPROFILE_SOURCE"
 
 chmod 600 "$ZSHRC_SOURCE"
@@ -48,9 +59,13 @@ chmod 600 "$P10K_SOURCE"
 
 chmod 600 "$PROTOTOOLS_SOURCE"
 
+chmod 600 "$ZSHRC_LOCAL_SOURCE_REL"
+
 ZPROFILE_FILE="$HOME/.zprofile"
 
 ZSHRC_FILE="$HOME/.zshrc"
+
+ZSHRC_LOCAL_FILE="$HOME/.zshrc.local"
 
 ZPRESTORC_FILE="$HOME/.zpreztorc"
 
@@ -103,10 +118,17 @@ ln -s "$P10K_SOURCE" "$P10KZSH_FILE" && printf '%b%s%b\n' "$GREEN" "Created a ne
 
 ln -s "$PROTOTOOLS_SOURCE" "$PROTOTOOLS_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $PROTOTOOLS_FILE to $PROTOTOOLS_SOURCE" "$NC"
 
+if [ -e "$ZSHRC_LOCAL_FILE" ] || [ -L "$ZSHRC_LOCAL_FILE" ]; then
+    printf '%b%s%b\n' "$YELLOW" ".zshrc.local already exists, skipping creating..." "$NC"
+else
+    ln -s "$ZSHRC_LOCAL_SOURCE" "$ZSHRC_LOCAL_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $ZSHRC_LOCAL_FILE to $ZSHRC_LOCAL_SOURCE" "$NC"
+fi
+
 ./scripts/setup-cheat.sh.sh
 
 printf '\n'
 
 printf '%s\n' "Setup completed!"
 printf '\n'
+printf '%b%s%b\n' "$YELLOW" "You can add the global environment variables in \$HOME/.zshrc.local" "$NC"
 printf '%b%s%b\n' "$YELLOW" "Please restart your terminal or run \`source \$HOME/.zshrc\` to reload .zshrc" "$NC"
