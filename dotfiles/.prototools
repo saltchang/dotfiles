@@ -1,5 +1,5 @@
 node = "24.13.0"
-python = "~3.14"
+python = "~3.13"
 
 [settings]
 auto-install = true
