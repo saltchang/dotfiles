@@ -244,10 +244,11 @@ esac
   typeset -g POWERLEVEL9K_VCS_GIT_BITBUCKET_ICON='\uF171 '
 
   typeset -g POWERLEVEL9K_VCS_GIT_REMOTE_ICONS=(
-  '*github*'      VCS_GIT_GITHUB_ICON
-  '*gitlab*'      VCS_GIT_GITLAB_ICON
-  '*bitbucket*'   VCS_GIT_BITBUCKET_ICON
-  '*'             VCS_GIT_NO_UPSTREAM_ICON
+  '*github*'           VCS_GIT_GITHUB_ICON
+  '*gitlab*'           VCS_GIT_GITLAB_ICON
+  '*bitbucket*'        VCS_GIT_BITBUCKET_ICON
+  '*git.*.com*'        VCS_GIT_GITHUB_ICON
+  '*'                  VCS_GIT_NO_UPSTREAM_ICON
   )
 
   typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON='\uF059 '
