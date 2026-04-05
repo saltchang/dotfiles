@@ -399,7 +399,7 @@ alias mv='mv -iv'
 alias ln='ln -iv'
 alias rm='rm -I -v --preserve-root'
 alias mkdir='mkdir -pv'
-alias ssh='ssh -v -tt -A' # Use '-vvv' for top-level verbose
+alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
 alias ping='ping -c 5'
 alias sudo='nocorrect sudo '
 
