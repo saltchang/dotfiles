@@ -44,6 +44,12 @@ return {
                             ".git",
                             ".DS_Store",
                         },
+                        icons = {
+                            diagnostics = {
+                                Hint = "",
+                                Info = "",
+                            },
+                        },
                     },
                     grep = {
                         hidden = true,
@@ -180,5 +186,17 @@ return {
         "tiagovla/scope.nvim",
         event = "VeryLazy",
         config = true,
+    },
+
+    {
+        "nvim-treesitter/nvim-treesitter-context",
+        event = "LazyFile",
+        opts = function()
+            return {
+                mode = "topline",
+                max_lines = 5,
+                multiline_threshold = 1,
+            }
+        end,
     },
 }
