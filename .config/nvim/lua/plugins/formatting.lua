@@ -12,6 +12,7 @@ return {
                 javascriptreact = { "biome", "prettier", stop_after_first = true },
                 typescript = { "biome", "prettier", stop_after_first = true },
                 typescriptreact = { "biome", "prettier", stop_after_first = true },
+                python = { "ruff_fix", "ruff_organize_imports", "ruff_format" },
             })
 
             opts.formatters = vim.tbl_deep_extend("force", opts.formatters or {}, {

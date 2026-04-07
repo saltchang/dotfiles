@@ -8,6 +8,18 @@ return {
                     severity = { min = vim.diagnostic.severity.INFO },
                 },
             },
+            servers = {
+                pyright = {
+                    settings = {
+                        python = {
+                            analysis = {
+                                autoImportCompletions = true,
+                                useLibraryCodeForTypes = true,
+                            },
+                        },
+                    },
+                },
+            },
         },
     },
 }
