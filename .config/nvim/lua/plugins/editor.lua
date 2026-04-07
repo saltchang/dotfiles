@@ -234,9 +234,19 @@ return {
 
             numhl = true,
             linehl = false,
+            current_line_blame = true,
+            current_line_blame_opts = {
+                virt_text = true,
+                virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
+                delay = 0,
+                ignore_whitespace = false,
+                virt_text_priority = 100,
+                use_focus = true,
+            },
         },
         config = function(_, opts)
-            require("gitsigns").setup(opts)
+            local gs = require("gitsigns")
+            gs.setup(opts)
 
             vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#589c3e", bold = true })
             vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#0d8ba1", bold = true })
