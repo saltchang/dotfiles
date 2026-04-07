@@ -207,12 +207,36 @@ return {
             { "<leader>fu", "<cmd>Telescope undo<cr>", desc = "Undo History (Timeline)" },
         },
         config = function()
-            require("telescope").setup({
+            require("telescope").modified_setup({
                 extensions = {
                     undo = {},
                 },
             })
             require("telescope").load_extension("undo")
+        end,
+    },
+
+    {
+        "lewis6991/gitsigns.nvim",
+        opts = {
+            signs = {
+                add = { text = "█" },
+                change = { text = "█" },
+                delete = { text = "_" },
+                topdelete = { text = "‾" },
+                changedelete = { text = "~" },
+                untracked = { text = "┆" },
+            },
+
+            numhl = true,
+            linehl = false,
+        },
+        config = function(_, opts)
+            require("gitsigns").setup(opts)
+
+            vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = "#589c3e", bold = true })
+            vim.api.nvim_set_hl(0, "GitSignsChange", { fg = "#0d8ba1", bold = true })
+            vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = "#7a1f0b", bold = true })
         end,
     },
 }
