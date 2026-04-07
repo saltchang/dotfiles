@@ -199,4 +199,20 @@ return {
             }
         end,
     },
+
+    {
+        "debugloop/telescope-undo.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        keys = {
+            { "<leader>fu", "<cmd>Telescope undo<cr>", desc = "Undo History (Timeline)" },
+        },
+        config = function()
+            require("telescope").setup({
+                extensions = {
+                    undo = {},
+                },
+            })
+            require("telescope").load_extension("undo")
+        end,
+    },
 }
