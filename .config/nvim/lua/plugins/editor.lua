@@ -79,6 +79,10 @@ return {
                         exclude = {
                             ".git",
                             ".DS_Store",
+                            ".venv",
+                            "node_modules",
+                            ".pytest_cache",
+                            "__pycache__",
                         },
                     },
                 },
