@@ -53,7 +53,7 @@ eval "$(jump shell zsh)"
 # ===> SSH Agent (Optional) ========================================================================
 SSH_KEY_FILE=$HOME/.ssh/id_ed25519
 
-if ! [ "$(eval 'ps ax | grep "[s]sh-agent" | wc -l' 2>/dev/null)" -gt 0 ]; then
+if ! pgrep -u "$USER" ssh-agent >/dev/null 2>&1; then
     eval "$(ssh-agent -s)"
     if [[ "$(ssh-add -l)" == "The agent has no identities." ]]; then
         ssh-add "$SSH_KEY_FILE"

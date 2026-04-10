@@ -2,6 +2,11 @@ return {
     {
         "folke/snacks.nvim",
         opts = {
+            bigfile = {
+                enabled = true,
+                size = 3 * 1024 * 1024,
+                line_length = 50000,
+            },
             styles = {
                 lazygit = {
                     width = 0,

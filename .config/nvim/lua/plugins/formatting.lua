@@ -17,7 +17,7 @@ return {
 
             opts.formatters = vim.tbl_deep_extend("force", opts.formatters or {}, {
                 biome = {
-                    require_cwd = true, -- 只有在專案根目錄找到 biome.json(c) 時才執行 biome
+                    require_cwd = true,
                 },
             })
         end,

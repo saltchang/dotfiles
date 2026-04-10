@@ -151,7 +151,13 @@ case $OS_NAME in
 "$MACOS")
     if ! [ -x "$(command -v brew)" ]; then
         printf '%s\n' "Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        BREW_INSTALLER=$(mktemp)
+        if curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o "$BREW_INSTALLER"; then
+            /bin/bash "$BREW_INSTALLER"
+        else
+            printf '%b%s%b\n' "$WARNING" "Failed to download Homebrew installer" "$NC"
+        fi
+        rm -f "$BREW_INSTALLER"
 
         eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
@@ -187,7 +193,13 @@ case $OS_NAME in
             paru -S --noconfirm jump
             ;;
         "$UBUNTU" | "$DEBIAN")
-            wget https://github.com/gsamokovarov/jump/releases/download/v0.67.0/jump_0.67.0_amd64.deb && sudo dpkg -i jump_0.67.0_amd64.deb
+            JUMP_DEB=$(mktemp --suffix=.deb)
+            if wget -O "$JUMP_DEB" https://github.com/gsamokovarov/jump/releases/download/v0.67.0/jump_0.67.0_amd64.deb; then
+                sudo dpkg -i "$JUMP_DEB"
+            else
+                printf '%b%s%b\n' "$WARNING" "Failed to download jump .deb package" "$NC"
+            fi
+            rm -f "$JUMP_DEB"
             ;;
         esac
     fi

@@ -80,9 +80,9 @@ ZSH_SHELL_NAME="-zsh"
 
 PROC_VERSION_PATH="/proc/version"
 
-if [ -f $PROC_VERSION_PATH ]; then
-    PROC_VERSION=$(cat $PROC_VERSION_PATH)
-    if echo "$PROC_VERSION" | grep -iqF $MS; then
+if [ -f "$PROC_VERSION_PATH" ]; then
+    PROC_VERSION=$(cat "$PROC_VERSION_PATH")
+    if echo "$PROC_VERSION" | grep -iqF "$MS"; then
         SYS_IS_WSL=YES
     fi
 fi
@@ -287,8 +287,8 @@ zstyle ':completion:*' expand prefix suffix
 # See: https://github.com/zdharma-continuum/zinit
 
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-[ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
-[ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+[ ! -d "$ZINIT_HOME" ] && mkdir -p "$(dirname "$ZINIT_HOME")"
+[ ! -d "$ZINIT_HOME/.git" ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Load Prezto
@@ -355,7 +355,13 @@ export PROTO_HOME="$HOME/.proto"
 # Install proto if not already installed
 if [ ! -d "$PROTO_HOME" ]; then
     echo "Installing proto..."
-    bash <(curl -fsSL https://moonrepo.dev/install/proto.sh) --yes
+    PROTO_INSTALLER=$(mktemp)
+    if curl -fsSL https://moonrepo.dev/install/proto.sh -o "$PROTO_INSTALLER"; then
+        bash "$PROTO_INSTALLER" --yes
+    else
+        echo "Failed to download proto installer"
+    fi
+    rm -f "$PROTO_INSTALLER"
 fi
 
 # Add proto to PATH
@@ -550,7 +556,7 @@ alias ai="aichat -e" # https://github.com/sigoden/aichat
 alias gclb='git branch \
 | grep -v -w main \
 | grep -v -w develop \
-| grep -v -e $(git rev-parse --abbrev-ref HEAD) \
+| grep -v -e "$(git rev-parse --abbrev-ref HEAD)" \
 | grep -v -e " release-*" \
 | grep -v -e " release/*" \
 >/tmp/branches-to-clean && vim /tmp/branches-to-clean && xargs git branch -D </tmp/branches-to-clean'
@@ -558,7 +564,7 @@ alias gclb='git branch \
 alias gclmb='git branch --merged \
 | grep -v -w main \
 | grep -v -w develop \
-| grep -v -e $(git rev-parse --abbrev-ref HEAD) \
+| grep -v -e "$(git rev-parse --abbrev-ref HEAD)" \
 | grep -v -e " release-*" \
 | grep -v -e " release/*" \
 >/tmp/merged-branches && vim /tmp/merged-branches && xargs git branch -d </tmp/merged-branches'
