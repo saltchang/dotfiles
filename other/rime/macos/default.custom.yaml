@@ -1,0 +1,46 @@
+# 下面設定可參考做修改
+
+patch:
+  schema_list:
+    ######## 洋蔥注音 純注音 版 ########
+    - schema: bopomo_onion
+    # - schema: cangjie5
+  ##############################
+  key_binder/bindings:
+    # hotkey switch(Mac)
+    # - { when: always, accept: Control+Shift+3, toggle: full_shape }
+    # - { when: always, accept: Control+Shift+4, toggle: ascii_punct } #新增！
+    # - { when: always, accept: Control+Shift+5, toggle: simplification } #Control+Shift+4
+    # hotkey switch(Win)
+    # - { when: always, accept: Control+Shift+numbersign, toggle: full_shape }
+    # - { when: always, accept: Control+Shift+dollar, toggle: ascii_punct }
+    # - { when: always, accept: Control+Shift+percent, toggle: simplification }
+    # 切換樣態
+    # - { accept: Control+period, set_option: full_shape, when: always }
+    # - { accept: Control+semicolon, set_option: simplification, when: always }
+    # - { accept: Control+slash, set_option: ascii_punct, when: always }
+    # 初始樣態(Mac)
+    - { accept: Control+Shift+comma, unset_option: ascii_mode, when: always }
+    - { accept: Control+Shift+period, unset_option: full_shape, when: always }
+    - {
+        accept: Control+Shift+semicolon,
+        unset_option: simplification,
+        when: always,
+      }
+    - { accept: Control+Shift+slash, unset_option: ascii_punct, when: always }
+    # 初始樣態(Win)
+    - { accept: Control+Shift+less, unset_option: ascii_mode, when: always }
+    - { accept: Control+Shift+greater, unset_option: full_shape, when: always }
+    - {
+        accept: Control+Shift+colon,
+        unset_option: simplification,
+        when: always,
+      }
+    - {
+        accept: Control+Shift+question,
+        unset_option: ascii_punct,
+        when: always,
+      }
+
+  ascii_composer/switch_key:
+    Shift_L: commit_text

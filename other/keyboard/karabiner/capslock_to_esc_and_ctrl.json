@@ -1,0 +1,26 @@
+{
+  "description": "Post escape if caps is pressed alone, left_ctrl otherwise",
+  "manipulators": [
+    {
+      "from": {
+        "key_code": "caps_lock",
+        "modifiers": {
+          "optional": [
+            "any"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_control"
+        }
+      ],
+      "to_if_alone": [
+        {
+          "key_code": "escape"
+        }
+      ],
+      "type": "basic"
+    }
+  ]
+}

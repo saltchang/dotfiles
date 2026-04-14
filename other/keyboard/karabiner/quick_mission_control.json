@@ -1,0 +1,74 @@
+{
+  "description": "quick mission control",
+  "manipulators": [
+    {
+      "from": {
+        "key_code": "h",
+        "modifiers": {
+          "mandatory": [
+            "left_command",
+            "left_control"
+          ],
+          "optional": [
+            "any"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "left_arrow",
+          "modifiers": [
+            "left_control"
+          ]
+        }
+      ],
+      "type": "basic"
+    },
+    {
+      "from": {
+        "key_code": "l",
+        "modifiers": {
+          "mandatory": [
+            "left_command",
+            "left_control"
+          ],
+          "optional": [
+            "any"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "right_arrow",
+          "modifiers": [
+            "left_control"
+          ]
+        }
+      ],
+      "type": "basic"
+    },
+    {
+      "from": {
+        "key_code": "k",
+        "modifiers": {
+          "mandatory": [
+            "left_command",
+            "left_control"
+          ],
+          "optional": [
+            "any"
+          ]
+        }
+      },
+      "to": [
+        {
+          "key_code": "up_arrow",
+          "modifiers": [
+            "left_control"
+          ]
+        }
+      ],
+      "type": "basic"
+    }
+  ]
+}
