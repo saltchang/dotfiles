@@ -409,7 +409,7 @@ if [ "$USE_ZED" = "y" ]; then
     SETUP_EDITOR_ARGS+=("--zed")
 fi
 
-./setup-zsh.sh
+./setup-dotfiles.sh
 
 printf '\n'
 

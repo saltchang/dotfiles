@@ -13,7 +13,7 @@ Personal dotfiles for macOS and Linux (Arch, Ubuntu, Debian). Configurations are
 ./install.sh
 
 # Individual setup scripts (must run from repo root)
-./setup-zsh.sh                           # Shell configs → ~/.*
+./setup-dotfiles.sh                           # Shell configs → ~/.*
 ./setup-terminal.sh --kitty --ghostty    # Terminal configs → ~/.config/
 ./setup-editor.sh --nvim --zed           # Editor configs → ~/.config/
 ./setup-arch.sh                          # Hyprland ecosystem (Arch only)
@@ -25,9 +25,9 @@ All setup scripts rely on `scripts/setup-config-dir.sh` which removes the old `~
 
 | Source in repo                                                           | Symlinked to             | Method                                                          |
 | ------------------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------- |
-| `dotfiles/.zshrc`, `.zprofile`, `.zpreztorc`, `.p10k.zsh`, `.prototools` | `~/`                     | `setup-zsh.sh`                                                  |
+| `dotfiles/.zshrc`, `.zprofile`, `.zpreztorc`, `.p10k.zsh`, `.prototools` | `~/`                     | `setup-dotfiles.sh`                                                  |
 | `dotfiles/.zshrc.local`                                                  | `~/.zshrc.local`         | Copied from `.zshrc.local.example` on first run, then symlinked |
-| `bin/`                                                                   | `~/.local/dotfiles/bin/` | `setup-zsh.sh`                                                  |
+| `bin/`                                                                   | `~/.local/dotfiles/bin/` | `setup-dotfiles.sh`                                                  |
 | `.config/nvim/`, `.config/kitty/`, `.config/zed/`, etc.                  | `~/.config/`             | `scripts/setup-config-dir.sh`                                   |
 
 Key implication: **files in this repo are live configs**. Changes take effect immediately for symlinked apps.

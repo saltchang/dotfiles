@@ -7,6 +7,20 @@ ERROR="\033[31m"
 NC="\033[0m"
 # ==================================================================================================
 
+OS_NAME=""
+LINUX="Linux"
+MACOS="macOS"
+
+case $(uname) in
+Darwin)
+    OS_NAME=$MACOS
+    ;;
+
+Linux)
+    OS_NAME=$LINUX
+    ;;
+esac
+
 LOCAL_DOTFILES_ROOT_DIR="$HOME/.local/dotfiles"
 LOCAL_DOTFILES_BIN_DIR="$LOCAL_DOTFILES_ROOT_DIR/bin"
 SOURCE_BIN_DIR="$(pwd)/bin"
@@ -32,6 +46,13 @@ P10K_SOURCE="$(pwd)/$P10K_SOURCE_REL"
 PROTOTOOLS_SOURCE_REL="dotfiles/.prototools"
 PROTOTOOLS_SOURCE="$(pwd)/$PROTOTOOLS_SOURCE_REL"
 
+case $OS_NAME in
+"$MACOS")
+    AEROSPACE_CONFIG_SOURCE_REL="dotfiles/.aerospace.toml"
+    AEROSPACE_CONFIG_SOURCE="$(pwd)/$AEROSPACE_CONFIG_SOURCE_REL"
+    ;;
+esac
+
 [ ! -d "$SOURCE_BIN_DIR" ] && printf '%b%s%b\n' "$ERROR" "Directory not found: \"$SOURCE_BIN_DIR\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 [ ! -e "$ZPROFILE_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ZPROFILE_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
@@ -43,6 +64,12 @@ PROTOTOOLS_SOURCE="$(pwd)/$PROTOTOOLS_SOURCE_REL"
 [ ! -e "$P10K_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$P10K_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 [ ! -e "$PROTOTOOLS_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$PROTOTOOLS_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
+
+case $OS_NAME in
+"$MACOS")
+    [ ! -e "$AEROSPACE_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$AEROSPACE_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
+    ;;
+esac
 
 if [ ! -e "$ZSHRC_LOCAL_SOURCE" ]; then
     printf '%b%s%b\n' "$GREEN" "Copying .zshrc.local..." "$NC"
@@ -73,6 +100,12 @@ P10KZSH_FILE="$HOME/.p10k.zsh"
 
 PROTOTOOLS_FILE="$HOME/.prototools"
 
+case $OS_NAME in
+"$MACOS")
+    AEROSPACE_CONFIG_FILE="$HOME/.aerospace.toml"
+    ;;
+esac
+
 printf '%s\n' "Check and remove original files and directories..."
 printf '\n'
 
@@ -96,6 +129,14 @@ if [ -e "$PROTOTOOLS_FILE" ] || [ -L "$PROTOTOOLS_FILE" ]; then
     rm "$PROTOTOOLS_FILE" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original .prototools" "$NC"
 fi
 
+case $OS_NAME in
+"$MACOS")
+    if [ -e "$AEROSPACE_CONFIG_FILE" ] || [ -L "$AEROSPACE_CONFIG_FILE" ]; then
+        rm "$AEROSPACE_CONFIG_FILE" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original .aerospace.toml" "$NC"
+    fi
+    ;;
+esac
+
 if [ -e "$LOCAL_DOTFILES_BIN_DIR" ] || [ -L "$LOCAL_DOTFILES_BIN_DIR" ]; then
     rm -rf "$LOCAL_DOTFILES_BIN_DIR" 2>/dev/null && printf '%b%s%b\n' "$GREEN" "Removed original directory: $LOCAL_DOTFILES_BIN_DIR" "$NC"
 fi
@@ -117,6 +158,12 @@ ln -s "$ZPREZTORC_SOURCE" "$ZPRESTORC_FILE" && printf '%b%s%b\n' "$GREEN" "Creat
 ln -s "$P10K_SOURCE" "$P10KZSH_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $P10KZSH_FILE to $P10K_SOURCE" "$NC"
 
 ln -s "$PROTOTOOLS_SOURCE" "$PROTOTOOLS_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $PROTOTOOLS_FILE to $PROTOTOOLS_SOURCE" "$NC"
+
+case $OS_NAME in
+"$MACOS")
+    ln -s "$AEROSPACE_CONFIG_SOURCE" "$AEROSPACE_CONFIG_FILE" && printf '%b%s%b\n' "$GREEN" "Created a new symbolic link from $AEROSPACE_CONFIG_FILE to $AEROSPACE_CONFIG_SOURCE" "$NC"
+    ;;
+esac
 
 if [ -e "$ZSHRC_LOCAL_FILE" ] || [ -L "$ZSHRC_LOCAL_FILE" ]; then
     printf '%b%s%b\n' "$YELLOW" ".zshrc.local already exists, skipping creating..." "$NC"
