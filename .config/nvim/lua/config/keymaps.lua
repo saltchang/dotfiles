@@ -44,6 +44,9 @@ if is_mac then
     map("c", "<D-v>", "<C-r>+", { desc = "Paste from system clipboard (macOS)" })
 end
 
+-- redo with U
+map("n", "U", "<C-r>", { desc = "Redo" })
+
 -- don't pollute registers with x
 map("n", "x", '"_x')
 
