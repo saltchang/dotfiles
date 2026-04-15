@@ -77,38 +77,21 @@ if [ -z "$REPO" ]; then
 fi
 # ==================================================================================================
 
-# ===> Prompt User for using iTerm2 as terminal app ================================================
-case $OS_NAME in
-"$MACOS")
-    printf '\n%s\n%s' "Do you want to use iTerm2 (https://iterm2.com) as terminal app? (y/n, default: n):" "> "
-    read -r USE_ITERM2 </dev/tty
-
-    if [ -z "$USE_ITERM2" ]; then
-        USE_ITERM2="n"
-    fi
-    ;;
-esac
-# ==================================================================================================
-
 # ===> Prompt User for using kitty as terminal app =================================================
-if [ "$USE_ITERM2" != "y" ]; then
-    printf '\n%s\n%s' "Do you want to use Kitty (https://sw.kovidgoyal.net/kitty) as terminal app? (y/n, default: y):" "> "
-    read -r USE_KITTY </dev/tty
+printf '\n%s\n%s' "Do you want to use Kitty (https://sw.kovidgoyal.net/kitty) as terminal app? (y/n, default: y):" "> "
+read -r USE_KITTY </dev/tty
 
-    if [ -z "$USE_KITTY" ]; then
-        USE_KITTY="y"
-    fi
+if [ -z "$USE_KITTY" ]; then
+    USE_KITTY="y"
 fi
 # ==================================================================================================
 
-# ===> Prompt User for using ghostty as terminal app ===============================================
-if [ "$USE_ITERM2" != "y" ] && [ "$USE_KITTY" != "y" ]; then
-    printf '\n%s\n%s' "Do you want to use Ghostty (https://ghostty.org) as terminal app? (y/n, default: y):" "> "
-    read -r USE_GHOSTTY </dev/tty
+# ===> Prompt User for installing zellij ===========================================================
+printf '\n%s\n%s' "Do you want to install Zellij (https://zellij.dev) terminal multiplexer? (y/n, default: y):" "> "
+read -r USE_ZELLIJ </dev/tty
 
-    if [ -z "$USE_GHOSTTY" ]; then
-        USE_GHOSTTY="y"
-    fi
+if [ -z "$USE_ZELLIJ" ]; then
+    USE_ZELLIJ="y"
 fi
 # ==================================================================================================
 
@@ -118,15 +101,6 @@ read -r USE_NVIM </dev/tty
 
 if [ -z "$USE_NVIM" ]; then
     USE_NVIM="y"
-fi
-# ==================================================================================================
-
-# ===> Prompt User for setup Zed config =========================================================
-printf '\n%s\n%s' "Do you want to setup Zed (https://zed.dev) config? (y/n, default: y):" "> "
-read -r USE_ZED </dev/tty
-
-if [ -z "$USE_ZED" ]; then
-    USE_ZED="y"
 fi
 # ==================================================================================================
 
@@ -177,13 +151,6 @@ case $OS_NAME in
     fi
     printf '%bjump is already installed%b\n' "$GREEN" "$NC"
 
-    # install python3 if it's not installed via homebrew
-    BREW_PYTHON_PATH=$(brew --prefix python3 2>/dev/null)
-    if ! [ -x "$(command -v python3)" ] || [ -z "$BREW_PYTHON_PATH" ]; then
-        printf '%s\n' "Installing python3..."
-        brew install python3
-    fi
-    printf '%bpython3 is already installed via homebrew%b\n' "$GREEN" "$NC"
     ;;
 "$LINUX")
     # install jump if it's not installed
@@ -233,22 +200,6 @@ case $OS_NAME in
 esac
 # ==================================================================================================
 
-# ===> Install iTerm2 ==============================================================================
-if [ "$USE_ITERM2" = "y" ]; then
-    case $OS_NAME in
-    "$MACOS")
-        ITERM2_APP_PATH=$(mdfind "kMDItemCFBundleIdentifier == com.googlecode.iterm2")
-        if [ -z "$ITERM2_APP_PATH" ]; then
-            printf '%s\n' "Installing iTerm2..."
-            brew install --cask iterm2
-        fi
-        printf '%biTerm2 is already installed%b\n' "$GREEN" "$NC"
-        ;;
-    *) ;;
-    esac
-fi
-# ==================================================================================================
-
 # ===> Install kitty ===============================================================================
 if [ "$USE_KITTY" = "y" ]; then
     case $OS_NAME in
@@ -277,28 +228,28 @@ if [ "$USE_KITTY" = "y" ]; then
 fi
 # ==================================================================================================
 
-# ===> Install ghostty =============================================================================
-if [ "$USE_GHOSTTY" = "y" ]; then
+# ===> Install zellij ==============================================================================
+if [ "$USE_ZELLIJ" = "y" ]; then
     case $OS_NAME in
     "$MACOS")
-        if ! [ -x "$(command -v ghostty)" ]; then
-            printf '%s\n' "Installing ghostty..."
-            brew install --cask ghostty
+        if ! [ -x "$(command -v zellij)" ]; then
+            printf '%s\n' "Installing zellij..."
+            brew install zellij
         fi
-        printf '%bghostty is already installed%b\n' "$GREEN" "$NC"
+        printf '%bzellij is already installed%b\n' "$GREEN" "$NC"
         ;;
     "$LINUX")
-        if ! [ -x "$(command -v ghostty)" ]; then
+        if ! [ -x "$(command -v zellij)" ]; then
             case $DISTRO_NAME in
             "$ARCH")
-                paru -S --noconfirm ghostty
+                paru -S --noconfirm zellij
                 ;;
             *)
-                printf '%b%s%b\n' "$WARNING" "Currently we only support install ghostty terminal for Arch Linux.\nPlease visit https://ghostty.org to install ghostty." "$NC"
+                printf '%b%s%b\n' "$WARNING" "Currently we only support install zellij for Arch Linux.\nPlease visit https://zellij.dev to install zellij." "$NC"
                 ;;
             esac
         fi
-        printf '%bghostty is already installed%b\n' "$GREEN" "$NC"
+        printf '%bzellij is already installed%b\n' "$GREEN" "$NC"
         ;;
     *) ;;
     esac
@@ -387,26 +338,11 @@ if [ "$USE_KITTY" = "y" ]; then
     SETUP_TERMINAL_ARGS+=("--kitty")
 fi
 
-if [ "$USE_GHOSTTY" = "y" ]; then
-    printf '%s\n' "Use Ghostty as terminal..."
-    SETUP_TERMINAL_ARGS+=("--ghostty")
-fi
-
-if [ "$USE_ITERM2" = "y" ]; then
-    printf '%s\n' "Use iTerm2 as terminal..."
-    SETUP_TERMINAL_ARGS+=("--iterm2")
-fi
-
 SETUP_EDITOR_ARGS=()
 
 if [ "$USE_NVIM" = "y" ]; then
     printf '%s\n' "Use Neovim as editor..."
     SETUP_EDITOR_ARGS+=("--nvim")
-fi
-
-if [ "$USE_ZED" = "y" ]; then
-    printf '%s\n' "Use Zed as editor..."
-    SETUP_EDITOR_ARGS+=("--zed")
 fi
 
 ./setup-dotfiles.sh
