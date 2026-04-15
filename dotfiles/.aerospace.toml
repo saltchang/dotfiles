@@ -108,6 +108,12 @@ outer.right = 0
 # end tell'
 # '''
 
+# See: https://nikitabobko.github.io/AeroSpace/commands#join-with
+alt-shift-h = 'join-with left'
+alt-shift-j = 'join-with down'
+alt-shift-k = 'join-with up'
+alt-shift-l = 'join-with right'
+
 # See: https://nikitabobko.github.io/AeroSpace/commands#layout
 ctrl-w = 'layout tiles horizontal vertical'
 
