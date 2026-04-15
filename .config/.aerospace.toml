@@ -115,10 +115,10 @@ on-mode-changed = []
     ctrl-r = 'swap dfs-next --wrap-around'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#focus
-    alt-shift-ctrl-h = 'focus --boundaries all-monitors-outer-frame left'
-    alt-shift-ctrl-j = 'focus --boundaries all-monitors-outer-frame down'
-    alt-shift-ctrl-k = 'focus --boundaries all-monitors-outer-frame up'
-    alt-shift-ctrl-l = 'focus --boundaries all-monitors-outer-frame right'
+    alt-shift-ctrl-h = 'focus --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors left'
+    alt-shift-ctrl-j = 'focus --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors down'
+    alt-shift-ctrl-k = 'focus --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors up'
+    alt-shift-ctrl-l = 'focus --boundaries all-monitors-outer-frame --boundaries-action wrap-around-all-monitors right'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#move
     ctrl-shift-h = 'move left'
