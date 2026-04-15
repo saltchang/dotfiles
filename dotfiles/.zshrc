@@ -648,9 +648,13 @@ fi
 
 export EDITOR
 
-git config --global pull.ff only              # set git pull --ff-only
-git config --global init.defaultBranch main   # set default init branch
-git config --global core.editor "$GIT_EDITOR" # set default editor
+git config --global pull.rebase true
+git config --global init.defaultBranch main
+git config --global core.editor "$GIT_EDITOR"
+git config --global fetch.prune true
+git config --global push.autoSetupRemote true
+git config --global merge.conflictstyle zdiff3
+git config --global rerere.enabled true
 # ==================================================================================================
 
 # ===> Google Cloud (Optional) =====================================================================
