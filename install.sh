@@ -3,6 +3,7 @@
 # ===> Colors ======================================================================================
 GREEN="\033[32m"
 WARNING="\033[33m"
+ERROR="\033[31m"
 NC="\033[0m"
 # ==================================================================================================
 
@@ -36,7 +37,9 @@ case $OS_NAME in
         else
             printf '%b%s%b\n' "$WARNING" "Unsupported Linux Distribution, currently we only support Arch Linux, Ubuntu, and Debian." "$NC"
         fi
-    else
+    fi
+
+    if command -v lsb_release &>/dev/null; then
         OS_INFO=$(lsb_release -a 2>/dev/null)
 
         case $OS_INFO in
@@ -61,9 +64,7 @@ case $DISTRO_NAME in
     if ! command -v paru &>/dev/null; then
         printf '%s\n' "Installing paru..."
         sudo pacman -S --needed base-devel
-        git clone https://aur.archlinux.org/paru.git
-        cd paru || exit
-        makepkg -si
+        (git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si)
     fi
     ;;
 esac
@@ -160,8 +161,14 @@ case $OS_NAME in
             paru -S --noconfirm jump
             ;;
         "$UBUNTU" | "$DEBIAN")
+            JUMP_ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
+            JUMP_VERSION=$(curl -fsSL https://api.github.com/repos/gsamokovarov/jump/releases/latest 2>/dev/null | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+            if [ -z "$JUMP_VERSION" ]; then
+                printf '%b%s%b\n' "$WARNING" "Failed to fetch latest jump version, falling back to v0.67.0" "$NC"
+                JUMP_VERSION="0.67.0"
+            fi
             JUMP_DEB=$(mktemp --suffix=.deb)
-            if wget -O "$JUMP_DEB" https://github.com/gsamokovarov/jump/releases/download/v0.67.0/jump_0.67.0_amd64.deb; then
+            if wget -O "$JUMP_DEB" "https://github.com/gsamokovarov/jump/releases/download/v${JUMP_VERSION}/jump_${JUMP_VERSION}_${JUMP_ARCH}.deb"; then
                 sudo dpkg -i "$JUMP_DEB"
             else
                 printf '%b%s%b\n' "$WARNING" "Failed to download jump .deb package" "$NC"

@@ -14,11 +14,15 @@ GHOSTTY_CONFIG_SOURCE="$(pwd)/$GHOSTTY_CONFIG_SOURCE_REL"
 GHOSTTY_THEMES_SOURCE_REL="terminal-config/ghostty/themes"
 GHOSTTY_THEMES_SOURCE="$(pwd)/$GHOSTTY_THEMES_SOURCE_REL"
 
-[ ! -e "$GHOSTTY_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$GHOSTTY_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
+[ ! -e "$GHOSTTY_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$GHOSTTY_CONFIG_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 if [ "$(uname)" = "Darwin" ]; then
-    GHOSTTY_CONFIG_FILE=$HOME/Library/Application\ Support/com.mitchellh.ghostty/config
-    GHOSTTY_THEMES_DIR=$HOME/Library/Application\ Support/com.mitchellh.ghostty/themes
+    GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+
+    [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && printf '%b%s%b\n' "$GREEN" "Created new directory: $GHOSTTY_CONFIG_DIR" "$NC"
+
+    GHOSTTY_CONFIG_FILE="$GHOSTTY_CONFIG_DIR/config"
+    GHOSTTY_THEMES_DIR="$GHOSTTY_CONFIG_DIR/themes"
 else
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
 

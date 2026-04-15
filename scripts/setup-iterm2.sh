@@ -12,7 +12,8 @@ printf '%s\n' "Setting up iTerm2..."
 ITERM2_CONFIG_SOURCE="$(pwd)/terminal-config/iTerm/com.googlecode.iterm2.plist"
 ITERM2_CONFIG_FILE="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
 
-[ ! -e "$ITERM2_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ITERM2_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
+ITERM2_CONFIG_SOURCE_REL="terminal-config/iTerm/com.googlecode.iterm2.plist"
+[ ! -e "$ITERM2_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ITERM2_CONFIG_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 printf '%s\n' "Check and remove original file"
 printf '\n'

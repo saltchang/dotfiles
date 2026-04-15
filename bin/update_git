@@ -45,10 +45,20 @@ update_git() {
             source "$HOME/.zshrc"
         ;;
     "$LINUX")
-        sudo add-apt-repository ppa:git-core/ppa -y &&
-            sudo apt-get update &&
-            sudo apt-get install git -y &&
-            printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC"
+        if command -v paru &>/dev/null; then
+            paru -S --noconfirm git &&
+                printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC"
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -S --noconfirm git &&
+                printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC"
+        elif command -v apt-get &>/dev/null; then
+            sudo add-apt-repository ppa:git-core/ppa -y &&
+                sudo apt-get update &&
+                sudo apt-get install git -y &&
+                printf '%b%s%b\n' "$GREEN" "Git updated successfully." "$NC"
+        else
+            printf '%s\n' "No supported package manager found."
+        fi
         ;;
     esac
 }

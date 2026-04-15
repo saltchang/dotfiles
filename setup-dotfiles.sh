@@ -57,7 +57,7 @@ esac
 
 [ ! -e "$ZPROFILE_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ZPROFILE_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
-[ ! -e "$ZSHRC_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ZSHRC_SOURCE_REL\". You may be in the wrong directory >>> Exit " "$NC" && exit 1
+[ ! -e "$ZSHRC_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ZSHRC_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
 [ ! -e "$ZPREZTORC_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$ZPREZTORC_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
 
@@ -67,7 +67,7 @@ esac
 
 case $OS_NAME in
 "$MACOS")
-    [ ! -e "$AEROSPACE_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$AEROSPACE_CONFIG_SOURCE\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
+    [ ! -e "$AEROSPACE_CONFIG_SOURCE" ] && printf '%b%s%b\n' "$ERROR" "File not found: \"./$AEROSPACE_CONFIG_SOURCE_REL\". You may be in the wrong directory >>> Exit 1" "$NC" && exit 1
     ;;
 esac
 
