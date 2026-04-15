@@ -2,52 +2,62 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Overview
+## What This Repo Is
 
-Personal dotfiles for macOS and Linux (Arch, Ubuntu, Debian). Configurations are managed via **symbolic links** — editing files in this repo directly updates the live system config.
+Personal dotfiles managing shell, terminal, and editor configurations. Supports macOS, Arch Linux, Ubuntu/Debian, and WSL. The repo lives at `~/projects/personal/dotfiles` and deploys configs via symlinks.
 
 ## Installation & Setup
 
 ```bash
-# Full interactive install (prompts for OS, terminal, editor choices)
-./install.sh
+# Fresh install (clones repo and runs setup)
+curl -fsSL https://raw.githubusercontent.com/saltchang/dotfiles/HEAD/install.sh | sh -
 
-# Individual setup scripts (must run from repo root)
-./setup-dotfiles.sh                           # Shell configs → ~/.*
-./setup-terminal.sh --kitty --ghostty    # Terminal configs → ~/.config/
-./setup-editor.sh --nvim --zed           # Editor configs → ~/.config/
-./setup-arch.sh                          # Hyprland ecosystem (Arch only)
+# Re-install or update (from repo root)
+./install.sh
 ```
 
-All setup scripts rely on `scripts/setup-config-dir.sh` which removes the old `~/.config/<app>` target and creates a symlink to this repo's `.config/<app>/`.
+The interactive `install.sh` orchestrates these setup scripts in order:
 
-## Symlink Architecture
+1. `setup-zsh.sh` - symlinks shell dotfiles from `dotfiles/` to `$HOME`
+2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal app configs
+3. `setup-editor.sh --nvim|--zed` - editor configs
+4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
 
-| Source in repo                                                           | Symlinked to             | Method                                                          |
-| ------------------------------------------------------------------------ | ------------------------ | --------------------------------------------------------------- |
-| `dotfiles/.zshrc`, `.zprofile`, `.zpreztorc`, `.p10k.zsh`, `.prototools` | `~/`                     | `setup-dotfiles.sh`                                                  |
-| `dotfiles/.zshrc.local`                                                  | `~/.zshrc.local`         | Copied from `.zshrc.local.example` on first run, then symlinked |
-| `bin/`                                                                   | `~/.local/dotfiles/bin/` | `setup-dotfiles.sh`                                                  |
-| `.config/nvim/`, `.config/kitty/`, `.config/zed/`, etc.                  | `~/.config/`             | `scripts/setup-config-dir.sh`                                   |
+All setup scripts must be run from the repo root directory.
 
-Key implication: **files in this repo are live configs**. Changes take effect immediately for symlinked apps.
+## Architecture
 
-## Neovim Configuration
+### Symlink Deployment Model
 
-Built on **LazyVim** with lazy.nvim as plugin manager.
+Configs are **not** copied -- they are symlinked so edits in the repo are immediately live:
 
-- Entry point: `.config/nvim/init.lua` → loads `lua/config/lazy.lua`
-- Plugin specs in `lua/plugins/` are auto-loaded by LazyVim convention
-- LazyVim extras configured in `lazyvim.json` (18 extras: languages, DAP, testing, AI)
-- Mason manages LSP servers, formatters, linters, and DAP adapters (see `lua/plugins/mason.lua`)
-- AI integration via Avante.nvim (`lua/plugins/ai.lua`) — uses Claude API
+- `dotfiles/*` symlinks to `$HOME/` (`.zshrc`, `.zprofile`, `.p10k.zsh`, `.zpreztorc`, `.prototools`)
+- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, rofi, swappy)
+- `bin/` symlinks to `$HOME/.local/dotfiles/bin/` (added to PATH)
 
-## Shell Stack
+The shared helper `scripts/setup-config-dir.sh --name=<Name> --config-dir=<dir>` handles the `.config/` symlink pattern.
 
-Zsh + Prezto + Zinit + Powerlevel10k. The `.zshrc` (~878 lines) handles OS/distro detection, terminal detection, SSH agent, completions (uv, uvx, proto, moon), and jump integration. User-specific overrides go in `.zshrc.local` (gitignored via `.local` pattern).
+### Key Directories
+
+- **`dotfiles/`** - Shell config source files. The main `.zshrc` detects OS/distro at runtime and adjusts behavior (macOS/Arch/Ubuntu/Debian/WSL).
+- **`.config/`** - App config directories, each symlinked independently to `~/.config/`.
+- **`bin/`** - Custom scripts on PATH (e.g., `update_git`).
+- **`scripts/`** - Setup helpers called by the top-level `setup-*.sh` scripts.
+
+### Shell Stack
+
+Zsh with: zinit (plugin manager) -> Prezto modules + fast-syntax-highlighting + zsh-autosuggestions + zsh-history-substring-search + powerlevel10k (theme). Version management via proto (moonrepo).
+
+### Neovim
+
+LazyVim-based config. Plugin specs in `.config/nvim/lua/plugins/`, custom options/keymaps/autocmds in `.config/nvim/lua/config/`.
+
+### Local Overrides
+
+Machine-specific config goes in `dotfiles/.zshrc.local` (gitignored via `*.local`). Kitty uses `local.conf` (also gitignored), copied from `local.mac.conf` or `local.arch.conf` during setup.
 
 ## Conventions
 
-- **Commits**: Conventional Commits format (`feat:`, `fix:`, `chore:`, etc.). Prefer including a scope when changes target a specific tool (e.g., `feat(nvim): ...`).
-- **Formatting**: `.editorconfig` — 4-space indent, LF line endings; 2-space for JSON/YAML.
-- **Platform support**: Scripts use `case` blocks on OS/distro. macOS uses Homebrew; Arch uses Paru; Ubuntu/Debian use apt.
+- **Commits**: Conventional Commits format (`feat:`, `fix:`, `chore:`, etc.). Scope is preferred when changes target a specific area (e.g., `feat(nvim):`, `fix(zsh):`).
+- **Indentation**: 4 spaces default, 2 spaces for JSON/YAML. LF line endings, UTF-8.
+- **Shell scripts**: Use `#!/bin/bash`. OS detection via `uname` + `lsb_release`. Color output via ANSI escape codes (GREEN/ERROR/NC pattern).
