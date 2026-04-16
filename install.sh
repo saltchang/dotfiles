@@ -345,6 +345,11 @@ if [ "$USE_KITTY" = "y" ]; then
     SETUP_TERMINAL_ARGS+=("--kitty")
 fi
 
+if [ "$USE_ZELLIJ" = "y" ]; then
+    printf '%s\n' "Use Zellij as terminal multiplexer..."
+    SETUP_TERMINAL_ARGS+=("--zellij")
+fi
+
 SETUP_EDITOR_ARGS=()
 
 if [ "$USE_NVIM" = "y" ]; then

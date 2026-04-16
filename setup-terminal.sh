@@ -34,6 +34,10 @@ for i in "$@"; do
         SETUP_GHOSTTY=true
         shift
         ;;
+    --zellij)
+        SETUP_ZELLIJ=true
+        shift
+        ;;
     *)
         printf '%s\n' "Unknown option $i"
         exit 1
@@ -72,6 +76,11 @@ fi
 if [ "$SETUP_ITERM2" = true ]; then
     printf '%s\n' "Ready to setup iterm2"
     ./scripts/setup-iterm2.sh
+fi
+
+if [ "$SETUP_ZELLIJ" = true ]; then
+    printf '%s\n' "Ready to setup zellij"
+    ./scripts/setup-config-dir.sh --name=Zellij --config-dir=zellij
 fi
 
 printf '\n'
