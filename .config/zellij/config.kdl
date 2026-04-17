@@ -282,12 +282,20 @@ web_client {
 //   - true (Default)
 //   - false
 // 
-// osc8_hyperlinks true
+osc8_hyperlinks true
  
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-// theme "dracula"
+theme "tokyo-night-dark"
+
+// UI configs
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name false
+    }
+}
  
 // Choose the base input mode of zellij.
 // Default: normal
@@ -332,7 +340,7 @@ default_mode "locked"
 //   - true (default, enabled)
 //   - false
 // 
-// pane_frames false
+pane_frames true
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
@@ -395,13 +403,13 @@ default_mode "locked"
 // otherwise this will error if such a session exists.
 // Default: <RANDOM>
 // 
-// session_name "My singleton session"
+session_name "default-session"
  
 // When `session_name` is provided, attaches to that session
 // if it is already running or creates it otherwise.
 // Default: false
 // 
-// attach_to_session true
+attach_to_session true
  
 // Toggle between having Zellij lay out panes according to a predefined set of layouts whenever possible
 // Options:
@@ -529,7 +537,7 @@ default_mode "locked"
  
 // Whether to focus panes on mouse hover
 // default is false
-// focus_follows_mouse false
+focus_follows_mouse true
  
 // Whether clicking a pane to focus it also sends the click into the pane
 // default is false
