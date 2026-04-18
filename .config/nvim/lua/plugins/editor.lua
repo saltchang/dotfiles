@@ -80,7 +80,7 @@ return {
                     },
                     files = {
                         hidden = true,
-                        ignored = true,
+                        ignored = false,
                         exclude = {
                             ".git",
                             ".DS_Store",
@@ -110,6 +110,73 @@ return {
                 end,
             })
         end,
+        keys = {
+            {
+                "<leader>ff",
+                function()
+                    Snacks.picker.files()
+                end,
+                desc = "Find Files (cwd)",
+            },
+            {
+                "<leader>fF",
+                function()
+                    Snacks.picker.files({ cwd = LazyVim.root() })
+                end,
+                desc = "Find Files (Root Dir)",
+            },
+            {
+                "<leader>/",
+                function()
+                    Snacks.picker.grep()
+                end,
+                desc = "Grep (cwd)",
+            },
+            {
+                "<leader>sg",
+                function()
+                    Snacks.picker.grep()
+                end,
+                desc = "Grep (cwd)",
+            },
+            {
+                "<leader>sG",
+                function()
+                    Snacks.picker.grep({ cwd = LazyVim.root() })
+                end,
+                desc = "Grep (Root Dir)",
+            },
+            {
+                "<leader>sw",
+                function()
+                    Snacks.picker.grep_word()
+                end,
+                desc = "Grep Word (cwd)",
+                mode = { "n", "x" },
+            },
+            {
+                "<leader>sW",
+                function()
+                    Snacks.picker.grep_word({ cwd = LazyVim.root() })
+                end,
+                desc = "Grep Word (Root Dir)",
+                mode = { "n", "x" },
+            },
+            {
+                "<leader>e",
+                function()
+                    Snacks.explorer()
+                end,
+                desc = "Explorer (cwd)",
+            },
+            {
+                "<leader>E",
+                function()
+                    Snacks.explorer({ cwd = LazyVim.root() })
+                end,
+                desc = "Explorer (Root Dir)",
+            },
+        },
     },
 
     -- for editing files with sudo

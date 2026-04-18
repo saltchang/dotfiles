@@ -2,6 +2,13 @@ return {
     {
         "mason-org/mason.nvim",
         opts = {
+            ensure_installed = {},
+        },
+    },
+    {
+        "WhoIsSethDaniel/mason-tool-installer.nvim",
+        dependencies = { "mason-org/mason.nvim" },
+        opts = {
             ensure_installed = {
                 "bash-language-server",
                 "beautysh",
@@ -32,6 +39,9 @@ return {
                 "vtsls",
                 "yaml-language-server",
             },
+            auto_update = true,
+            run_on_start = true,
+            start_delay = 1500,
         },
     },
 }
