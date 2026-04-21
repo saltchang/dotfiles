@@ -892,14 +892,14 @@ fi
 # ==================================================================================================
 
 # ===> bitwarden ssh agent =========================================================================
-case $OS_NAME in
-    "$MACOS")
-        export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
-        ;;
-    "$LINUX")
-        export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
-        ;;
-esac
+# case $OS_NAME in
+#     "$MACOS")
+#         export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+#         ;;
+#     "$LINUX")
+#         export SSH_AUTH_SOCK="$HOME/.bitwarden-ssh-agent.sock"
+#         ;;
+# esac
 # ==================================================================================================
 
 # ==================================================================================================
