@@ -11,7 +11,7 @@
 # generated from: zellij setup --generate-auto-start zsh
 # TIP: the autostart commands should be put before the p10k-instant-prompt
 
-if [[ -z "$ZELLIJ" ]]; then
+if [[ -z "$ZELLIJ" && -z "$SSH_CONNECTION" ]]; then
     if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
         zellij attach -c
     else
@@ -422,7 +422,14 @@ alias mv='mv -iv'
 alias ln='ln -iv'
 alias rm='rm -I -v --preserve-root'
 alias mkdir='mkdir -pv'
-alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
+# kitty ssh kitten bootstrap uses DCS escapes that terminal multiplexers
+# (zellij/tmux without allow-passthrough) swallow, hanging the connection.
+# Fall back to vanilla ssh when inside zellij.
+if [[ -n "$ZELLIJ" ]]; then
+    alias ssh='command ssh'
+else
+    alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
+fi
 alias ping='ping -c 5'
 alias sudo='nocorrect sudo '
 
