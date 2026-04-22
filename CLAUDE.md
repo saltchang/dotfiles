@@ -19,7 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/saltchang/dotfiles/HEAD/install.sh 
 The interactive `install.sh` orchestrates these setup scripts in order:
 
 1. `setup-zsh.sh` - symlinks shell dotfiles from `dotfiles/` to `$HOME`
-2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal app configs
+2. `setup-terminal.sh --kitty|--ghostty|--iterm2|--tmux` - terminal and multiplexer configs; `--tmux` also bootstraps TPM and installs declared plugins
 3. `setup-editor.sh --nvim|--zed` - editor configs
 4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
 
@@ -32,7 +32,7 @@ All setup scripts must be run from the repo root directory.
 Configs are **not** copied -- they are symlinked so edits in the repo are immediately live:
 
 - `dotfiles/*` symlinks to `$HOME/` (`.zshrc`, `.zprofile`, `.p10k.zsh`, `.zpreztorc`, `.prototools`)
-- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, rofi, swappy)
+- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, tmux, zed, hypr, hyprpanel, rofi, swappy)
 - `bin/` symlinks to `$HOME/.local/dotfiles/bin/` (added to PATH)
 
 The shared helper `scripts/setup-config-dir.sh --name=<Name> --config-dir=<dir>` handles the `.config/` symlink pattern.
@@ -51,6 +51,17 @@ Zsh with: zinit (plugin manager) -> Prezto modules + fast-syntax-highlighting + 
 ### Neovim
 
 LazyVim-based config. Plugin specs in `.config/nvim/lua/plugins/`, custom options/keymaps/autocmds in `.config/nvim/lua/config/`.
+
+### Terminal Multiplexer (tmux)
+
+tmux replaces the previous zellij setup. Config lives in `.config/tmux/`:
+
+- `tmux.conf` - main config. Prefix is `Ctrl+b`. Keybinds follow a zellij-style modal model: always-on `Alt+*` root bindings plus sub-tables (`pane-mode`, `tab-mode`, `resize-mode`, `scroll-mode`, `session-mode`, `move-mode`) entered via the prefix and exited with `Enter` / `Escape`.
+- `tokyonight_night.tmux` - colour scheme sourced from folke/tokyonight.nvim's `extras/tmux/`, aligned with the nvim tokyonight theme.
+- `cheatsheet.md` - opened in a popup via `Ctrl+b ?`.
+- Plugins managed by TPM (`~/.tmux/plugins/tpm/`). TPM also installs plugins into the XDG path `.config/tmux/plugins/`, which is gitignored.
+- `allow-passthrough on` is enabled so Kitty Graphics Protocol / sixel work inside tmux (main reason this repo uses tmux over zellij).
+- `.zshrc` autostarts `tmux new-session -A -s main` when outside tmux and not in an SSH session.
 
 ### Local Overrides
 

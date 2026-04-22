@@ -34,8 +34,8 @@ for i in "$@"; do
         SETUP_GHOSTTY=true
         shift
         ;;
-    --zellij)
-        SETUP_ZELLIJ=true
+    --tmux)
+        SETUP_TMUX=true
         shift
         ;;
     *)
@@ -78,9 +78,24 @@ if [ "$SETUP_ITERM2" = true ]; then
     ./scripts/setup-iterm2.sh
 fi
 
-if [ "$SETUP_ZELLIJ" = true ]; then
-    printf '%s\n' "Ready to setup zellij"
-    ./scripts/setup-config-dir.sh --name=Zellij --config-dir=zellij
+if [ "$SETUP_TMUX" = true ]; then
+    printf '%s\n' "Ready to setup tmux"
+    ./scripts/setup-config-dir.sh --name=Tmux --config-dir=tmux
+
+    # Bootstrap TPM (tmux plugin manager) if it's not present
+    TPM_DIR="$HOME/.tmux/plugins/tpm"
+    if [ ! -d "$TPM_DIR" ]; then
+        printf '%s\n' "Installing TPM (tmux plugin manager)..."
+        git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
+    else
+        printf '%bTPM is already installed%b\n' "$GREEN" "$NC"
+    fi
+
+    # Install declared plugins non-interactively
+    if [ -x "$TPM_DIR/bin/install_plugins" ]; then
+        printf '%s\n' "Installing tmux plugins..."
+        "$TPM_DIR/bin/install_plugins"
+    fi
 fi
 
 printf '\n'

@@ -7,20 +7,11 @@
 
 # ==================================================================================================
 
-# ===> autostart zellij ============================================================================
-# generated from: zellij setup --generate-auto-start zsh
+# ===> autostart tmux ==============================================================================
 # TIP: the autostart commands should be put before the p10k-instant-prompt
 
-if [[ -z "$ZELLIJ" && -z "$SSH_CONNECTION" ]]; then
-    if [[ "$ZELLIJ_AUTO_ATTACH" == "true" ]]; then
-        zellij attach -c
-    else
-        zellij
-    fi
-
-    if [[ "$ZELLIJ_AUTO_EXIT" == "true" ]]; then
-        exit
-    fi
+if [[ -z "$TMUX" && -z "$SSH_CONNECTION" ]] && command -v tmux >/dev/null 2>&1; then
+    exec tmux new-session -A -s main
 fi
 # ==================================================================================================
 
@@ -422,10 +413,11 @@ alias mv='mv -iv'
 alias ln='ln -iv'
 alias rm='rm -I -v --preserve-root'
 alias mkdir='mkdir -pv'
-# kitty ssh kitten bootstrap uses DCS escapes that terminal multiplexers
-# (zellij/tmux without allow-passthrough) swallow, hanging the connection.
-# Fall back to vanilla ssh when inside zellij.
-if [[ -n "$ZELLIJ" ]]; then
+# kitty ssh kitten bootstrap uses DCS escapes. tmux forwards them when
+# `allow-passthrough on` is set (see ~/.config/tmux/tmux.conf), but some
+# edge cases still break. Keep a vanilla-ssh fallback inside tmux as a
+# safety net; remove the branch once you've verified it works for you.
+if [[ -n "$TMUX" ]]; then
     alias ssh='command ssh'
 else
     alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose

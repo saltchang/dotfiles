@@ -87,12 +87,12 @@ if [ -z "$USE_KITTY" ]; then
 fi
 # ==================================================================================================
 
-# ===> Prompt User for installing zellij ===========================================================
-printf '\n%s\n%s' "Do you want to install Zellij (https://zellij.dev) terminal multiplexer? (y/n, default: y):" "> "
-read -r USE_ZELLIJ </dev/tty
+# ===> Prompt User for installing tmux =============================================================
+printf '\n%s\n%s' "Do you want to install tmux (https://github.com/tmux/tmux) terminal multiplexer? (y/n, default: y):" "> "
+read -r USE_TMUX </dev/tty
 
-if [ -z "$USE_ZELLIJ" ]; then
-    USE_ZELLIJ="y"
+if [ -z "$USE_TMUX" ]; then
+    USE_TMUX="y"
 fi
 # ==================================================================================================
 
@@ -235,28 +235,31 @@ if [ "$USE_KITTY" = "y" ]; then
 fi
 # ==================================================================================================
 
-# ===> Install zellij ==============================================================================
-if [ "$USE_ZELLIJ" = "y" ]; then
+# ===> Install tmux ================================================================================
+if [ "$USE_TMUX" = "y" ]; then
     case $OS_NAME in
     "$MACOS")
-        if ! [ -x "$(command -v zellij)" ]; then
-            printf '%s\n' "Installing zellij..."
-            brew install zellij
+        if ! [ -x "$(command -v tmux)" ]; then
+            printf '%s\n' "Installing tmux..."
+            brew install tmux
         fi
-        printf '%bzellij is already installed%b\n' "$GREEN" "$NC"
+        printf '%btmux is already installed%b\n' "$GREEN" "$NC"
         ;;
     "$LINUX")
-        if ! [ -x "$(command -v zellij)" ]; then
+        if ! [ -x "$(command -v tmux)" ]; then
             case $DISTRO_NAME in
             "$ARCH")
-                paru -S --noconfirm zellij
+                paru -S --noconfirm tmux
+                ;;
+            "$UBUNTU" | "$DEBIAN")
+                sudo apt update && sudo apt -y install tmux
                 ;;
             *)
-                printf '%b%s%b\n' "$WARNING" "Currently we only support install zellij for Arch Linux.\nPlease visit https://zellij.dev to install zellij." "$NC"
+                printf '%b%s%b\n' "$WARNING" "Unsupported distro for automatic tmux install.\nPlease install tmux manually (https://github.com/tmux/tmux/wiki/Installing)." "$NC"
                 ;;
             esac
         fi
-        printf '%bzellij is already installed%b\n' "$GREEN" "$NC"
+        printf '%btmux is already installed%b\n' "$GREEN" "$NC"
         ;;
     *) ;;
     esac
@@ -345,9 +348,9 @@ if [ "$USE_KITTY" = "y" ]; then
     SETUP_TERMINAL_ARGS+=("--kitty")
 fi
 
-if [ "$USE_ZELLIJ" = "y" ]; then
-    printf '%s\n' "Use Zellij as terminal multiplexer..."
-    SETUP_TERMINAL_ARGS+=("--zellij")
+if [ "$USE_TMUX" = "y" ]; then
+    printf '%s\n' "Use tmux as terminal multiplexer..."
+    SETUP_TERMINAL_ARGS+=("--tmux")
 fi
 
 SETUP_EDITOR_ARGS=()
