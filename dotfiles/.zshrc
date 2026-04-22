@@ -10,9 +10,9 @@
 # ===> autostart tmux ==============================================================================
 # TIP: the autostart commands should be put before the p10k-instant-prompt
 
-if [[ -z "$TMUX" && -z "$SSH_CONNECTION" ]] && command -v tmux >/dev/null 2>&1; then
-    exec tmux new-session -A -s main
-fi
+# if [[ -z "$TMUX" && -z "$SSH_CONNECTION" ]] && command -v tmux >/dev/null 2>&1; then
+# exec tmux new-session -A -s main
+# fi
 # ==================================================================================================
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
