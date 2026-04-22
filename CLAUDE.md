@@ -16,12 +16,14 @@ curl -fsSL https://raw.githubusercontent.com/saltchang/dotfiles/HEAD/install.sh 
 ./install.sh
 ```
 
-The interactive `install.sh` orchestrates these setup scripts in order:
+The interactive `install.sh` handles bootstrap-only concerns (package managers, fonts, `jump`, git clone) and then delegates to the following self-contained setup scripts:
 
-1. `setup-zsh.sh` - symlinks shell dotfiles from `dotfiles/` to `$HOME`
-2. `setup-terminal.sh --kitty|--ghostty|--iterm2|--tmux` - terminal and multiplexer configs; `--tmux` also bootstraps TPM and installs declared plugins
+1. `setup-dotfiles.sh` - installs zsh if missing, sets zsh as the default shell, and symlinks shell dotfiles from `dotfiles/` to `$HOME`
+2. `setup-terminal.sh --kitty|--ghostty|--iterm2|--tmux` - terminal and multiplexer configs; each flag also installs the corresponding binary if missing, and `--tmux` additionally bootstraps TPM and installs declared plugins
 3. `setup-editor.sh --nvim|--zed` - editor configs
 4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
+
+Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --tmux` to reinstall and reconfigure tmux) without rerunning `install.sh`.
 
 All setup scripts must be run from the repo root directory.
 

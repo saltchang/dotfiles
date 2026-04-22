@@ -2,12 +2,17 @@
 
 # ===> Colors ======================================================================================
 GREEN="\033[32m"
+WARNING="\033[33m"
 NC="\033[0m"
 # ==================================================================================================
 
 OS_NAME=""
 LINUX="Linux"
 MACOS="macOS"
+
+UBUNTU="Ubuntu"
+DEBIAN="Debian"
+ARCH="Arch"
 
 case $(uname) in
 Darwin)
@@ -18,6 +23,28 @@ Linux)
     OS_NAME=$LINUX
     ;;
 esac
+
+# ===> Detect Linux Distribution ===================================================================
+case $OS_NAME in
+"$LINUX")
+    if command -v lsb_release &>/dev/null; then
+        OS_INFO=$(lsb_release -a 2>/dev/null)
+
+        case $OS_INFO in
+        *"$UBUNTU"*)
+            DISTRO_NAME=$UBUNTU
+            ;;
+        *"$DEBIAN"*)
+            DISTRO_NAME=$DEBIAN
+            ;;
+        *"$ARCH"*)
+            DISTRO_NAME=$ARCH
+            ;;
+        esac
+    fi
+    ;;
+esac
+# ==================================================================================================
 
 # ===> Arugments ===================================================================================
 for i in "$@"; do
@@ -48,6 +75,28 @@ done
 
 if [ "$SETUP_KITTY" = true ]; then
     printf '%s\n' "Ready to setup kitty"
+
+    # Install kitty if it's not installed
+    if ! [ -x "$(command -v kitty)" ]; then
+        printf '%s\n' "Installing kitty..."
+        case $OS_NAME in
+        "$MACOS")
+            brew install --cask kitty
+            ;;
+        "$LINUX")
+            case $DISTRO_NAME in
+            "$ARCH")
+                paru -S --noconfirm kitty
+                ;;
+            *)
+                printf '%b%s%b\n' "$WARNING" "Currently we only support install kitty terminal for Arch Linux.\nPlease visit https://github.com/kovidgoyal/kitty to install kitty." "$NC"
+                ;;
+            esac
+            ;;
+        *) ;;
+        esac
+    fi
+    printf '%bkitty is already installed%b\n' "$GREEN" "$NC"
 
     KITTY_LOCAL_CONFIG_PATH="./.config/kitty/local.conf"
 
@@ -80,6 +129,32 @@ fi
 
 if [ "$SETUP_TMUX" = true ]; then
     printf '%s\n' "Ready to setup tmux"
+
+    # Install tmux if it's not installed
+    if ! [ -x "$(command -v tmux)" ]; then
+        printf '%s\n' "Installing tmux..."
+        case $OS_NAME in
+        "$MACOS")
+            brew install tmux
+            ;;
+        "$LINUX")
+            case $DISTRO_NAME in
+            "$ARCH")
+                paru -S --noconfirm tmux
+                ;;
+            "$UBUNTU" | "$DEBIAN")
+                sudo apt update && sudo apt -y install tmux
+                ;;
+            *)
+                printf '%b%s%b\n' "$WARNING" "Unsupported distro for automatic tmux install.\nPlease install tmux manually (https://github.com/tmux/tmux/wiki/Installing)." "$NC"
+                ;;
+            esac
+            ;;
+        *) ;;
+        esac
+    fi
+    printf '%btmux is already installed%b\n' "$GREEN" "$NC"
+
     ./scripts/setup-config-dir.sh --name=Tmux --config-dir=tmux
 
     # Bootstrap TPM (tmux plugin manager) if it's not present
