@@ -61,10 +61,6 @@ for i in "$@"; do
         SETUP_GHOSTTY=true
         shift
         ;;
-    --tmux)
-        SETUP_TMUX=true
-        shift
-        ;;
     *)
         printf '%s\n' "Unknown option $i"
         exit 1
@@ -125,52 +121,6 @@ fi
 if [ "$SETUP_ITERM2" = true ]; then
     printf '%s\n' "Ready to setup iterm2"
     ./scripts/setup-iterm2.sh
-fi
-
-if [ "$SETUP_TMUX" = true ]; then
-    printf '%s\n' "Ready to setup tmux"
-
-    # Install tmux if it's not installed
-    if ! [ -x "$(command -v tmux)" ]; then
-        printf '%s\n' "Installing tmux..."
-        case $OS_NAME in
-        "$MACOS")
-            brew install tmux
-            ;;
-        "$LINUX")
-            case $DISTRO_NAME in
-            "$ARCH")
-                paru -S --noconfirm tmux
-                ;;
-            "$UBUNTU" | "$DEBIAN")
-                sudo apt update && sudo apt -y install tmux
-                ;;
-            *)
-                printf '%b%s%b\n' "$WARNING" "Unsupported distro for automatic tmux install.\nPlease install tmux manually (https://github.com/tmux/tmux/wiki/Installing)." "$NC"
-                ;;
-            esac
-            ;;
-        *) ;;
-        esac
-    fi
-    printf '%btmux is already installed%b\n' "$GREEN" "$NC"
-
-    ./scripts/setup-config-dir.sh --name=Tmux --config-dir=tmux
-
-    # Bootstrap TPM (tmux plugin manager) if it's not present
-    TPM_DIR="$HOME/.tmux/plugins/tpm"
-    if [ ! -d "$TPM_DIR" ]; then
-        printf '%s\n' "Installing TPM (tmux plugin manager)..."
-        git clone https://github.com/tmux-plugins/tpm "$TPM_DIR"
-    else
-        printf '%bTPM is already installed%b\n' "$GREEN" "$NC"
-    fi
-
-    # Install declared plugins non-interactively
-    if [ -x "$TPM_DIR/bin/install_plugins" ]; then
-        printf '%s\n' "Installing tmux plugins..."
-        "$TPM_DIR/bin/install_plugins"
-    fi
 fi
 
 printf '\n'

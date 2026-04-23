@@ -19,11 +19,11 @@ curl -fsSL https://raw.githubusercontent.com/saltchang/dotfiles/HEAD/install.sh 
 The interactive `install.sh` handles bootstrap-only concerns (package managers, fonts, `jump`, git clone) and then delegates to the following self-contained setup scripts:
 
 1. `setup-dotfiles.sh` - installs zsh if missing, sets zsh as the default shell, and symlinks shell dotfiles from `dotfiles/` to `$HOME`
-2. `setup-terminal.sh --kitty|--ghostty|--iterm2|--tmux` - terminal and multiplexer configs; each flag also installs the corresponding binary if missing, and `--tmux` additionally bootstraps TPM and installs declared plugins
+2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal configs; each flag also installs the corresponding binary if missing
 3. `setup-editor.sh --nvim|--zed` - editor configs
 4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
 
-Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --tmux` to reinstall and reconfigure tmux) without rerunning `install.sh`.
+Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --kitty` to reinstall and reconfigure kitty) without rerunning `install.sh`.
 
 All setup scripts must be run from the repo root directory.
 
@@ -34,7 +34,7 @@ All setup scripts must be run from the repo root directory.
 Configs are **not** copied -- they are symlinked so edits in the repo are immediately live:
 
 - `dotfiles/*` symlinks to `$HOME/` (`.zshrc`, `.zprofile`, `.p10k.zsh`, `.zpreztorc`, `.prototools`)
-- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, tmux, zed, hypr, hyprpanel, rofi, swappy)
+- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, rofi, swappy)
 - `bin/` symlinks to `$HOME/.local/dotfiles/bin/` (added to PATH)
 
 The shared helper `scripts/setup-config-dir.sh --name=<Name> --config-dir=<dir>` handles the `.config/` symlink pattern.
@@ -54,16 +54,16 @@ Zsh with: zinit (plugin manager) -> Prezto modules + fast-syntax-highlighting + 
 
 LazyVim-based config. Plugin specs in `.config/nvim/lua/plugins/`, custom options/keymaps/autocmds in `.config/nvim/lua/config/`.
 
-### Terminal Multiplexer (tmux)
+### Kitty pane / tab management
 
-tmux replaces the previous zellij setup. Config lives in `.config/tmux/`:
+Kitty itself is used to manage panes (kitty "windows" inside a tab) and tabs — no external multiplexer. The `splits` layout is enabled so panes can be arbitrarily split horizontally / vertically. Zellij-style `Alt+*` bindings live in `.config/kitty/kitty.conf`:
 
-- `tmux.conf` - main config. Prefix is `Ctrl+b`. Keybinds follow a zellij-style modal model: always-on `Alt+*` root bindings plus sub-tables (`pane-mode`, `tab-mode`, `resize-mode`, `scroll-mode`, `session-mode`, `move-mode`) entered via the prefix and exited with `Enter` / `Escape`.
-- `tokyonight_night.tmux` - colour scheme sourced from folke/tokyonight.nvim's `extras/tmux/`, aligned with the nvim tokyonight theme.
-- `cheatsheet.md` - opened in a popup via `Ctrl+b ?`.
-- Plugins managed by TPM (`~/.tmux/plugins/tpm/`). TPM also installs plugins into the XDG path `.config/tmux/plugins/`, which is gitignored.
-- `allow-passthrough on` is enabled so Kitty Graphics Protocol / sixel work inside tmux (main reason this repo uses tmux over zellij).
-- `.zshrc` autostarts `tmux new-session -A -s main` when outside tmux and not in an SSH session.
+- `Alt+h/l` — focus left/right neighbor; if at the edge, fall through to the previous/next tab. Implemented via the custom kitten `.config/kitty/move_focus_or_tab.py` (uses `Tab.neighboring_window` then compares the active window id to detect "no movement"; see kitty's [custom kittens docs](https://sw.kovidgoyal.net/kitty/kittens/custom/)).
+- `Alt+j/k` — focus down/up neighbor (no tab fallthrough).
+- `Alt+n` — new pane, smart split based on aspect ratio (`launch --location=split`).
+- `Alt+d` — split current pane downward (`launch --location=hsplit`).
+- `Alt+Shift+x` — close current pane.
+- Tab management uses kitty defaults (`Ctrl+Shift+T` new tab, `Ctrl+Shift+Left/Right` switch, etc.).
 
 ### Local Overrides
 

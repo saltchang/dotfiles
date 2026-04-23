@@ -3,7 +3,3 @@
 *.local
 paru
 .zshrc.local
-
-# tmux plugins installed by TPM into XDG config dir
-.config/tmux/plugins/
-

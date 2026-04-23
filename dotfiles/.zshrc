@@ -7,14 +7,6 @@
 
 # ==================================================================================================
 
-# ===> autostart tmux ==============================================================================
-# TIP: the autostart commands should be put before the p10k-instant-prompt
-
-# if [[ -z "$TMUX" && -z "$SSH_CONNECTION" ]] && command -v tmux >/dev/null 2>&1; then
-# exec tmux new-session -A -s main
-# fi
-# ==================================================================================================
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -413,15 +405,7 @@ alias mv='mv -iv'
 alias ln='ln -iv'
 alias rm='rm -I -v --preserve-root'
 alias mkdir='mkdir -pv'
-# kitty ssh kitten bootstrap uses DCS escapes. tmux forwards them when
-# `allow-passthrough on` is set (see ~/.config/tmux/tmux.conf), but some
-# edge cases still break. Keep a vanilla-ssh fallback inside tmux as a
-# safety net; remove the branch once you've verified it works for you.
-if [[ -n "$TMUX" ]]; then
-    alias ssh='command ssh'
-else
-    alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
-fi
+alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
 alias ping='ping -c 5'
 alias sudo='nocorrect sudo '
 

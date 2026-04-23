@@ -87,15 +87,6 @@ if [ -z "$USE_KITTY" ]; then
 fi
 # ==================================================================================================
 
-# ===> Prompt User for installing tmux =============================================================
-printf '\n%s\n%s' "Do you want to install tmux (https://github.com/tmux/tmux) terminal multiplexer? (y/n, default: y):" "> "
-read -r USE_TMUX </dev/tty
-
-if [ -z "$USE_TMUX" ]; then
-    USE_TMUX="y"
-fi
-# ==================================================================================================
-
 # ===> Prompt User for setup Neovim config =========================================================
 printf '\n%s\n%s' "Do you want to setup Neovim (https://neovim.io) config? (y/n, default: y):" "> "
 read -r USE_NVIM </dev/tty
@@ -232,11 +223,6 @@ SETUP_TERMINAL_ARGS=()
 if [ "$USE_KITTY" = "y" ]; then
     printf '%s\n' "Use Kitty as terminal..."
     SETUP_TERMINAL_ARGS+=("--kitty")
-fi
-
-if [ "$USE_TMUX" = "y" ]; then
-    printf '%s\n' "Use tmux as terminal multiplexer..."
-    SETUP_TERMINAL_ARGS+=("--tmux")
 fi
 
 SETUP_EDITOR_ARGS=()
