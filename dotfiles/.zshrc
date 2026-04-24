@@ -846,7 +846,9 @@ typeset -U path PATH # remove duplicates in $PATH
 # ===> Run commands before the prompt is displayed =================================================
 
 # ---> Change directory to $HOME -------------------------------------------------------------------
-if [ "$0" = "$ZSH_SHELL_NAME" ]; then # don't run when source .zshrc
+# Only jump to $HOME for the top-level login shell, so new kitty panes/tabs
+# launched with --cwd=current keep their inherited working directory.
+if [ "$0" = "$ZSH_SHELL_NAME" ] && [ "$SHLVL" -eq 1 ] && [ -z "$KITTY_PID" ]; then
     cd "$HOME" || exit
 fi
 
