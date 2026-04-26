@@ -63,6 +63,7 @@ Kitty itself is used to manage panes (kitty "windows" inside a tab) and tabs —
 - `Alt+n` — new pane, smart split based on aspect ratio (`launch --location=split`).
 - `Alt+d` — split current pane downward (`launch --location=hsplit`).
 - `Alt+Shift+x` — close current pane.
+- `Alt+f` — toggle fullscreen (zoom) for the current pane via `toggle_layout stack` (requires `stack` in `enabled_layouts`).
 - Tab management uses kitty defaults (`Ctrl+Shift+T` new tab, `Ctrl+Shift+Left/Right` switch, etc.).
 
 ### Local Overrides
