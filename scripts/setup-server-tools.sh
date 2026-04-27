@@ -40,5 +40,5 @@ else
     fi
 
     printf '%buv installed at ~/.local/bin/uv. New shells will pick it up automatically.%b\n' "$GREEN" "$NC"
-    printf '%bFor this shell only, run: source ~/.local/bin/env%b\n' "$WARNING" "$NC"
+    printf '%bFor this shell only, run: export PATH="$HOME/.local/bin:$PATH"%b\n' "$WARNING" "$NC"
 fi

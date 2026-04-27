@@ -33,7 +33,7 @@ To update or re-install, `cd` into your cloned `dotfiles` directory and run:
 ```bash
 git clone https://github.com/saltchang/dotfiles.git ~/projects/personal/dotfiles
 ~/projects/personal/dotfiles/scripts/setup-server-tools.sh
-source ~/.local/bin/env   # one-time, only for the shell that ran the installer
+export PATH="$HOME/.local/bin:$PATH"   # one-time, only for the shell that ran the installer
 ```
 
 After this, **every new shell automatically has `uv` on PATH** — no need to `source` again. On bare servers the installer adds the appropriate line to your shell's rc (`.bashrc` / `.profile`); on desktops with these dotfiles, `dotfiles/.zshrc` already puts `~/.local/bin` on PATH centrally.
