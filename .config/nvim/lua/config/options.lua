@@ -1,5 +1,12 @@
 local opt = vim.opt
 
+local venv_python = vim.fn.expand("~/.venvs/nvim/bin/python")
+if vim.fn.executable(venv_python) == 1 then
+    vim.g.python3_host_prog = venv_python
+else
+    vim.g.loaded_python3_provider = 0
+end
+
 opt.showtabline = 2 -- always show tabs
 
 opt.number = true

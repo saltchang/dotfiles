@@ -26,6 +26,20 @@ To update or re-install, `cd` into your cloned `dotfiles` directory and run:
 ./install.sh
 ```
 
+### Server / headless setup
+
+`install.sh` is desktop-oriented (asks about terminals, editors, and on Arch about hyprland). For a bare server (e.g. a remote VM running k3s) you only want a small set of CLI tools — currently `uv` for running PEP 723 Python scripts. Bootstrap once with:
+
+```bash
+git clone https://github.com/saltchang/dotfiles.git ~/projects/personal/dotfiles
+~/projects/personal/dotfiles/scripts/setup-server-tools.sh
+source ~/.local/bin/env   # one-time, only for the shell that ran the installer
+```
+
+After this, **every new shell automatically has `uv` on PATH** — no need to `source` again. On bare servers the installer adds the appropriate line to your shell's rc (`.bashrc` / `.profile`); on desktops with these dotfiles, `dotfiles/.zshrc` already puts `~/.local/bin` on PATH centrally.
+
+The script is idempotent — re-run it any time to refresh, or after a `git pull` to pick up newly-added server tools.
+
 ## Customize Your zsh
 
 Run the below command to open your `.zshrc`:

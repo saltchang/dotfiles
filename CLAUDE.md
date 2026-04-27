@@ -22,6 +22,7 @@ The interactive `install.sh` handles bootstrap-only concerns (package managers, 
 2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal configs; each flag also installs the corresponding binary if missing
 3. `setup-editor.sh --nvim|--zed` - editor configs
 4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
+5. `scripts/setup-server-tools.sh` - headless-host tools (uv). Not wired into `install.sh`; run manually on servers (e.g. contabo) where the desktop bootstrap doesn't apply.
 
 Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --kitty` to reinstall and reconfigure kitty) without rerunning `install.sh`.
 

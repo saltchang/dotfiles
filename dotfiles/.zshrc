@@ -227,20 +227,6 @@ fi
 # ==================================================================================================
 
 
-# ===> Python ======================================================================================
-# --------> pyenv ----------------------------------------------------------------------------------
-# to install pyenv run the following command
-# curl https://pyenv.run | bash
-# export PYENV_ROOT="$HOME/.pyenv"
-# addToPATH "$PYENV_ROOT/bin"
-
-# init pyenv if pyenv is installed
-# if [ -d "$PYENV_ROOT/bin" ]; then
-# eval "$(pyenv init -)"
-# eval "$(pyenv virtualenv-init -)"
-# fi
-# ==================================================================================================
-
 # ===> Deno (Optional) =============================================================================
 # if [ -f "$HOME/.deno/env" ]; then
 #     . "$HOME/.deno/env"
@@ -711,6 +697,13 @@ addToPATH $HOME/.antigravity/antigravity/bin
 
 # ===> LMStudio ====================================================================================
 addToPATH $HOME/.lmstudio/bin
+# ==================================================================================================
+
+# ===> uv (and other ~/.local/bin tools) ===========================================================
+# No -d guard: ~/.local/bin is a near-universal Unix convention path, and
+# adding it unconditionally means tools installed there (uv, pipx, etc.)
+# work in the next shell without needing to "source ~/.local/bin/env".
+addToPATH $HOME/.local/bin
 # ==================================================================================================
 
 # ===> Rust ========================================================================================

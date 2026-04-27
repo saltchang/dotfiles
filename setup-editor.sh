@@ -32,6 +32,7 @@ fi
 if [ "$SETUP_NVIM" = true ]; then
     printf '%s\n' "Ready to setup nvim"
     ./scripts/setup-config-dir.sh --name=Neovim --config-dir=nvim
+    ./scripts/setup-nvim-python-host.sh
 fi
 
 printf '\n'
