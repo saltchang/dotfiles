@@ -1,0 +1,41 @@
+#!/bin/bash
+# screenshot - capture a region or focused output, then edit in satty.
+#
+# In satty's toolbar:
+#   Copy        (Ctrl+C)        copies the saved file path (text) to the clipboard,
+#                               so Ctrl+V pastes the path into terminal apps such
+#                               as the Claude Code CLI.
+#   Save        (Ctrl+S)        saves edits over the auto-saved file.
+#   Save as     (Ctrl+Shift+S)  opens a file chooser for a custom location.
+
+set -u
+
+mode="${1:-region}"
+
+dir="$HOME/Pictures/Screenshots"
+mkdir -p "$dir"
+file="$dir/screenshot-$(date +%Y%m%d-%H%M%S).png"
+
+case "$mode" in
+region)
+    geom="$(slurp)" || exit 0
+    capture=(grim -g "$geom" -)
+    ;;
+output)
+    monitor="$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .name')"
+    capture=(grim -o "$monitor" -)
+    ;;
+*)
+    echo "Usage: screenshot {region|output}" >&2
+    exit 2
+    ;;
+esac
+
+# tee auto-saves the unedited capture; satty reads the same bytes via stdin.
+# --copy-command is wrapped in `sh -c` by satty, so we discard stdin (the PNG
+# bytes) and put the file path text on the clipboard instead.
+"${capture[@]}" | tee "$file" | satty \
+    --filename - \
+    --output-filename "$file" \
+    --resize 1920x1080 \
+    --copy-command "cat >/dev/null && printf '%s' '$file' | wl-copy"
