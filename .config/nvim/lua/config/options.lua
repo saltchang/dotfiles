@@ -1,4 +1,5 @@
 local opt = vim.opt
+local uv = vim.uv or vim.loop
 
 local venv_python = vim.fn.expand("~/.venvs/nvim/bin/python")
 if vim.fn.executable(venv_python) == 1 then
@@ -26,8 +27,102 @@ opt.scrolloff = 8
 opt.signcolumn = "yes"
 opt.cursorlineopt = "both"
 opt.modeline = false
+opt.title = true
+opt.titlestring = "%{v:lua.dotfiles_nvim_title()}"
 
 opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
+
+local function existing_dir(start_path)
+    if not start_path or start_path == "" then
+        return nil
+    end
+
+    local path = vim.fn.fnamemodify(start_path, ":p")
+    local stat = uv.fs_stat(path)
+
+    while not stat do
+        local parent = vim.fs.dirname(path)
+        if not parent or parent == path then
+            return nil
+        end
+
+        path = parent
+        stat = uv.fs_stat(path)
+    end
+
+    if stat and stat.type == "file" then
+        return vim.fs.dirname(path)
+    end
+
+    return path
+end
+
+local function git_dir(dot_git)
+    local stat = uv.fs_stat(dot_git)
+    if not stat then
+        return nil
+    end
+
+    if stat.type == "directory" then
+        return dot_git
+    end
+
+    local gitdir_line = vim.fn.readfile(dot_git, "", 1)[1]
+    local path = gitdir_line and gitdir_line:match("^gitdir:%s*(.+)%s*$")
+    if not path then
+        return nil
+    end
+
+    if not vim.startswith(path, "/") then
+        path = vim.fs.normalize(vim.fs.dirname(dot_git) .. "/" .. path)
+    end
+
+    return path
+end
+
+local function git_info(start_path)
+    local path = existing_dir(start_path)
+    if not path then
+        return nil
+    end
+
+    local git_path = vim.fs.find(".git", { path = path, upward = true })[1]
+    if not git_path then
+        return nil
+    end
+
+    return {
+        root = vim.fs.dirname(git_path),
+        git_dir = git_dir(git_path),
+    }
+end
+
+local function branch_segment(git_path)
+    if not git_path then
+        return nil
+    end
+
+    local head_path = vim.fs.normalize(git_path .. "/HEAD")
+    if vim.fn.filereadable(head_path) ~= 1 then
+        return nil
+    end
+
+    local head = vim.fn.readfile(head_path, "", 1)[1]
+    local branch = head and head:match("^ref:%s+refs/heads/(.+)$")
+
+    return branch and branch:match("([^/]+)$") or nil
+end
+
+function _G.dotfiles_nvim_title()
+    local current_file = vim.bo.buftype == "" and vim.api.nvim_buf_get_name(0) or nil
+    local cwd = vim.fn.getcwd()
+    local repo = git_info(current_file) or git_info(cwd)
+    local root = repo and repo.root or cwd
+    local title = "nvim: " .. vim.fn.fnamemodify(root, ":t")
+    local branch = repo and branch_segment(repo.git_dir)
+
+    return branch and string.format("%s (%s)", title, branch) or title
+end
 
 -- save undo history (even if the editor is closed)
 opt.undofile = true
