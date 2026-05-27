@@ -128,7 +128,6 @@ esac
 TERMINAL_APP=""
 ITERM="iTerm.app"
 APPLE_TERMINAL="Apple_Terminal"
-ALACRITTY="alacritty"
 
 case $OS_NAME in
     "$MACOS")
@@ -139,16 +138,10 @@ case $OS_NAME in
             $APPLE_TERMINAL)
                 TERMINAL_APP=$APPLE_TERMINAL
                 ;;
-            $ALACRITTY)
-                TERMINAL_APP=$ALACRITTY
-                ;;
         esac
         ;;
     "$LINUX")
         case $TERM_PROGRAM in
-            $ALACRITTY)
-                TERMINAL_APP=$ALACRITTY
-                ;;
         esac
         ;;
 esac
@@ -176,24 +169,11 @@ export LC_MESSAGES="en_US.UTF-8"
 # ==================================================================================================
 
 # ===> Bind Keys ===================================================================================
-case $OS_NAME in
-    "$MACOS")
-        case $TERMINAL_APP in
-            "$ALACRITTY")
-                bindkey '^[[1;9D' beginning-of-line
-                bindkey '^[[1;9C' end-of-line
-                bindkey '^B' backward-word
-                bindkey '^F' forward-word
-                ;;
-        esac
-        ;;
-    "$LINUX")
-        # Keybindings for Home and End
-        bindkey '^[[H' beginning-of-line
-        bindkey '^[[F' end-of-line
-        bindkey "^[[3~" delete-char
-        ;;
-esac
+# Home / End — works for kitty (cmd+left/right remapped to Home/End) and any
+# terminal that sends the standard sequences.
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey "^[[3~" delete-char
 
 # Bind keys for history-substring-search
 # See: https://github.com/zsh-users/zsh-history-substring-search/issues/110#issuecomment-650832313
