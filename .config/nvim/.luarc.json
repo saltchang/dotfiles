@@ -8,8 +8,7 @@
   "Lua.workspace.library": [
     "${3rd}/luv/library",
     "${3rd}/busted/library",
-    "${3rd}/luassert/library",
-    "~/.local/share/nvim/lazy/avante.nvim"
+    "${3rd}/luassert/library"
   ],
   "Lua.workspace.checkThirdParty": false,
   "Lua.diagnostics.globals": [
