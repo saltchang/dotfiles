@@ -172,4 +172,7 @@ vim.g.lazyvim_prettier_needs_config = true
 -- Set to "bacon-ls" to use bacon-ls instead of rust-analyzer.
 -- only for diagnostics. The rest of LSP support will still be
 -- provided by rust-analyzer.
-vim.g.lazyvim_rust_diagnostics = "rust-analyzer"
+-- Use bacon-ls so Rust diagnostics (errors/warnings/clippy) update live
+-- as you type, without needing to save. rust-analyzer still provides
+-- completion/hover/goto; bacon runs cargo check/clippy in the background.
+vim.g.lazyvim_rust_diagnostics = "bacon-ls"

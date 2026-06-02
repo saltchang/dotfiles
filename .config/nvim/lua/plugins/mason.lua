@@ -10,6 +10,8 @@ return {
         dependencies = { "mason-org/mason.nvim" },
         opts = {
             ensure_installed = {
+                "bacon",
+                "bacon-ls",
                 "bash-language-server",
                 "beautysh",
                 "biome",
