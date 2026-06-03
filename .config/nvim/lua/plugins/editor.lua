@@ -27,6 +27,16 @@ return {
                             pager = "delta --dark --paging=never --side-by-side",
                         },
                     },
+                    -- Override the `nvim-remote` editPreset so pressing `e`
+                    -- (or opening a file via lazygit) closes the lazygit float
+                    -- and loads the file into the originating tab — same UX
+                    -- as our diffview `edit_in_place`.
+                    os = {
+                        edit = 'nvim --server "$NVIM" --remote-send "<Cmd>lua SaltLazygitOpen([==[{{filename}}]==], 0)<CR>"',
+                        editAtLine = 'nvim --server "$NVIM" --remote-send "<Cmd>lua SaltLazygitOpen([==[{{filename}}]==], {{line}})<CR>"',
+                        editAtLineAndWait = 'nvim --server "$NVIM" --remote-send "<Cmd>lua SaltLazygitOpen([==[{{filename}}]==], {{line}})<CR>"',
+                        editInTerminal = false,
+                    },
                 },
             },
             picker = {
@@ -109,6 +119,60 @@ return {
                     vim.api.nvim_set_hl(0, "SnacksPickerPathIgnored", { fg = "#565f89" })
                 end,
             })
+
+            -- Invoked by lazygit's edit command (see lazygit.config.os.edit).
+            -- Closes any floating lazygit terminal in the current tab, then
+            -- loads the file into a normal window of that tab — mirroring the
+            -- behavior of our diffview `edit_in_place`.
+            _G.SaltLazygitOpen = function(path, line)
+                if not path or path == "" then
+                    return
+                end
+                path = vim.fn.fnamemodify(path, ":p")
+
+                -- Close floating terminal windows (lazygit float).
+                for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                    local cfg = vim.api.nvim_win_get_config(win)
+                    if cfg.relative ~= "" then
+                        local buf = vim.api.nvim_win_get_buf(win)
+                        local ok_bt, bt = pcall(vim.api.nvim_get_option_value, "buftype", { buf = buf })
+                        if ok_bt and bt == "terminal" then
+                            pcall(vim.api.nvim_win_close, win, true)
+                        end
+                    end
+                end
+
+                -- Find a normal file window in the current tab.
+                local target_win = vim.api.nvim_get_current_win()
+                for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                    local cfg = vim.api.nvim_win_get_config(win)
+                    if cfg.relative == "" then
+                        local buf = vim.api.nvim_win_get_buf(win)
+                        local ok_bt, bt = pcall(vim.api.nvim_get_option_value, "buftype", { buf = buf })
+                        if ok_bt and bt == "" then
+                            target_win = win
+                            break
+                        end
+                    end
+                end
+                pcall(vim.api.nvim_set_current_win, target_win)
+
+                local bufnr = vim.fn.bufadd(path)
+                vim.fn.bufload(bufnr)
+                -- Use noautocmd to bypass snacks.nvim dashboard's BufWipeout
+                -- autocmd which throws E367 and aborts nvim_win_set_buf.
+                pcall(vim.api.nvim_win_call, target_win, function()
+                    vim.cmd("noautocmd buffer " .. bufnr)
+                end)
+                pcall(vim.api.nvim_exec_autocmds, "BufEnter", { buffer = bufnr })
+                pcall(vim.api.nvim_exec_autocmds, "BufWinEnter", { buffer = bufnr })
+                pcall(vim.cmd, "filetype detect")
+                pcall(vim.api.nvim_set_option_value, "buflisted", true, { buf = bufnr })
+
+                if line and tonumber(line) and tonumber(line) > 0 then
+                    pcall(vim.api.nvim_win_set_cursor, target_win, { tonumber(line), 0 })
+                end
+            end
         end,
         keys = {
             {
