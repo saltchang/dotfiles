@@ -65,6 +65,13 @@ return {
                                 Info = "",
                             },
                         },
+                        win = {
+                            list = {
+                                keys = {
+                                    ["<leader>ga"] = { "git_stage", mode = { "n" } },
+                                },
+                            },
+                        },
                     },
                     grep = {
                         hidden = true,
