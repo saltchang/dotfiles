@@ -99,7 +99,7 @@ fi
 # Hyprland eco for Arch Linux
 case $DISTRO_NAME in
 "$ARCH")
-    printf '\n%s\n%s' "Do you want to setup hyprland, hyprpanel, rofi, and swappy? (y/n, default: y):" "> "
+    printf '\n%s\n%s' "Do you want to setup hyprland, hyprpanel, rofi, walker, and swappy? (y/n, default: y):" "> "
     read -r USE_HYPR </dev/tty
 
     if [ -z "$USE_HYPR" ]; then

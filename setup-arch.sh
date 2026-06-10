@@ -25,6 +25,8 @@ fi
 
 ./scripts/setup-config-dir.sh --name=Rofi --config-dir=rofi
 
+./scripts/setup-config-dir.sh --name=Walker --config-dir=walker
+
 ./scripts/setup-config-dir.sh --name=Swappy --config-dir=swappy
 
 printf '\n%bSetup completed!%b\n' "$GREEN" "$NC"
