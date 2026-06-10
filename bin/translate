@@ -1,0 +1,29 @@
+#!/bin/bash
+# translate - region-OCR to clipboard + Dialect translation window (Hyprland).
+#
+# Select a region, OCR it (eng+chi_tra), copy the recognised text to the
+# clipboard, then open it in Dialect where the text can be edited with live
+# re-translation to Traditional Chinese — Google Translate-style UX.
+# Wayland-native capture via grim/slurp.
+#
+# Requires: grim, slurp, tesseract (eng+chi_tra), dialect, wl-clipboard,
+#           libnotify (notify-send).
+
+set -u
+
+ocr_langs="eng+chi_tra"
+target="zh-TW"
+
+# slurp exits non-zero when the selection is cancelled (Esc / right-click).
+geom="$(slurp)" || exit 0
+
+text="$(grim -g "$geom" - | tesseract - - -l "$ocr_langs" 2>/dev/null \
+    | tr '\n' ' ' | sed 's/  */ /g; s/^ //; s/ *$//')"
+
+if [ -z "$text" ]; then
+    notify-send "Translate" "No text recognised."
+    exit 0
+fi
+
+printf '%s' "$text" | wl-copy
+exec dialect --text "$text" --dest "$target"
