@@ -1,0 +1,212 @@
+/* salty — port of the old rofi theme (.config/rofi/salty.rasi) to walker */
+
+@define-color window_bg_color #18191B;
+@define-color window_bg_alt #202224;
+@define-color selected_bg_color #2B2E47;
+@define-color active_bg_color #2E323F;
+@define-color theme_fg_color #FFFCF9;
+@define-color urgent_bg_color #D08261;
+
+* {
+    all: unset;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono Nerd Font", monospace;
+    font-size: 14px;
+}
+
+popover {
+    background: lighter(@window_bg_color);
+    border: 1px solid alpha(@theme_fg_color, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.normal-icons {
+    -gtk-icon-size: 16px;
+}
+
+.large-icons {
+    -gtk-icon-size: 32px;
+}
+
+scrollbar {
+    opacity: 0;
+}
+
+.box-wrapper {
+    /* rofi: background #18191BCC (80% alpha), no shadow — a shadow reads as a
+     dark gap hugging the window edge next to the flush sidebar image */
+    background: alpha(@window_bg_color, 0.8);
+    border-radius: 15px;
+}
+
+/* left panel — same image as rofi's imagebox.
+   No padding here: GTK positions the background image relative to the area
+   inside the padding, which leaves padding-sized blank bands at the top and
+   bottom. The inset for the input lives on .search-container instead. */
+.sidebar {
+    background-image: url("Tower.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+/* right panel — rofi's listbox */
+.box {
+    padding: 20px;
+}
+
+.search-container {
+    border-radius: 10px;
+    margin: 20px;
+}
+
+.input {
+    background: @window_bg_alt;
+    padding: 15px;
+    border-radius: 10px;
+    color: @theme_fg_color;
+    caret-color: @theme_fg_color;
+}
+
+.input image {
+    -gtk-icon-size: 14px;
+    margin-right: 10px;
+    color: @theme_fg_color;
+}
+
+.input placeholder {
+    opacity: 0.5;
+}
+
+.input selection {
+    background: @selected_bg_color;
+    color: @theme_fg_color;
+}
+
+.preview-box,
+.elephant-hint,
+.placeholder {
+    color: @theme_fg_color;
+}
+
+.placeholder {
+    opacity: 0.5;
+}
+
+.list {
+    color: @theme_fg_color;
+}
+
+.list>child {
+    margin-bottom: 4px;
+}
+
+.item-box {
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+child:hover .item-box {
+    background: alpha(@active_bg_color, 0.7);
+}
+
+child:selected .item-box,
+row:selected .item-box {
+    background: @selected_bg_color;
+}
+
+.item-quick-activation {
+    background: alpha(@selected_bg_color, 0.6);
+    border-radius: 5px;
+    padding: 6px 8px;
+    font-size: 12px;
+}
+
+.item-subtext {
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.providerlist .item-subtext {
+    font-size: unset;
+    opacity: 0.75;
+}
+
+.item-image-text {
+    font-size: 28px;
+}
+
+.preview {
+    border: 1px solid alpha(@selected_bg_color, 0.8);
+    border-radius: 10px;
+    color: @theme_fg_color;
+}
+
+.preview .large-icons {
+    -gtk-icon-size: 64px;
+}
+
+.calc .item-text {
+    font-size: 24px;
+}
+
+.symbols .item-image {
+    font-size: 24px;
+}
+
+.todo.done .item-text-box {
+    opacity: 0.25;
+}
+
+.todo.urgent {
+    font-size: 24px;
+}
+
+.todo.active {
+    font-weight: bold;
+}
+
+.bluetooth.disconnected {
+    opacity: 0.5;
+}
+
+.keybinds {
+    padding-top: 10px;
+    border-top: 1px solid alpha(@theme_fg_color, 0.08);
+    font-size: 12px;
+    color: @theme_fg_color;
+}
+
+.keybind-button {
+    opacity: 0.5;
+}
+
+.keybind-button:hover {
+    opacity: 0.75;
+}
+
+.keybind-bind {
+    text-transform: lowercase;
+    opacity: 0.35;
+}
+
+.keybind-label {
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid alpha(@theme_fg_color, 0.5);
+}
+
+.error {
+    padding: 10px;
+    border-radius: 10px;
+    background: @urgent_bg_color;
+    color: @theme_fg_color;
+}
+
+:not(.calc).current {
+    font-style: italic;
+}
+
+.preview-content.archlinuxpkgs,
+.preview-content.dnfpackages {
+    font-family: monospace;
+}
