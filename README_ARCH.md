@@ -7,7 +7,7 @@
 * Display Manager: `ly`
 * Wallpaper Daemon: `awww`
 * Status Bar & Notification: `hyprpanel`
-* App Launcher: `rofi-wayland`
+* App Launcher: `walker`
 * Terminal: `kitty`
 * File Manager: `thunar`, `yazi`
 * Auth Agent: `hyprpolkitagent`
@@ -48,7 +48,9 @@ paru -S hyprpanel                  # Status bar & notification
 paru -S hyprpolkitagent            # Authentication agent
 
 # Wayland utilities
-paru -S rofi-wayland               # Application launcher
+paru -S walker-bin                 # Application launcher (Ctrl+Space)
+paru -S elephant-bin               # Walker backend service
+paru -S elephant-desktopapplications-bin elephant-calc-bin elephant-menus-bin # Walker providers (apps + calc + custom menus)
 paru -S grim                       # Screenshot tool
 paru -S slurp                      # Screen area selector
 paru -S swappy                     # Screenshot editor

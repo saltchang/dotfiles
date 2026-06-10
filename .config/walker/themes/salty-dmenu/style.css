@@ -1,0 +1,21 @@
+/* salty-dmenu — salty palette on the default single-column layout, for small
+   dmenu pop-ups (e.g. the hyprpanel fcitx menu). Layout XMLs intentionally
+   absent so they fall back to the default theme (no image sidebar). */
+
+@import url("../salty/style.css");
+
+.box-wrapper {
+    padding: 12px;
+}
+
+.box {
+    padding: 0;
+}
+
+.search-container {
+    margin: 0 0 8px 0;
+}
+
+.input {
+    padding: 10px;
+}

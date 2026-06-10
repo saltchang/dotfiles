@@ -23,8 +23,6 @@ if command -v hyprpanel &>/dev/null; then
     disown
 fi
 
-./scripts/setup-config-dir.sh --name=Rofi --config-dir=rofi
-
 ./scripts/setup-config-dir.sh --name=Walker --config-dir=walker
 
 ./scripts/setup-config-dir.sh --name=Elephant --config-dir=elephant

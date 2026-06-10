@@ -20,7 +20,7 @@ fi
 
 OPTIONS="$OPTION_CN\n$OPTION_EN\n$TXT_DIVIDER\n$TXT_CONFIG\n$TXT_RELOAD\n$TXT_RESTART\n$TXT_EXIT"
 
-SELECTED=$(echo -e "$OPTIONS" | rofi -dmenu -i -p "Fcitx5" -theme-str 'window {width: 11em;} listview {lines: 7;}')
+SELECTED=$(echo -e "$OPTIONS" | walker -d -t salty-dmenu -p "Fcitx5" --width 320)
 
 case "$SELECTED" in
 "$OPTION_CN")

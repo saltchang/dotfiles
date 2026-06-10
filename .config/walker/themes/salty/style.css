@@ -1,5 +1,3 @@
-/* salty — port of the old rofi theme (.config/rofi/salty.rasi) to walker */
-
 @define-color window_bg_color #18191B;
 @define-color window_bg_alt #202224;
 @define-color selected_bg_color #2B2E47;
@@ -33,13 +31,13 @@ scrollbar {
 }
 
 .box-wrapper {
-    /* rofi: background #18191BCC (80% alpha), no shadow — a shadow reads as a
+    /* background #18191BCC (80% alpha), no shadow — a shadow reads as a
      dark gap hugging the window edge next to the flush sidebar image */
     background: alpha(@window_bg_color, 0.8);
     border-radius: 15px;
 }
 
-/* left panel — same image as rofi's imagebox.
+/* left panel
    No padding here: GTK positions the background image relative to the area
    inside the padding, which leaves padding-sized blank bands at the top and
    bottom. The inset for the input lives on .search-container instead. */
@@ -49,7 +47,7 @@ scrollbar {
     background-position: center;
 }
 
-/* right panel — rofi's listbox */
+/* right panel */
 .box {
     padding: 20px;
 }

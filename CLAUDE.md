@@ -21,7 +21,7 @@ The interactive `install.sh` handles bootstrap-only concerns (package managers, 
 1. `setup-dotfiles.sh` - installs zsh if missing, sets zsh as the default shell, and symlinks shell dotfiles from `dotfiles/` to `$HOME`
 2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal configs; each flag also installs the corresponding binary if missing
 3. `setup-editor.sh --nvim|--zed` - editor configs
-4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, rofi, swappy
+4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, walker + elephant (app launcher), swappy
 5. `scripts/setup-server-tools.sh` - headless-host tools (uv). Not wired into `install.sh`; run manually on servers (e.g. contabo) where the desktop bootstrap doesn't apply.
 
 Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --kitty` to reinstall and reconfigure kitty) without rerunning `install.sh`.
@@ -35,7 +35,7 @@ All setup scripts must be run from the repo root directory.
 Configs are **not** copied -- they are symlinked so edits in the repo are immediately live:
 
 - `dotfiles/*` symlinks to `$HOME/` (`.zshrc`, `.zprofile`, `.p10k.zsh`, `.zpreztorc`, `.prototools`)
-- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, rofi, swappy)
+- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, walker, elephant, swappy)
 - `bin/` symlinks to `$HOME/.local/dotfiles/bin/` (added to PATH)
 
 The shared helper `scripts/setup-config-dir.sh --name=<Name> --config-dir=<dir>` handles the `.config/` symlink pattern.

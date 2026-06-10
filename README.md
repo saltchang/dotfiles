@@ -66,9 +66,9 @@ If you are using Arch, see the [README_ARCH.md](./README_ARCH.md) about the depe
 
 ## Image Credits
 
-- `.config/rofi/Tower.jpg` (Rofi Background) - [@alzimi](https://x.com/ALumizky)
+- `.config/walker/themes/salty/Tower.jpg` (Walker Background) - [@alzimi](https://x.com/ALumizky)
 
-![Tower](./.config/rofi/Tower.jpg)
+![Tower](./.config/walker/themes/salty/Tower.jpg)
 
 - `.config/hyprpanel/avatar.jpg` (Avatar) - [Bocchi the Rock!](https://bocchi.rocks)
 
