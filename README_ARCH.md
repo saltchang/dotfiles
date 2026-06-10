@@ -44,8 +44,10 @@ makepkg -si
 # Window Manager & Core
 paru -S hyprland
 paru -S ly                         # Display manager
-paru -S hyprpanel                  # Status bar & notification
+paru -S ags-hyprpanel-git          # Status bar & notification (the `hyprpanel` AUR release also works)
 paru -S hyprpolkitagent            # Authentication agent
+paru -S xdg-desktop-portal-hyprland # Desktop portal (screenshots, screen sharing)
+paru -S xdg-desktop-portal-gtk     # Portal fallback (file pickers)
 
 # Wayland utilities
 paru -S walker-bin                 # Application launcher (Ctrl+Space)
@@ -53,12 +55,14 @@ paru -S elephant-bin               # Walker backend service
 paru -S elephant-desktopapplications-bin elephant-calc-bin elephant-menus-bin # Walker providers (apps + calc + custom menus)
 paru -S grim                       # Screenshot tool
 paru -S slurp                      # Screen area selector
-paru -S swappy                     # Screenshot editor
+paru -S swappy                     # Screenshot editor (hyprpanel dashboard)
+paru -S satty                      # Screenshot annotator (bin/screenshot, Ctrl+Shift+3/4)
 paru -S hyprpicker                 # Color picker
 paru -S wl-clipboard               # Wayland clipboard (wl-copy, wl-paste)
 paru -S cliphist                   # Clipboard history
 paru -S clipse                     # Clipboard manager TUI
 paru -S awww                       # Wallpaper Daemon
+paru -S libnotify                  # Desktop notifications (notify-send)
 
 # Media & Audio
 paru -S pipewire                   # Audio server
@@ -75,6 +79,8 @@ paru -S thunar                     # GUI file manager
 # Additional utilities
 paru -S inotify-tools              # File system event monitoring (for waydroid-http-share)
 paru -S imagemagick                # Imagemagick
+paru -S jq                         # JSON processor (bin/screenshot parses hyprctl output)
+paru -S xdg-utils                  # xdg-open (hyprpanel dashboard directory shortcuts)
 ```
 
 ### Terminal
@@ -93,6 +99,7 @@ paru -S ghostty
 # Fcitx5 with Rime
 paru -S fcitx5
 paru -S fcitx5-rime
+paru -S rime-bopomofo              # Rime 注音 (bopomofo) schema
 paru -S fcitx5-configtool          # Configuration tool (optional)
 paru -S fcitx5-qt                  # Qt5 support
 paru -S fcitx5-gtk                 # GTK support
@@ -142,10 +149,11 @@ paru -S ttf-meslo-nerd
 ### Optional Tools
 
 ```bash
-# OCR (Optical Character Recognition)
+# OCR + translation (Ctrl+Shift+2 `translate` flow, walker translate menu)
 paru -S tesseract
 paru -S tesseract-data-eng         # English language data
 paru -S tesseract-data-chi_tra     # Traditional Chinese data
+paru -S dialect                    # Translation GUI (bin/translate, elephant translate menu)
 
 # Screen lock
 paru -S betterlockscreen
@@ -163,7 +171,18 @@ paru -S brave-bin                  # or your preferred browser
 paru -S spotify-launcher
 
 # System monitoring
-paru -S gotop                      # System monitor TUI
+paru -S btop                       # System monitor TUI (hyprpanel dashboard, zsh `monitor` alias)
+paru -S fastfetch                  # System info (hyprpanel dashboard)
+```
+
+### NVIDIA (machine-specific)
+
+`hyprland.conf` sets NVIDIA-specific env vars (`LIBVA_DRIVER_NAME`, `GBM_BACKEND`, ...). On NVIDIA machines install:
+
+```bash
+paru -S nvidia-open                # Open kernel modules
+paru -S nvidia-utils
+paru -S egl-wayland
 ```
 
 ### Version Managers

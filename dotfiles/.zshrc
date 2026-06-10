@@ -544,7 +544,7 @@ case $OS_NAME in
     "$MACOS") ;;
     "$LINUX")
         alias ffind='find * -type f | fzf' # sudo apt-get -y install fzf
-        alias monitor='gotop -r 1s -a -s'  # https://github.com/xxxserxxx/gotop
+        alias monitor='btop --update 1000' # https://github.com/aristocratos/btop
 
         if command -v waydroid &>/dev/null; then
             # use system python path for waydroid
