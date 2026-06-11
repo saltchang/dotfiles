@@ -17,8 +17,8 @@ target="zh-TW"
 # slurp exits non-zero when the selection is cancelled (Esc / right-click).
 geom="$(slurp)" || exit 0
 
-text="$(grim -g "$geom" - | tesseract - - -l "$ocr_langs" 2>/dev/null \
-    | tr '\n' ' ' | sed 's/  */ /g; s/^ //; s/ *$//')"
+text="$(grim -g "$geom" - | tesseract - - -l "$ocr_langs" 2>/dev/null |
+    tr '\n' ' ' | sed 's/  */ /g; s/^ //; s/ *$//')"
 
 if [ -z "$text" ]; then
     notify-send "Translate" "No text recognised."
@@ -26,4 +26,5 @@ if [ -z "$text" ]; then
 fi
 
 printf '%s' "$text" | wl-copy
+notify-send -t 2500 "OCR" "已複製到剪貼簿：$text"
 exec dialect --text "$text" --dest "$target"
