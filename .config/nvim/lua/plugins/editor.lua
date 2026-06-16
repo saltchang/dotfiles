@@ -58,6 +58,11 @@ return {
                         exclude = {
                             ".git",
                             ".DS_Store",
+                            ".venv/*",
+                            ".pytest_cache/*",
+                            ".ruff_cache/*",
+                            "__pycache__/*",
+                            "node_modules/*",
                         },
                         icons = {
                             diagnostics = {
@@ -75,36 +80,41 @@ return {
                     },
                     grep = {
                         hidden = true,
-                        ignored = false,
+                        ignored = true,
                         exclude = {
                             ".git",
                             ".DS_Store",
                             ".venv",
                             ".pytest_cache",
                             ".ruff_cache",
+                            "__pycache__",
+                            "node_modules",
                         },
                     },
                     grep_word = {
                         hidden = true,
-                        ignored = false,
+                        ignored = true,
                         exclude = {
                             ".git",
                             ".DS_Store",
                             ".venv",
                             ".pytest_cache",
                             ".ruff_cache",
+                            "__pycache__",
+                            "node_modules",
                         },
                     },
                     files = {
                         hidden = true,
-                        ignored = false,
+                        ignored = true,
                         exclude = {
                             ".git",
                             ".DS_Store",
                             ".venv",
-                            "node_modules",
                             ".pytest_cache",
+                            ".ruff_cache",
                             "__pycache__",
+                            "node_modules",
                         },
                     },
                 },
