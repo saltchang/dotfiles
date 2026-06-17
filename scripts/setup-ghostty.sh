@@ -18,19 +18,14 @@ GHOSTTY_THEMES_SOURCE="$(pwd)/$GHOSTTY_THEMES_SOURCE_REL"
 
 if [ "$(uname)" = "Darwin" ]; then
     GHOSTTY_CONFIG_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
-
-    [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && printf '%b%s%b\n' "$GREEN" "Created new directory: $GHOSTTY_CONFIG_DIR" "$NC"
-
-    GHOSTTY_CONFIG_FILE="$GHOSTTY_CONFIG_DIR/config"
-    GHOSTTY_THEMES_DIR="$GHOSTTY_CONFIG_DIR/themes"
 else
     GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
-
-    [ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && printf '%b%s%b\n' "$GREEN" "Created new directory: $GHOSTTY_CONFIG_DIR" "$NC"
-
-    GHOSTTY_CONFIG_FILE="$HOME/.config/ghostty/config"
-    GHOSTTY_THEMES_DIR="$HOME/.config/ghostty/themes"
 fi
+
+[ ! -d "$GHOSTTY_CONFIG_DIR" ] && mkdir -p "$GHOSTTY_CONFIG_DIR" && printf '%b%s%b\n' "$GREEN" "Created new directory: $GHOSTTY_CONFIG_DIR" "$NC"
+
+GHOSTTY_CONFIG_FILE="$GHOSTTY_CONFIG_DIR/config"
+GHOSTTY_THEMES_DIR="$GHOSTTY_CONFIG_DIR/themes"
 
 printf '%s\n' "Check and remove original file and directory..."
 printf '\n'
