@@ -439,9 +439,9 @@ if command -v nvim &>/dev/null; then
         done
 
         if [[ "$OS_NAME" == "$MACOS" ]]; then
-            kitty --title="Neovim" -o font_size=13 --directory="$PWD" -e nvim "$@" > /dev/null 2>&1 &!
+            kitty -o font_size=13 --directory="$PWD" -e nvim "$@" > /dev/null 2>&1 &!
         else
-            kitty --class="neovim" --title="Neovim" -e nvim "$@" > /dev/null 2>&1 &!
+            kitty --class="neovim" -e nvim "$@" > /dev/null 2>&1 &!
         fi
     }
 fi
