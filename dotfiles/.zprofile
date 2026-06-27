@@ -54,19 +54,6 @@ esac
 eval "$(jump shell zsh)"
 # ==================================================================================================
 
-# ===> SSH Agent (Optional) ========================================================================
-SSH_KEY_FILE=$HOME/.ssh/id_ed25519
-
-if ! pgrep -u "$USER" ssh-agent >/dev/null 2>&1; then
-    eval "$(ssh-agent -s)"
-    if [[ "$(ssh-add -l)" == "The agent has no identities." ]]; then
-        ssh-add "$SSH_KEY_FILE"
-    fi
-    # Kill it on exit. You may not want this part.
-    # trap "ssh-agent -k" EXIT
-fi
-# ==================================================================================================
-
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
 case $OS_NAME in
