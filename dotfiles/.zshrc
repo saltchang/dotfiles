@@ -621,6 +621,12 @@ git config --global fetch.prune true
 git config --global push.autoSetupRemote true
 git config --global merge.conflictstyle zdiff3
 git config --global rerere.enabled true
+
+# --------> git-wt plugin --------------------------------------------------------------------------
+# https://github.com/k1LoW/git-wt
+if command -v git-wt >/dev/null 2>&1; then
+    eval "$(command git wt --init zsh)"
+fi
 # ==================================================================================================
 
 # ===> Google Cloud (Optional) =====================================================================
