@@ -7,21 +7,21 @@ DOTFILES_LOCAL_BIN_DIR="$HOME/.local/dotfiles/bin"
 # ==================================================================================================
 
 case $(uname) in
-Darwin)
-    OS_NAME=$MACOS
-    ;;
+    Darwin)
+        OS_NAME=$MACOS
+        ;;
 
-Linux)
-    OS_NAME=$LINUX
-    ;;
+    Linux)
+        OS_NAME=$LINUX
+        ;;
 esac
 
 # ===> Path ========================================================================================
 # --------> Avoid repeated PATH statements ---------------------------------------------------------
 addToPATH() {
     case ":$PATH:" in
-    *":$1:"*) : ;;        # already there
-    *) PATH="$1:$PATH" ;; # or PATH="$PATH:$1"
+        *":$1:"*) : ;;        # already there
+        *) PATH="$1:$PATH" ;; # or PATH="$PATH:$1"
     esac
 }
 
@@ -44,9 +44,9 @@ addToPATH "$BUN_INSTALL/bin"
 
 # ===> Homebrew (macOS only) =======================================================================
 case $OS_NAME in
-"$MACOS")
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    ;;
+    "$MACOS")
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        ;;
 esac
 # ==================================================================================================
 
@@ -57,7 +57,8 @@ eval "$(jump shell zsh)"
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
 case $OS_NAME in
-"$MACOS")
-    source ~/.orbstack/shell/init.zsh 2>/dev/null || :
-    ;;
+    "$MACOS")
+        source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+        ;;
 esac
+
