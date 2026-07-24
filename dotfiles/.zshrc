@@ -626,6 +626,7 @@ git config --global rerere.enabled true
 # https://github.com/k1LoW/git-wt
 if command -v git-wt >/dev/null 2>&1; then
     eval "$(command git wt --init zsh)"
+    git config --global wt.basedir .worktrees
 fi
 # ==================================================================================================
 
