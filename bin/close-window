@@ -1,0 +1,31 @@
+#!/bin/bash
+# close-window - killactive with a guard for full-screen games (Hyprland).
+#
+# Ctrl+Q sits right next to keys games use, so a mistouch used to kill the
+# running game instantly. This wrapper refuses to close windows whose class
+# matches the protected list and shows a notification instead; everything else
+# is closed normally via `hyprctl dispatch killactive`.
+#
+# Protected by default: Steam-launched games (steam_app_*), the Steam client
+# itself, gamescope sessions, and Three Kingdoms.
+#
+# Requires: hyprctl, jq, libnotify (notify-send).
+
+set -u
+
+protected_class_pattern="^(steam|steam_app_[0-9]+|gamescope|ThreeKingdoms)$"
+
+active="$(hyprctl activewindow -j)" || exit 1
+
+class="$(printf '%s' "$active" | jq -r '.class // ""')"
+title="$(printf '%s' "$active" | jq -r '.title // ""')"
+
+# No focused window (e.g. empty workspace) — nothing to close.
+[ -z "$class" ] && exit 0
+
+if printf '%s' "$class" | grep -qE "$protected_class_pattern"; then
+    notify-send -t 2000 "Close blocked" "${title:-$class} 已受保護，不會被關閉"
+    exit 0
+fi
+
+exec hyprctl dispatch killactive

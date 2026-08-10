@@ -7,6 +7,21 @@ NC="\033[0m"
 
 printf '%bStart setting up Arch Linux config files...%b\n' "$GREEN" "$NC"
 
+# Dependencies for the scripts in bin/ that the Hyprland keybinds call
+# (close-window needs jq + notify-send). Format: "<command>:<package>".
+ARCH_PACKAGES=(jq:jq notify-send:libnotify)
+
+if command -v paru &>/dev/null; then
+    for entry in "${ARCH_PACKAGES[@]}"; do
+        cmd="${entry%%:*}"
+        pkg="${entry##*:}"
+        if ! command -v "$cmd" &>/dev/null; then
+            printf '%bInstalling %s...%b\n' "$GREEN" "$pkg" "$NC"
+            paru -S --noconfirm "$pkg"
+        fi
+    done
+fi
+
 ./scripts/setup-config-dir.sh --name=Hyprland --config-dir=hypr
 
 if command -v hyprpanel &>/dev/null; then
