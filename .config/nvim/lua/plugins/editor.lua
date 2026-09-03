@@ -84,6 +84,8 @@ return {
                         exclude = {
                             ".git",
                             ".worktree",
+                            ".worktrees",
+                            ".wt",
                             ".DS_Store",
                             ".venv",
                             ".pytest_cache",
@@ -98,6 +100,8 @@ return {
                         exclude = {
                             ".git",
                             ".worktree",
+                            ".worktrees",
+                            ".wt",
                             ".DS_Store",
                             ".venv",
                             ".pytest_cache",
@@ -112,6 +116,8 @@ return {
                         exclude = {
                             ".git",
                             ".worktree",
+                            ".worktrees",
+                            ".wt",
                             ".DS_Store",
                             ".venv",
                             ".pytest_cache",
