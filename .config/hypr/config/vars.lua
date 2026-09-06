@@ -22,7 +22,7 @@ return {
     monitorDell = "desc:Dell Inc. DELL U2723QE",
     monitorPhilips = "desc:Philips Consumer Electronics Company PHL 276E8V",
 
-    -- Virtual outputs created for Sunshine game streaming
-    headlessMonitors = { "HEADLESS-2", "HEADLESS-3", "HEADLESS-4", "HEADLESS-5" },
+    -- Workspace the Sunshine streaming headless output is bound to.
+    -- The output's own name is discovered at runtime; see config/monitors.lua.
     streamingWorkspace = "11",
 }

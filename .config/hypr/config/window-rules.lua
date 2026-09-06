@@ -6,13 +6,6 @@
 
 local vars = require("config.vars")
 
--- Steam Big Picture goes to the streaming workspace on the headless outputs
-hl.window_rule({
-    name = "steam-big-picture-to-streaming-workspace",
-    match = { class = "^(steam)$", title = "^(Steam Big Picture Mode)$" },
-    workspace = vars.streamingWorkspace,
-})
-
 -- Keep the cursor inside Total War: THREE KINGDOMS while it is focused.
 hl.window_rule({
     name = "confine-pointer-three-kingdoms",
@@ -37,6 +30,14 @@ hl.window_rule({
     name = "steam-to-fun",
     match = { class = "^(steam)$" },
     workspace = "special:fun silent",
+})
+
+-- Steam Big Picture goes to the streaming workspace instead. This has to come
+-- after steam-to-fun: Big Picture matches both rules and the last match wins.
+hl.window_rule({
+    name = "steam-big-picture-to-streaming-workspace",
+    match = { class = "^(steam)$", title = "^(Steam Big Picture Mode)$" },
+    workspace = vars.streamingWorkspace,
 })
 
 -- Fix some dragging issues with XWayland
