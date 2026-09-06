@@ -4,7 +4,7 @@
 # Ctrl+Q sits right next to keys games use, so a mistouch used to kill the
 # running game instantly. This wrapper refuses to close windows whose class
 # matches the protected list and shows a notification instead; everything else
-# is closed normally via `hyprctl dispatch killactive`.
+# is closed normally via the window.close dispatcher.
 #
 # Protected by default: Steam-launched games (steam_app_*), the Steam client
 # itself, gamescope sessions, and Three Kingdoms.
@@ -28,4 +28,6 @@ if printf '%s' "$class" | grep -qE "$protected_class_pattern"; then
     exit 0
 fi
 
-exec hyprctl dispatch killactive
+# Hyprland's Lua config takes Lua dispatcher expressions here; the old bare
+# `killactive` form is rejected since the move off hyprlang.
+exec hyprctl dispatch 'hl.dsp.window.close()'

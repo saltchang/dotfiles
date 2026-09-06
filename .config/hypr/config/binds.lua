@@ -19,10 +19,12 @@ hl.bind(hyper .. " + SPACE", hl.dsp.exec_cmd(vars.menu))
 -- Ctrl+Space: walker (apps + calc + translate — type a sentence to translate)
 hl.bind(cmd .. " + SPACE", hl.dsp.exec_cmd(vars.menu))
 
--- Window state
-hl.bind(mainMod .. " + M", hl.dsp.window.fullscreen_state({ internal = 1, client = 2 }))
-hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen_state({ internal = 0, client = 2 }))
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ internal = 2, client = 0 }))
+-- Window state.
+-- fullscreen_state defaults to action = "set", so without an explicit "toggle"
+-- these only ever enter the state and never leave it again.
+hl.bind(mainMod .. " + M", hl.dsp.window.fullscreen_state({ action = "toggle", internal = 1, client = 2 }))
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen_state({ action = "toggle", internal = 0, client = 2 }))
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen_state({ action = "toggle", internal = 2, client = 0 }))
 hl.bind(mainMod .. " + G", hl.dsp.window.float())
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo()) -- dwindle
 hl.bind(mainMod .. " + W", hl.dsp.layout("togglesplit")) -- dwindle
@@ -44,12 +46,14 @@ hl.bind(cmd .. " + SHIFT + 2", hl.dsp.exec_cmd("translate"))
 
 -- Esc closes the Dialect window (Dialect has no Esc binding of its own; a
 -- non_consuming bind still passes the key through to the focused app, so Esc
--- behaves normally elsewhere)
-hl.bind(
-    "Escape",
-    hl.dsp.exec_cmd([[hyprctl activewindow | grep -q 'class: app.drey.Dialect' && hyprctl dispatch killactive]]),
-    { non_consuming = true }
-)
+-- behaves normally elsewhere). Done in-process rather than by shelling out to
+-- hyprctl, which is both faster and immune to hyprctl's dispatch syntax.
+hl.bind("Escape", function()
+    local w = hl.get_active_window()
+    if w and w.class == "app.drey.Dialect" then
+        hl.dispatch(hl.dsp.window.close())
+    end
+end, { non_consuming = true })
 
 -- Move focus with cmd + arrow keys
 hl.bind(cmd .. " + left", hl.dsp.focus({ direction = "left" }))
