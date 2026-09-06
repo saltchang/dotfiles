@@ -98,7 +98,7 @@
   "bar.customModules.kbLayout.labelType": "code",
   "bar.customModules.kbLayout.leftClick": "",
   "bar.customModules.updates.icon": "󰏖",
-  "menus.dashboard.powermenu.avatar.image": "/home/salt/projects/personal/dotfiles/.config/hyprpanel/avatar.jpg",
+  "menus.dashboard.powermenu.avatar.image": "~/.config/hyprpanel/avatar.jpg",
   "notifications.timeout": 12000,
   "menus.dashboard.shortcuts.left.shortcut1.icon": "󰣇",
   "menus.dashboard.shortcuts.left.shortcut2.command": "kitty --class yazi -e yazi",

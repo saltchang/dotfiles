@@ -7,7 +7,7 @@ customization:
 patch:
   "preset_color_schemes/salty":
       name: "Salty"
-      author: "Salt Chang<saltchang.tw@gmail.com>"
+      author: "Salt Chang<me@saltchang.com>"
       font_weight: 500
       horizontal: false
       back_color: "0x181A12"
