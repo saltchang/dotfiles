@@ -4,7 +4,9 @@ if ! command -v waydroid &>/dev/null; then
     exit 0
 fi
 
-WATCH_DIR="/home/salt/Pictures/Screenshots"
+WATCH_DIR="$HOME/Pictures/Screenshots"
+# waydroid0 bridge gateway — the host address as seen from inside the container.
+# This is waydroid's default; override if you changed its network config.
 HOST_IP="192.168.240.1"
 PORT="8000"
 

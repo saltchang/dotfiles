@@ -30,7 +30,7 @@ hl.workspace_rule({ workspace = "special:chat" })
 
 -- Sunshine game streaming.
 --
--- The headless output is created at runtime by ~/.local/bin/sunshine-display-setup.sh,
+-- The headless output is created at runtime by scripts/sunshine-display-setup.sh,
 -- and Hyprland names headless outputs in creation order, so the name is not known
 -- ahead of time: a cold boot gets HEADLESS-1, re-creating one later in the same
 -- session gets the next free number. Static `HEADLESS-2`..`HEADLESS-5` rules used to

@@ -32,7 +32,7 @@ hl.on("hyprland.start", function()
 
     -- for streaming
     hl.exec_cmd(
-        "sleep 5 && ~/.local/bin/sunshine-display-setup.sh && systemctl --user start app-dev.lizardbyte.app.Sunshine.service"
+        "sleep 5 && ~/.config/hypr/scripts/sunshine-display-setup.sh && systemctl --user start app-dev.lizardbyte.app.Sunshine.service"
     )
 
     -- for sharing screenshots to waydroid
