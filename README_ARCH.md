@@ -177,7 +177,7 @@ paru -S fastfetch                  # System info (hyprpanel dashboard)
 
 ### NVIDIA (machine-specific)
 
-`hyprland.conf` sets NVIDIA-specific env vars (`LIBVA_DRIVER_NAME`, `GBM_BACKEND`, ...). On NVIDIA machines install:
+`hyprland.lua` sets NVIDIA-specific env vars (`LIBVA_DRIVER_NAME`, `GBM_BACKEND`, ...). On NVIDIA machines install:
 
 ```bash
 paru -S nvidia-open                # Open kernel modules
