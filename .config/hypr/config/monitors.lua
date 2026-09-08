@@ -38,20 +38,42 @@ hl.workspace_rule({ workspace = "special:chat" })
 -- at its 1920x1080 @ scale 2 default.
 --
 -- A workspace can only be bound to one monitor anyway (repeating the rule per output
--- just overwrites it), so bind both the mode and the workspace when the output shows up.
-hl.on("monitor.added", function(monitor)
-    if not monitor.name:match("^HEADLESS%-") then
-        return
-    end
-
-    hl.monitor({ output = monitor.name, mode = "2560x1600@60", position = "7000x0", scale = 1 })
+-- just overwrites it), so bind both the mode and the workspace to whichever name the
+-- output actually got.
+local function bindStreamingOutput(name)
+    hl.monitor({ output = name, mode = "2560x1600@60", position = "7000x0", scale = 1 })
     hl.workspace_rule({
         workspace = vars.streamingWorkspace,
-        monitor = monitor.name,
+        monitor = name,
         gaps_out = 0,
         gaps_in = 0,
         no_border = true,
         decorate = false,
     })
-    monitor:set_workspace(vars.streamingWorkspace)
+end
+
+local function isHeadless(name)
+    return name:match("^HEADLESS%-") ~= nil
+end
+
+-- Re-apply to an output that already exists. `hyprctl reload` rebuilds the config
+-- from scratch but does NOT replay monitor.added, so without this a reload would
+-- drop the headless output back to its 1920x1080 @ scale 2 default mid-session.
+local ok, monitors = pcall(hl.get_monitors)
+if ok and monitors then
+    for _, m in ipairs(monitors) do
+        if isHeadless(m.name) then
+            bindStreamingOutput(m.name)
+        end
+    end
+end
+
+-- And catch the output when it is created later in the session.
+hl.on("monitor.added", function(monitor)
+    if not isHeadless(monitor.name) then
+        return
+    end
+    bindStreamingOutput(monitor.name)
+    -- set_workspace takes a table; a bare string raises "'workspace' is required"
+    monitor:set_workspace({ workspace = vars.streamingWorkspace })
 end)
