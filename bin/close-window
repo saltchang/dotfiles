@@ -14,18 +14,38 @@
 set -u
 
 protected_class_pattern="^(steam|steam_app_[0-9]+|gamescope|ThreeKingdoms)$"
+required_presses=3
+press_window_ms=1500
+state_file="${XDG_RUNTIME_DIR:-/tmp}/close-window.state"
 
 active="$(hyprctl activewindow -j)" || exit 1
 
 class="$(printf '%s' "$active" | jq -r '.class // ""')"
 title="$(printf '%s' "$active" | jq -r '.title // ""')"
+address="$(printf '%s' "$active" | jq -r '.address // ""')"
 
 # No focused window (e.g. empty workspace) — nothing to close.
 [ -z "$class" ] && exit 0
 
 if printf '%s' "$class" | grep -qE "$protected_class_pattern"; then
-    notify-send -t 2000 "Close blocked" "${title:-$class} 已受保護，不會被關閉"
-    exit 0
+    # State: "<address> <press count> <last press ms>". Presses only chain when
+    # they hit the same window within press_window_ms of the previous one.
+    now="$(date +%s%3N)"
+    count=1
+    if [ -r "$state_file" ] && read -r last_address last_count last_ms < "$state_file" \
+        && [ "$last_address" = "$address" ] \
+        && [ $((now - last_ms)) -le "$press_window_ms" ]; then
+        count=$((last_count + 1))
+    fi
+
+    if [ "$count" -lt "$required_presses" ]; then
+        printf '%s %s %s\n' "$address" "$count" "$now" > "$state_file"
+        remaining=$((required_presses - count))
+        notify-send -t 1500 -h string:x-canonical-private-synchronous:close-window \
+            "Close blocked" "${title:-$class} 已受保護，再按 ${remaining} 次 Ctrl+Q 強制關閉"
+        exit 0
+    fi
+    rm -f "$state_file"
 fi
 
 # Hyprland's Lua config takes Lua dispatcher expressions here; the old bare

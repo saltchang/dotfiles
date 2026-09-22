@@ -9,6 +9,7 @@ local hyper = vars.hyper
 
 -- Ctrl+Q closes the active window, except for protected classes (steam_app_*,
 -- steam, gamescope, ThreeKingdoms) so a mistouch cannot kill a running game.
+-- Pressing it three times quickly on the same window force-closes it anyway.
 -- See bin/close-window.
 hl.bind(cmd .. " + Q", hl.dsp.exec_cmd("close-window"))
 

@@ -13,6 +13,15 @@ hl.window_rule({
     confine_pointer = true,
 })
 
+-- Keep the cursor inside ROMANCE OF THE THREE KINGDOMS XIV (Proton, app 872410),
+-- but only while it is fullscreen: the bundled tools (S14FaceTool etc.) share the
+-- same class, and a confined windowed game can't be moved or resized.
+hl.window_rule({
+    name = "confine-pointer-rtk14",
+    match = { class = "^(steam_app_872410)$", fullscreen = true },
+    confine_pointer = true,
+})
+
 -- Ignore maximize requests from apps. You'll probably like this.
 hl.window_rule({
     name = "suppress-maximize-events",
