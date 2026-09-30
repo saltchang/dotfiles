@@ -138,7 +138,9 @@ if [ "$SETUP_KITTY" = true ]; then
     *) ;;
     esac
 
-    ./scripts/setup-config-dir.sh --name=Kitty --config-dir=kitty
+    ./scripts/setup-config-dir.sh --name=Kitty --config-dir=kitty || exit 1
+    # Reuse kitty's bundled Python so standalone setup needs no extra runtime.
+    kitty +runpy 'import runpy; runpy.run_path(".config/kitty/agent-status/setup-hooks.py", run_name="__main__")' --apply || exit 1
 fi
 
 if [ "$SETUP_GHOSTTY" = true ]; then

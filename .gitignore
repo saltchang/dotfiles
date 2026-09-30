@@ -3,3 +3,4 @@
 *.local
 paru
 .zshrc.local
+__pycache__/

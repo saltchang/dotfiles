@@ -40,6 +40,15 @@ After this, **every new shell automatically has `uv` on PATH** — no need to `s
 
 The script is idempotent — re-run it any time to refresh, or after a `git pull` to pick up newly-added server tools.
 
+## Kitty agent 狀態列
+
+![Kitty agent 狀態列示範](./images/kitty_agent_tab.gif)
+
+水平 tabs 顯示 Codex／Claude agent 狀態。
+點擊狀態跳到對應 window；`Alt+a` 開啟完整清單。
+執行 `./setup-terminal.sh --kitty` 會一併安裝擴充與 Codex／Claude hooks。
+詳見 [安裝與操作說明](.config/kitty/agent-status/README.md)。
+
 ## Customize Your zsh
 
 Run the below command to open your `.zshrc`:
@@ -89,4 +98,3 @@ If you are using Arch, see the [README_ARCH.md](./README_ARCH.md) about the depe
 ## License
 
 [MIT](./LICENSE)
-
