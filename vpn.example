@@ -1,0 +1,15 @@
+# VPN profiles for `vpn-on <profile>` (bin/vpn).
+# Copy to vpn.local (gitignored via *.local) and fill in real values:
+#   cp vpn.example vpn.local && chmod 600 vpn.local
+#
+# Each [section] is a profile. `type` selects the backend (default: fortissl).
+# For fortissl, every other key is passed to openfortivpn as-is
+# (see `man openfortivpn` for options such as trusted-cert, realm, set-dns).
+
+[example]
+type     = fortissl
+host     = vpn.example.com
+port     = 443
+username = me
+password = secret
+# trusted-cert = <sha256 shown on first connection>

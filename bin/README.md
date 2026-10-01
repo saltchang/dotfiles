@@ -33,3 +33,19 @@ Requires: `grim`, `slurp`, `tesseract` (with `eng` + `chi_tra`), `dialect`, `wl-
 ```bash
 translate   # OCR a region → clipboard + editable live translation (bound to $cmd+Shift+2)
 ```
+
+## VPN
+
+Connect to VPN profiles defined in `vpn.local` at the repo root (gitignored via `*.local`; template: `vpn.example`). The connection runs in the background, so closing the terminal does not disconnect it. Works on Linux and macOS.
+
+Each `[section]` in `vpn.local` is a profile. Currently only `type = fortissl` (FortiGate SSL-VPN via [openfortivpn](https://github.com/adrienverge/openfortivpn)) is supported; every other key is passed to openfortivpn as-is. The script refuses to run if `vpn.local` is not gitignored, and enforces `600` permissions.
+
+Requires: `openfortivpn` (`sudo pacman -S openfortivpn` / `brew install openfortivpn`), `sudo`.
+
+```bash
+cp vpn.example vpn.local && chmod 600 vpn.local   # first time, then edit
+
+vpn-on work       # connect (asks for sudo password)
+vpn-off work      # disconnect one profile; `vpn-off` disconnects all
+vpn-status        # list profiles and connection state
+```

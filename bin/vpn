@@ -1,0 +1,198 @@
+#!/bin/bash
+# VPN profile manager backed by vpn.local (gitignored) at the repo root.
+#
+#   vpn-on <profile>     connect in the background (survives closing the terminal)
+#   vpn-off [profile]    disconnect one profile, or all when omitted
+#   vpn-status           list profiles and their connection state
+#
+# vpn-on / vpn-off / vpn-status are symlinks to this script; `vpn on|off|status` also works.
+
+GREEN="\033[0;32m"
+WARNING="\033[0;33m"
+ERROR="\033[0;31m"
+NC="\033[0m"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
+CREDENTIALS_FILE="${VPN_CREDENTIALS:-$REPO_DIR/vpn.local}"
+RUN_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
+RUN_DIR="${RUN_DIR%/}/vpn"
+CONNECT_TIMEOUT=30
+
+die() {
+    printf '%b%s%b\n' "$ERROR" "$1" "$NC" >&2
+    exit 1
+}
+
+check_credentials() {
+    [ -f "$CREDENTIALS_FILE" ] || die "Credentials file not found: $CREDENTIALS_FILE (see $REPO_DIR/vpn.example)"
+
+    if git -C "$REPO_DIR" rev-parse --is-inside-work-tree &>/dev/null &&
+        ! git -C "$REPO_DIR" check-ignore -q "$CREDENTIALS_FILE"; then
+        die "Refusing to run: $CREDENTIALS_FILE is NOT gitignored."
+    fi
+
+    local perm
+    perm=$(stat -c %a "$CREDENTIALS_FILE" 2>/dev/null || stat -f %Lp "$CREDENTIALS_FILE")
+    if [ "$perm" != "600" ] && [ "$perm" != "400" ]; then
+        chmod 600 "$CREDENTIALS_FILE"
+        printf '%b%s%b\n' "$WARNING" "Fixed permissions of $CREDENTIALS_FILE ($perm -> 600)" "$NC"
+    fi
+}
+
+list_profiles() {
+    awk '/^[[:space:]]*\[.*\][[:space:]]*$/ {
+        gsub(/^[[:space:]]*\[[[:space:]]*|[[:space:]]*\][[:space:]]*$/, "")
+        print
+    }' "$CREDENTIALS_FILE"
+}
+
+# Print the key = value lines of a profile section; fails if the section doesn't exist.
+profile_body() {
+    awk -v want="$1" '
+        /^[[:space:]]*[#;]/ || /^[[:space:]]*$/ { next }
+        /^[[:space:]]*\[.*\][[:space:]]*$/ {
+            name = $0
+            gsub(/^[[:space:]]*\[[[:space:]]*|[[:space:]]*\][[:space:]]*$/, "", name)
+            in_section = (name == want)
+            if (in_section) found = 1
+            next
+        }
+        in_section { print }
+        END { exit !found }
+    ' "$CREDENTIALS_FILE"
+}
+
+profile_value() {
+    sed -n "s/^[[:space:]]*$2[[:space:]]*=[[:space:]]*//p" <<<"$1" | tail -1 | sed 's/[[:space:]]*$//'
+}
+
+# Matches the openfortivpn process itself (argv[0] may be an absolute path), not the sudo wrapper.
+process_pattern() {
+    printf '^[^ ]*openfortivpn -c %s' "$RUN_DIR/$1.conf"
+}
+
+is_running() {
+    pgrep -f "$(process_pattern "$1")" >/dev/null
+}
+
+validate_name() {
+    [ -n "$1" ] || die "Usage: vpn-on <profile>  (profiles: $(list_profiles | tr '\n' ' '))"
+    [[ "$1" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid profile name: $1"
+}
+
+vpn_on() {
+    local name="$1"
+    validate_name "$name"
+
+    if is_running "$name"; then
+        printf '%b%s%b\n' "$GREEN" "$name is already connected." "$NC"
+        return
+    fi
+
+    local body
+    body=$(profile_body "$name") || die "Profile [$name] not found in $CREDENTIALS_FILE (profiles: $(list_profiles | tr '\n' ' '))"
+
+    local type
+    type=$(profile_value "$body" type)
+    case "${type:-fortissl}" in
+    fortissl) ;;
+    *) die "Unsupported VPN type for [$name]: $type" ;;
+    esac
+
+    local bin
+    bin=$(command -v openfortivpn) || die "openfortivpn not found. Install it: sudo pacman -S openfortivpn (Arch) / brew install openfortivpn (macOS)"
+
+    mkdir -p "$RUN_DIR" && chmod 700 "$RUN_DIR"
+    local cfg="$RUN_DIR/$name.conf"
+    local log="$RUN_DIR/$name.log"
+
+    # openfortivpn reads its config only at startup, so the plaintext copy is removed once it's up.
+    trap "rm -f '$cfg'" EXIT
+    (umask 077 && grep -v '^[[:space:]]*type[[:space:]]*=' <<<"$body" >"$cfg")
+
+    sudo -v || die "sudo authentication failed."
+    : >"$log"
+    sudo -b nohup "$bin" -c "$cfg" </dev/null >"$log" 2>&1
+
+    printf '%s' "Connecting to $name"
+    local i
+    for ((i = 0; i < CONNECT_TIMEOUT * 2; i++)); do
+        if grep -q "Tunnel is up and running" "$log"; then
+            printf '\n%b%s%b\n' "$GREEN" "$name connected. You can close this terminal; disconnect with: vpn-off $name" "$NC"
+            return
+        fi
+        if [ "$i" -ge 4 ] && ! is_running "$name"; then
+            break
+        fi
+        printf '.'
+        sleep 0.5
+    done
+
+    printf '\n'
+    is_running "$name" && sudo pkill -f "$(process_pattern "$name")"
+    tail -n 20 "$log" >&2
+    if grep -q "trusted-cert" "$log"; then
+        printf '%b%s%b\n' "$WARNING" "Gateway certificate is not trusted. If the hash above is expected, add 'trusted-cert = <hash>' to [$name] in $CREDENTIALS_FILE" "$NC" >&2
+    fi
+    die "Failed to connect to $name (full log: $log)"
+}
+
+vpn_off() {
+    local pattern
+    if [ -n "$1" ]; then
+        validate_name "$1"
+        is_running "$1" || {
+            printf '%s\n' "$1 is not connected."
+            return
+        }
+        pattern=$(process_pattern "$1")
+    else
+        pattern="^[^ ]*openfortivpn -c $RUN_DIR/"
+        pgrep -f "$pattern" >/dev/null || {
+            printf '%s\n' "No VPN is connected."
+            return
+        }
+    fi
+
+    sudo pkill -f "$pattern"
+    local i
+    for ((i = 0; i < 20; i++)); do
+        pgrep -f "$pattern" >/dev/null || {
+            printf '%b%s%b\n' "$GREEN" "Disconnected ${1:-all VPNs}." "$NC"
+            return
+        }
+        sleep 0.5
+    done
+    die "openfortivpn is still running; check with: pgrep -fl openfortivpn"
+}
+
+vpn_status() {
+    local name
+    while IFS= read -r name; do
+        if is_running "$name"; then
+            printf '%b● %s%b  connected\n' "$GREEN" "$name" "$NC"
+        else
+            printf '○ %s\n' "$name"
+        fi
+    done < <(list_profiles)
+}
+
+case "$(basename "$0")" in
+vpn-on) cmd=on ;;
+vpn-off) cmd=off ;;
+vpn-status) cmd=status ;;
+*)
+    cmd="$1"
+    shift
+    ;;
+esac
+
+check_credentials
+
+case "$cmd" in
+on) vpn_on "$1" ;;
+off) vpn_off "$1" ;;
+status) vpn_status ;;
+*) die "Usage: vpn on <profile> | vpn off [profile] | vpn status" ;;
+esac
