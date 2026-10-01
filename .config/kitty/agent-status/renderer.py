@@ -17,7 +17,7 @@ from agent_status import LABELS, PICKER_VAR, clean_text, status_text, window_sta
 from kitty.constants import is_wayland
 from kitty.fast_data_types import (
     BOTTOM_EDGE, TOP_EDGE, DECAWM, GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, GLFW_RELEASE,
-    Region, get_boss, get_options, pt_to_px, set_options, set_tab_bar_render_data, viewport_for_window, wcswidth,
+    Region, apply_options_update, get_boss, get_options, pt_to_px, set_options, set_tab_bar_render_data, viewport_for_window, wcswidth,
 )
 from kitty.tab_bar import CellRange, TabBar, as_rgb, draw_tab_with_powerline
 from kitty.tabs import TabManager
@@ -113,6 +113,8 @@ def sync_tab_height() -> None:
     # Options._replace() omits finalized mouse bindings; only change the margin.
     options.tab_bar_margin_height = options.tab_bar_margin_height._replace(inner=inner)
     set_options(options, is_wayland(), boss.args.debug_rendering, boss.args.debug_font_fallback)
+    # Resolve platform defaults again, including the click and cursor blink intervals.
+    apply_options_update()
     for manager in tuple(boss.os_window_map.values()):
         manager.resize()
 
