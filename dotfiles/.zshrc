@@ -380,6 +380,31 @@ alias lzg='lazygit'
 alias lzd='lazydocker'
 # ==================================================================================================
 
+# ===> Alias: Claude Code Profiles =================================================================
+# personal = default (CLAUDE_CONFIG_DIR unset): ~/.claude + ~/.claude.json, where the harness lives.
+# Setting CLAUDE_CONFIG_DIR=~/.claude would NOT be equivalent: state moves to ~/.claude/.claude.json.
+# work = ~/.claude-work. Plain `claude` picks work inside $PROJS_BASE/work, personal elsewhere.
+_claude_run() {
+    local profile=$1; shift
+    if [[ $profile == work ]]; then
+        echo "[claude] work profile (~/.claude-work)" >&2
+        CLAUDE_CONFIG_DIR="$HOME/.claude-work" command claude "$@"
+    else
+        (unset CLAUDE_CONFIG_DIR; command claude "$@")
+    fi
+}
+claude() {
+    if [[ "${PWD:A}/" == "${PROJS_BASE:A}/work/"* ]]; then
+        _claude_run work "$@"
+    else
+        _claude_run personal "$@"
+    fi
+}
+unalias claude claude-personal claude-work 2>/dev/null # avoid alias expansion on re-source
+claude-personal() { _claude_run personal "$@" }
+claude-work() { _claude_run work "$@" }
+# ==================================================================================================
+
 # ===> Functions: Shortcut =========================================================================
 cl() {
     cd "$1" && la
