@@ -61,7 +61,11 @@ Kitty itself is used to manage panes (kitty "windows" inside a tab) and tabs —
 
 - `Alt+h/l` — focus left/right neighbor; if at the edge, fall through to the previous/next tab. Implemented via the custom kitten `.config/kitty/move_focus_or_tab.py` (uses `Tab.neighboring_window` then compares the active window id to detect "no movement"; see kitty's [custom kittens docs](https://sw.kovidgoyal.net/kitty/kittens/custom/)).
 - `Alt+j/k` — focus down/up neighbor (no tab fallthrough).
-- `Alt+n` — new pane, smart split based on aspect ratio (`launch --location=split`).
+- `Alt+m` — choose a destination tab for the current pane (`detach_window ask`).
+- `Alt+s` — visually select another pane to swap with (`swap_with_window`).
+- `Alt+r` — rotate the current split between horizontal and vertical (`layout_action rotate`).
+- `Alt+p` — open the command palette to search actions and shortcuts (also available via `Ctrl+Shift+F3`).
+- `Alt+n` — new pane via `smart_split.py`: split left/right only when the current pane is at least 1.5 times as wide as it is tall; otherwise split top/bottom. Preserves the current working directory.
 - `Alt+d` — split current pane downward (`launch --location=hsplit`).
 - `Alt+Shift+x` — close current pane.
 - `Alt+f` — toggle fullscreen (zoom) for the current pane via `toggle_layout stack` (requires `stack` in `enabled_layouts`).
