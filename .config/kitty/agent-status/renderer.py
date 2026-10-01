@@ -110,7 +110,8 @@ def sync_tab_height() -> None:
     inner = min(max(required), min(limits))
     if inner == options.tab_bar_margin_height.inner:
         return
-    options = options._replace(tab_bar_margin_height=options.tab_bar_margin_height._replace(inner=inner))
+    # Options._replace() omits finalized mouse bindings; only change the margin.
+    options.tab_bar_margin_height = options.tab_bar_margin_height._replace(inner=inner)
     set_options(options, is_wayland(), boss.args.debug_rendering, boss.args.debug_font_fallback)
     for manager in tuple(boss.os_window_map.values()):
         manager.resize()

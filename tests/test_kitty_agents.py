@@ -727,7 +727,9 @@ print('enabled' if enabled else 'disabled')
         options = load_config(str(ROOT / '.config/kitty/kitty.conf'))
         data = DrawData(0, '', 0, '', (), options.active_tab_foreground, options.active_tab_background,
                         options.inactive_tab_foreground, options.inactive_tab_background, options.background,
-                        options.tab_title_template, options.active_tab_title_template, '', 'round', 'bottom', 0, 1)
+                        options.tab_title_template, options.active_tab_title_template, '', 'round', 'bottom', 0,
+                        os_window_id=1,
+                        **({'max_tab_title_lines': 1, 'wrap_width': 0} if 'wrap_width' in DrawData._fields else {}))
         boss = SimpleNamespace(mappings=SimpleNamespace(current_keyboard_mode_name=''))
         tab = TabBarData(title='專案', tab_id=1, is_active=True, layout_name='stack')
         for width in (60, 32, 12):
@@ -764,6 +766,8 @@ print('enabled' if enabled else 'disabled')
         from kitty.fast_data_types import LEFT_EDGE, Region
         import renderer as tab_bar
         options = load_config(str(ROOT / '.config/kitty/kitty.conf'))
+        mousemap = options.mousemap.copy()
+        self.assertTrue(mousemap)
         panes = {1: [], 2: [], 3: []}
         first = SimpleNamespace(tab_bar=SimpleNamespace(draw_func=tab_bar.draw_tab), resize=Mock(),
                                 tabs_to_be_shown_in_tab_bar=[SimpleNamespace(id=1), SimpleNamespace(id=2)])
@@ -780,6 +784,7 @@ print('enabled' if enabled else 'disabled')
 
         def set_options(updated, *args):
             nonlocal options
+            self.assertEqual(updated.mousemap, mousemap)
             options = updated
 
         with patch.multiple(tab_bar, get_boss=Mock(return_value=boss), get_options=lambda: options,
