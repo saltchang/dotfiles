@@ -26,6 +26,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("env GDK_SCALE=2 steam", { workspace = "special:fun silent" })
     hl.exec_cmd(vars.browser, { workspace = "2 silent" })
     hl.exec_cmd(vars.terminal, { workspace = "4 silent" })
+    hl.exec_cmd("~/.local/bin/openwhispr", { workspace = "1 silent" })
 
     -- fix monitor loading bugs
     hl.exec_cmd("sleep 2 && hyprctl reload")
