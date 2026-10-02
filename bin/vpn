@@ -72,6 +72,12 @@ process_pattern() {
     printf '^[^ ]*openfortivpn -c %s' "$RUN_DIR/$1.conf"
 }
 
+# Exact pattern for `sudo pkill`, kept free of shell/sudoers metacharacters so a NOPASSWD rule can match it
+# (see vpn.sudoers.example). The ^ anchor keeps it from matching the sudo/pkill command lines themselves.
+kill_pattern() {
+    printf '^%s -c %s' "$(command -v openfortivpn)" "$RUN_DIR/$1"
+}
+
 is_running() {
     pgrep -f "$(process_pattern "$1")" >/dev/null
 }
@@ -111,9 +117,12 @@ vpn_on() {
     trap "rm -f '$cfg'" EXIT
     (umask 077 && grep -v '^[[:space:]]*type[[:space:]]*=' <<<"$body" >"$cfg")
 
-    sudo -v || die "sudo authentication failed."
+    # With a NOPASSWD rule for openfortivpn, skip the password prompt (sudo -v would still ask for one).
+    if ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; then
+        sudo -v || die "sudo authentication failed."
+    fi
     : >"$log"
-    sudo -b nohup "$bin" -c "$cfg" </dev/null >"$log" 2>&1
+    nohup sudo -b "$bin" -c "$cfg" </dev/null >"$log" 2>&1
 
     printf '%s' "Connecting to $name"
     local i
@@ -130,7 +139,7 @@ vpn_on() {
     done
 
     printf '\n'
-    is_running "$name" && sudo pkill -f "$(process_pattern "$name")"
+    is_running "$name" && sudo pkill -f "$(kill_pattern "$name.conf")"
     tail -n 20 "$log" >&2
     if grep -q "trusted-cert" "$log"; then
         printf '%b%s%b\n' "$WARNING" "Gateway certificate is not trusted. If the hash above is expected, add 'trusted-cert = <hash>' to [$name] in $CREDENTIALS_FILE" "$NC" >&2
@@ -139,7 +148,7 @@ vpn_on() {
 }
 
 vpn_off() {
-    local pattern
+    local pattern kill
     if [ -n "$1" ]; then
         validate_name "$1"
         is_running "$1" || {
@@ -147,15 +156,17 @@ vpn_off() {
             return
         }
         pattern=$(process_pattern "$1")
+        kill=$(kill_pattern "$1.conf")
     else
         pattern="^[^ ]*openfortivpn -c $RUN_DIR/"
         pgrep -f "$pattern" >/dev/null || {
             printf '%s\n' "No VPN is connected."
             return
         }
+        kill=$(kill_pattern "")
     fi
 
-    sudo pkill -f "$pattern"
+    sudo pkill -f "$kill"
     local i
     for ((i = 0; i < 20; i++)); do
         pgrep -f "$pattern" >/dev/null || {
