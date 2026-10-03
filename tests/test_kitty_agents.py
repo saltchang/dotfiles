@@ -191,6 +191,19 @@ print('enabled' if enabled else 'disabled')
                     window.screen.draw((body + prompt).replace('\n', '\r\n'))
                     self.assertEqual(status.window_status(window), ('claude', expected), body)
 
+    def test_claude_spinner_above_tip_and_heads_up_notice_is_working(self):
+        body = ('⏺ Bash(./build.sh)\n  ⎿ 12345\n\n'
+                '✢ Meandering… (1m 2s · ↓ 1.2k tokens)\n'
+                "  ⎿ Tip: Use /btw to ask a quick side question without interrupting Claude's current work\n"
+                '                                        [-]\n'
+                '✦ Heads up · Changing this option also affects the related settings.\n'
+                '  1: Learn more   2: Knew this already   0: Dismiss\n'
+                '                                  12000 tokens\n'
+                '────────\n❯ \n────────')
+        self.assertEqual(status.screen_status('claude', body, 'working'), 'working')
+        finished = body.replace('✢ Meandering… (1m 2s · ↓ 1.2k tokens)', '✻ Cooked for 1m 2s')
+        self.assertEqual(status.screen_status('claude', finished, 'working'), 'done')
+
     def test_claude_api_failure_without_hooks_is_not_completion(self):
         # Claude Code 2.1.246 displays a completion banner even after this 401.
         prompt = ('\n\n\n\n\n\n────────\n❯ \n────────\n'

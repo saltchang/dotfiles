@@ -429,10 +429,19 @@ def screen_status(agent: str, text: str, previous: str = "unknown") -> str:
 
     controls = "\n".join(lines[max(0, control_end - 5) : control_end]).lower()
     # Claude's spinner can omit the interrupt shortcut, including during thinking.
-    if agent == "claude" and re.search(
-        r"^\s*[·*✢✳✶✻✽]\s+[^\n…]+…(?:\s*\([^\n]*\))?\s*$", controls, re.MULTILINE
-    ):
-        return "working"
+    # Tips, todos and "Heads up" notices can push it far above the input box,
+    # so search everything after the latest message instead of a fixed window.
+    if agent == "claude":
+        last_message = max(
+            (i for i in range(control_end) if re.match(r"^\s*[⏺●]\s", lines[i])),
+            default=-1,
+        )
+        if re.search(
+            r"^\s*[·*✢✳✶✻✽]\s+[^\n…]+…(?:\s*\([^\n]*\))?\s*$",
+            "\n".join(lines[last_message + 1 : control_end]),
+            re.MULTILINE,
+        ):
+            return "working"
     # While running, both agents retain an input box; the interrupt hint wins.
     if re.search(
         r"^\s*[•·*✢✳✶✻✽✺✹✷✸✼✵].*\([^)]*\besc to (?:interrupt|stop)\b",
