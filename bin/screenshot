@@ -2,9 +2,11 @@
 # screenshot - capture a region or focused output, then edit in satty.
 #
 # In satty's toolbar:
-#   Copy        (Ctrl+C)        copies the saved file path (text) to the clipboard,
-#                               so Ctrl+V pastes the path into terminal apps such
-#                               as the Claude Code CLI.
+#   Copy        (Ctrl+C)        saves edits over the auto-saved file, then puts
+#                               it on the clipboard as both the image and its
+#                               path (see wl-copy-image-path): Ctrl+V pastes the
+#                               image into LINE / browsers and the path into
+#                               terminal apps such as the Claude Code CLI.
 #   Save        (Ctrl+S)        saves edits over the auto-saved file.
 #   Save as     (Ctrl+Shift+S)  opens a file chooser for a custom location.
 
@@ -32,10 +34,11 @@ output)
 esac
 
 # tee auto-saves the unedited capture; satty reads the same bytes via stdin.
-# --copy-command is wrapped in `sh -c` by satty, so we discard stdin (the PNG
-# bytes) and put the file path text on the clipboard instead.
+# --copy-command is wrapped in `sh -c` by satty and gets the edited PNG on
+# stdin; write it to $file, then hand off to a detached clipboard owner that
+# serves both image/png and the path text.
 "${capture[@]}" | tee "$file" | satty \
     --filename - \
     --output-filename "$file" \
     --resize 1920x1080 \
-    --copy-command "cat >/dev/null && printf '%s' '$file' | wl-copy"
+    --copy-command "cat >'$file' && setsid -f wl-copy-image-path '$file' >/dev/null 2>&1"

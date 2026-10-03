@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# wl-copy-image-path - put a PNG on the Wayland clipboard as both the image and
+# its file path, so each app pastes what it understands:
+#   image/png   -> browsers / chat apps (e.g. LINE in Chrome) paste the image
+#   text/plain  -> terminals (e.g. Claude Code CLI in kitty) paste the path
+#
+# wl-copy can only offer one MIME type per selection, so this uses a GTK4
+# content-provider union instead. Stays alive to serve the clipboard and exits
+# once another app takes it over.
+#
+# Usage: wl-copy-image-path <file.png>
+
+import sys
+
+import gi
+
+gi.require_version("Gdk", "4.0")
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gdk, GLib, Gtk  # noqa: E402
+
+if len(sys.argv) != 2:
+    print("Usage: wl-copy-image-path <file.png>", file=sys.stderr)
+    sys.exit(2)
+
+path = sys.argv[1]
+with open(path, "rb") as f:
+    png = GLib.Bytes.new(f.read())
+text = GLib.Bytes.new(path.encode())
+
+Gtk.init()
+clipboard = Gdk.Display.get_default().get_clipboard()
+clipboard.set_content(
+    Gdk.ContentProvider.new_union(
+        [
+            Gdk.ContentProvider.new_for_bytes("image/png", png),
+            Gdk.ContentProvider.new_for_bytes("text/plain;charset=utf-8", text),
+            Gdk.ContentProvider.new_for_bytes("text/plain", text),
+        ]
+    )
+)
+
+loop = GLib.MainLoop()
+
+
+def on_changed(cb):
+    if not cb.is_local():
+        loop.quit()
+
+
+clipboard.connect("changed", on_changed)
+loop.run()
