@@ -1,0 +1,8 @@
+# Machine-local Powerlevel10k overrides. Copy to .p10k.zsh.local (gitignored) and edit.
+# Sourced from .p10k.zsh right after POWERLEVEL9K_VCS_GIT_REMOTE_ICONS is defined.
+
+# Show a GitLab icon for private Git hosts (patterns are prepended so they win over the '*' fallback).
+# POWERLEVEL9K_VCS_GIT_REMOTE_ICONS=(
+#   '*git.example.internal*'  VCS_GIT_GITLAB_ICON
+#   $POWERLEVEL9K_VCS_GIT_REMOTE_ICONS
+# )

@@ -251,6 +251,11 @@ esac
   '*'                  VCS_GIT_NO_UPSTREAM_ICON
   )
 
+  # Machine-local overrides (gitignored), e.g. private Git hosts that should not be in this repo.
+  # See .p10k.zsh.local.example next to this file.
+  local p10k_local_file="${${(%):-%x}:A:h}/.p10k.zsh.local"
+  [[ -f $p10k_local_file ]] && source "$p10k_local_file"
+
   typeset -g POWERLEVEL9K_VCS_UNTRACKED_ICON='\uF059 '
   typeset -g POWERLEVEL9K_VCS_UNSTAGED_ICON='\uF06A '
   typeset -g POWERLEVEL9K_VCS_STAGED_ICON='\uF055 '
