@@ -16,9 +16,15 @@
 #   domains = names resolved via `dns`, e.g. corp.client.com (subdomains included); everything else
 #             keeps using the normal resolver
 # Over SSH, a profile without `routes` (or an explicit `set-routes = 0`) is refused.
+#
+# client = openconnect: connect with openconnect (--protocol=fortinet) over a TUN device instead of
+# openfortivpn, for kernels built without PPP (e.g. Debian's cloud kernels: "Couldn't open the /dev/ppp
+# device"). Needs `routes`; supports host, port, username, password, realm, trusted-cert, and the
+# split-tunnel keys. trusted-cert takes openconnect's format (pin-sha256:<base64>, shown on first connection).
 
 [example]
 type     = fortissl
+# client = openconnect
 host     = vpn.example.com
 port     = 443
 username = me

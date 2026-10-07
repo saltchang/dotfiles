@@ -6,6 +6,9 @@
 #   vpn-status                        list profiles and their connection state
 #   vpn confirm <profile>             keep a --safe connection (cancel its automatic rollback)
 #
+# client = openconnect uses openconnect (--protocol=fortinet) over a TUN device instead of openfortivpn,
+# for kernels without PPP (e.g. Debian cloud kernels); it always runs as a split tunnel.
+#
 # Split tunnel: a profile with `routes` never lets openfortivpn touch the routing table or DNS;
 # only the listed subnets go through the tunnel (and `domains` resolve via `dns`, with systemd-resolved).
 # --safe arms a root timer that disconnects after MIN minutes (default 3) unless `vpn confirm` runs first,
@@ -26,7 +29,9 @@ RUN_DIR="${RUN_DIR%/}/vpn"
 CONNECT_TIMEOUT=30
 SAFE_DEFAULT_MINUTES=3
 # Profile keys handled by this script rather than passed to openfortivpn.
-SCRIPT_KEYS="type|routes|dns|domains"
+SCRIPT_KEYS="type|client|routes|dns|domains"
+# Keys the openconnect client understands (it has no config file, so anything else would be silently ignored).
+OPENCONNECT_KEYS="type|client|routes|dns|domains|host|port|username|password|trusted-cert|realm"
 
 die() {
     printf '%b%s%b\n' "$ERROR" "$1" "$NC" >&2
@@ -81,6 +86,20 @@ process_pattern() {
     printf '^[^ ]*openfortivpn -c %s' "$RUN_DIR/$1.conf"
 }
 
+# Like process_pattern, for openconnect: it is started with --interface=oc-<profile> as its last argument.
+oc_process_pattern() {
+    if [ -n "$1" ]; then
+        printf '^[^ ]*openconnect .* --interface=oc-%s$' "$1"
+    else
+        printf '^[^ ]*openconnect .* --interface=oc-'
+    fi
+}
+
+# openconnect lives in /usr/sbin, which is often not on a regular user's PATH.
+openconnect_bin() {
+    command -v openconnect || { [ -x /usr/sbin/openconnect ] && printf '%s\n' /usr/sbin/openconnect; }
+}
+
 # Exact pattern for `sudo pkill`, kept free of shell/sudoers metacharacters so a NOPASSWD rule can match it
 # (see vpn.sudoers.example). The ^ anchor keeps it from matching the sudo/pkill command lines themselves.
 kill_pattern() {
@@ -88,7 +107,7 @@ kill_pattern() {
 }
 
 is_running() {
-    pgrep -f "$(process_pattern "$1")" >/dev/null
+    pgrep -f "$(process_pattern "$1")" >/dev/null || pgrep -f "$(oc_process_pattern "$1")" >/dev/null
 }
 
 validate_name() {
@@ -176,13 +195,14 @@ rollback_unit() {
     printf 'vpn-rollback-%s' "$1"
 }
 
+# Disconnect the profile (pkill -f "$3") after $2 minutes unless disarmed.
 arm_rollback() {
-    local name="$1" minutes="$2" unit
+    local name="$1" minutes="$2" pattern="$3" unit
     command -v systemd-run >/dev/null || die "--safe needs systemd-run (Linux with systemd)"
     unit=$(rollback_unit "$name")
     sudo systemctl stop "$unit.timer" "$unit.service" 2>/dev/null
     sudo systemd-run --quiet --unit "$unit" --on-active="${minutes}min" --timer-property=RemainAfterElapse=no \
-        "$(command -v pkill)" -f "$(kill_pattern "$name.conf")" ||
+        "$(command -v pkill)" -f "$pattern" ||
         die "Failed to arm the rollback timer."
 }
 
@@ -219,11 +239,16 @@ vpn_on() {
     local body
     body=$(profile_body "$name") || die "Profile [$name] not found in $CREDENTIALS_FILE (profiles: $(list_profiles | tr '\n' ' '))"
 
-    local type
+    local type client
     type=$(profile_value "$body" type)
     case "${type:-fortissl}" in
     fortissl) ;;
     *) die "Unsupported VPN type for [$name]: $type" ;;
+    esac
+    client=$(profile_value "$body" client)
+    case "${client:=openfortivpn}" in
+    openfortivpn | openconnect) ;;
+    *) die "Unsupported client for [$name]: $client (use openfortivpn or openconnect)" ;;
     esac
 
     local routes dns domains
@@ -236,24 +261,42 @@ vpn_on() {
         if [[ -n "$dns" && -z "$domains" || -z "$dns" && -n "$domains" ]]; then
             die "[$name] dns and domains must be set together"
         fi
+    elif [ "$client" = openconnect ]; then
+        die "[$name] client = openconnect only runs as a split tunnel; add routes"
     elif [ -n "$dns$domains" ]; then
         die "[$name] dns/domains only apply to a split tunnel; add routes"
     elif [ -n "$SSH_CONNECTION" ] && [ "$(profile_value "$body" set-routes)" != 0 ]; then
         die "[$name] has no routes, so the gateway may take over the default route and drop this SSH session. Add 'routes = <client subnets>' (or 'set-routes = 0' to manage routes yourself)."
     fi
 
-    local bin
-    bin=$(command -v openfortivpn) || die "openfortivpn not found. Install it: sudo pacman -S openfortivpn (Arch) / sudo apt install openfortivpn (Debian/Ubuntu) / brew install openfortivpn (macOS)"
+    local bin kill ifname=""
+    if [ "$client" = openconnect ]; then
+        local unknown
+        unknown=$(sed -E 's/^[[:space:]]*//; s/[[:space:]]*=.*//' <<<"$body" | grep -Evx "$OPENCONNECT_KEYS" | tr '\n' ' ')
+        [ -z "$unknown" ] || die "[$name] not supported with client = openconnect: $unknown"
+        [ -n "$(profile_value "$body" host)" ] || die "[$name] host is missing"
+        # Interface names are limited to 15 characters.
+        [ "${#name}" -le 12 ] || die "[$name] profile names are limited to 12 characters with client = openconnect"
+        bin=$(openconnect_bin) || die "openconnect not found. Install it: sudo apt install openconnect (Debian/Ubuntu) / sudo pacman -S openconnect (Arch) / brew install openconnect (macOS)"
+        ifname="oc-$name"
+        kill=$(oc_process_pattern "$name")
+    else
+        bin=$(command -v openfortivpn) || die "openfortivpn not found. Install it: sudo pacman -S openfortivpn (Arch) / sudo apt install openfortivpn (Debian/Ubuntu) / brew install openfortivpn (macOS)"
+        kill=$(kill_pattern "$name.conf")
+    fi
 
     mkdir -p "$RUN_DIR" && chmod 700 "$RUN_DIR"
     local cfg="$RUN_DIR/$name.conf"
     local log="$RUN_DIR/$name.log"
 
-    # openfortivpn reads its config only at startup, so the plaintext copy is removed once it's up.
+    # Both clients read this only at startup (openfortivpn its config, openconnect the password on stdin),
+    # so the plaintext copy is removed once it's up.
     trap "rm -f '$cfg'" EXIT
     (
         umask 077
-        if [ -n "$routes" ]; then
+        if [ "$client" = openconnect ]; then
+            profile_value "$body" password
+        elif [ -n "$routes" ]; then
             # Split tunnel: whatever the gateway pushes, leave the routing table and resolv.conf alone.
             grep -Ev "^[[:space:]]*($SCRIPT_KEYS|set-routes|set-dns|pppd-use-peerdns)[[:space:]]*=" <<<"$body"
             printf '%s\n' "set-routes = 0" "set-dns = 0" "pppd-use-peerdns = 0"
@@ -264,20 +307,38 @@ vpn_on() {
 
     # With a NOPASSWD rule for openfortivpn, skip the password prompt (sudo -v would still ask for one).
     # Split tunnels and --safe run other commands as root, so they always need sudo credentials.
-    if [ -n "$routes$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; then
+    # sudo -v can prompt even with NOPASSWD (when another rule for the user needs a password), so try -n first.
+    if ! sudo -n true 2>/dev/null &&
+        { [ -n "$routes$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; }; then
         sudo -v || die "sudo authentication failed."
     fi
-    [ -n "$safe_minutes" ] && arm_rollback "$name" "$safe_minutes"
+    [ -n "$safe_minutes" ] && arm_rollback "$name" "$safe_minutes" "$kill"
     : >"$log"
-    nohup sudo -b "$bin" -c "$cfg" </dev/null >"$log" 2>&1
+    if [ "$client" = openconnect ]; then
+        # This script stands in for vpnc-script (see oc_script), so openconnect never touches routes or DNS.
+        local port args
+        port=$(profile_value "$body" port)
+        args=(--protocol=fortinet --non-inter --passwd-on-stdin --user="$(profile_value "$body" username)"
+            --script="$(printf '%q' "$SCRIPT_DIR/vpn") _oc-script")
+        [ -n "$(profile_value "$body" trusted-cert)" ] && args+=(--servercert="$(profile_value "$body" trusted-cert)")
+        [ -n "$(profile_value "$body" realm)" ] && args+=(--authgroup="$(profile_value "$body" realm)")
+        # --interface must stay last: oc_process_pattern anchors on it.
+        nohup sudo -b "$bin" "${args[@]}" "https://$(profile_value "$body" host)${port:+:$port}" \
+            --interface="$ifname" <"$cfg" >"$log" 2>&1
+    else
+        nohup sudo -b "$bin" -c "$cfg" </dev/null >"$log" 2>&1
+    fi
 
     printf '%s' "Connecting to $name"
     local i up=""
     for ((i = 0; i < CONNECT_TIMEOUT * 2; i++)); do
-        if grep -q "Tunnel is up and running" "$log"; then
-            up=1
-            break
+        if [ "$client" = openconnect ]; then
+            # oc_script assigns the address once the tunnel is established.
+            ip -4 -o addr show dev "$ifname" 2>/dev/null | grep -q ' inet ' && up=1
+        else
+            grep -q "Tunnel is up and running" "$log" && up=1
         fi
+        [ -n "$up" ] && break
         if [ "$i" -ge 4 ] && ! is_running "$name"; then
             break
         fi
@@ -287,8 +348,7 @@ vpn_on() {
     printf '\n'
 
     if [ -n "$up" ] && [ -n "$routes" ]; then
-        local ifname
-        ifname=$(sed -n 's/.*Interface \(ppp[0-9]*\) is UP.*/\1/p' "$log" | tail -1)
+        [ -n "$ifname" ] || ifname=$(sed -n 's/.*Interface \(ppp[0-9]*\) is UP.*/\1/p' "$log" | tail -1)
         if [ -z "$ifname" ]; then
             printf '%s\n' "Could not find the tunnel interface in the log." >&2
             up=""
@@ -310,44 +370,62 @@ vpn_on() {
     fi
 
     [ -n "$safe_minutes" ] && disarm_rollback "$name"
-    is_running "$name" && sudo pkill -f "$(kill_pattern "$name.conf")"
+    is_running "$name" && sudo pkill -f "$kill"
     tail -n 20 "$log" >&2
-    if grep -q "trusted-cert" "$log"; then
+    local pin
+    pin=$(grep -o 'pin-sha256:[A-Za-z0-9+/=]*' "$log" | tail -1)
+    if [ -n "$pin" ]; then
+        printf '%b%s%b\n' "$WARNING" "Gateway certificate is not trusted. If it is expected, add 'trusted-cert = $pin' to [$name] in $CREDENTIALS_FILE" "$NC" >&2
+    elif grep -q "trusted-cert" "$log"; then
         printf '%b%s%b\n' "$WARNING" "Gateway certificate is not trusted. If the hash above is expected, add 'trusted-cert = <hash>' to [$name] in $CREDENTIALS_FILE" "$NC" >&2
     fi
     die "Failed to connect to $name (full log: $log)"
 }
 
 vpn_off() {
-    local pattern kill
     [ -n "$1" ] && validate_name "$1"
     disarm_rollback "$1"
+
+    local ofv_pattern ofv_kill oc_pattern running=""
     if [ -n "$1" ]; then
-        is_running "$1" || {
-            printf '%s\n' "$1 is not connected."
-            return
-        }
-        pattern=$(process_pattern "$1")
-        kill=$(kill_pattern "$1.conf")
+        ofv_pattern=$(process_pattern "$1")
+        ofv_kill=$(kill_pattern "$1.conf")
     else
-        pattern="^[^ ]*openfortivpn -c $RUN_DIR/"
-        pgrep -f "$pattern" >/dev/null || {
+        ofv_pattern="^[^ ]*openfortivpn -c $RUN_DIR/"
+        ofv_kill=$(kill_pattern "")
+    fi
+    oc_pattern=$(oc_process_pattern "$1")
+    pgrep -f "$ofv_pattern" >/dev/null && running=1 && sudo pkill -f "$ofv_kill"
+    pgrep -f "$oc_pattern" >/dev/null && running=1 && sudo pkill -f "$oc_pattern"
+    if [ -z "$running" ]; then
+        if [ -n "$1" ]; then
+            printf '%s\n' "$1 is not connected."
+        else
             printf '%s\n' "No VPN is connected."
-            return
-        }
-        kill=$(kill_pattern "")
+        fi
+        return
     fi
 
-    sudo pkill -f "$kill"
     local i
     for ((i = 0; i < 20; i++)); do
-        pgrep -f "$pattern" >/dev/null || {
+        pgrep -f "$ofv_pattern" >/dev/null || pgrep -f "$oc_pattern" >/dev/null || {
             printf '%b%s%b\n' "$GREEN" "Disconnected ${1:-all VPNs}." "$NC"
             return
         }
         sleep 0.5
     done
-    die "openfortivpn is still running; check with: pgrep -fl openfortivpn"
+    die "The VPN client is still running; check with: pgrep -fl 'openfortivpn|openconnect'"
+}
+
+# Called by openconnect (as root) in place of vpnc-script. It only brings the TUN device up with its address;
+# routes and DNS are left alone, and vpn_on adds the profile's routes once the address appears.
+oc_script() {
+    case "$reason" in
+    connect)
+        ip link set dev "$TUNDEV" up mtu "${INTERNAL_IP4_MTU:-1400}" &&
+            ip addr add "$INTERNAL_IP4_ADDRESS/32" dev "$TUNDEV"
+        ;;
+    esac
 }
 
 vpn_status() {
@@ -374,6 +452,11 @@ vpn_confirm() {
         printf '%s\n' "$1 has no pending auto-disconnect."
     fi
 }
+
+if [ "$1" = _oc-script ]; then
+    oc_script
+    exit
+fi
 
 case "$(basename "$0")" in
 vpn-on) cmd=on ;;
