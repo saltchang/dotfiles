@@ -4,7 +4,18 @@
 #
 # Each [section] is a profile. `type` selects the backend (default: fortissl).
 # For fortissl, every other key is passed to openfortivpn as-is
-# (see `man openfortivpn` for options such as trusted-cert, realm, set-dns).
+# (see `man openfortivpn` for options such as trusted-cert, realm, set-dns),
+# except the split-tunnel keys below, which bin/vpn handles itself.
+#
+# Split tunnel (recommended on servers): with `routes`, openfortivpn may not change the routing table or
+# DNS (set-routes/set-dns/pppd-use-peerdns are forced to 0); only these IPv4 subnets go through the tunnel.
+#   routes  = client subnets/hosts, comma or space separated (/8 or narrower). Refused if one covers your
+#             SSH client or overlaps an existing route (docker/k8s bridges...). Not detected: k3s/k8s
+#             service CIDRs (k3s default 10.43.0.0/16), which have no route; keep clear of them yourself.
+#   dns     = the client's DNS server(s), used only for `domains` (needs systemd-resolved)
+#   domains = names resolved via `dns`, e.g. corp.client.com (subdomains included); everything else
+#             keeps using the normal resolver
+# Over SSH, a profile without `routes` (or an explicit `set-routes = 0`) is refused.
 
 [example]
 type     = fortissl
@@ -13,3 +24,6 @@ port     = 443
 username = me
 password = secret
 # trusted-cert = <sha256 shown on first connection>
+# routes  = 10.20.0.0/16, 172.30.5.10
+# dns     = 10.20.0.53
+# domains = corp.client.com

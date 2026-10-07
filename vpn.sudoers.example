@@ -2,5 +2,7 @@
 # Install: replace <user> and <uid> (see `id -u`) and check the openfortivpn path (`command -v openfortivpn`), then
 #   sudo visudo -f /etc/sudoers.d/vpn
 # Note: openfortivpn config can load pppd plugins as root, so this effectively grants root to the user.
+# Split-tunnel profiles (`routes`) and `vpn-on --safe` also run ip/resolvectl/systemd-run as root,
+# so those still ask for the sudo password.
 <user> ALL=(root) NOPASSWD: /usr/sbin/openfortivpn -c /run/user/<uid>/vpn/*.conf, \
     /usr/bin/pkill -f ^/usr/sbin/openfortivpn -c /run/user/<uid>/vpn/*

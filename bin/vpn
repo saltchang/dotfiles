@@ -1,11 +1,17 @@
 #!/bin/bash
 # VPN profile manager backed by vpn.local (gitignored) at the repo root.
 #
-#   vpn-on <profile>     connect in the background (survives closing the terminal)
-#   vpn-off [profile]    disconnect one profile, or all when omitted
-#   vpn-status           list profiles and their connection state
+#   vpn-on [--safe[=MIN]] <profile>   connect in the background (survives closing the terminal)
+#   vpn-off [profile]                 disconnect one profile, or all when omitted
+#   vpn-status                        list profiles and their connection state
+#   vpn confirm <profile>             keep a --safe connection (cancel its automatic rollback)
 #
-# vpn-on / vpn-off / vpn-status are symlinks to this script; `vpn on|off|status` also works.
+# Split tunnel: a profile with `routes` never lets openfortivpn touch the routing table or DNS;
+# only the listed subnets go through the tunnel (and `domains` resolve via `dns`, with systemd-resolved).
+# --safe arms a root timer that disconnects after MIN minutes (default 3) unless `vpn confirm` runs first,
+# so a connection that breaks remote access undoes itself.
+#
+# vpn-on / vpn-off / vpn-status are symlinks to this script; `vpn on|off|status|confirm` also works.
 
 GREEN="\033[0;32m"
 WARNING="\033[0;33m"
@@ -18,6 +24,9 @@ CREDENTIALS_FILE="${VPN_CREDENTIALS:-$REPO_DIR/vpn.local}"
 RUN_DIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
 RUN_DIR="${RUN_DIR%/}/vpn"
 CONNECT_TIMEOUT=30
+SAFE_DEFAULT_MINUTES=3
+# Profile keys handled by this script rather than passed to openfortivpn.
+SCRIPT_KEYS="type|routes|dns|domains"
 
 die() {
     printf '%b%s%b\n' "$ERROR" "$1" "$NC" >&2
@@ -87,9 +96,120 @@ validate_name() {
     [[ "$1" =~ ^[A-Za-z0-9_-]+$ ]] || die "Invalid profile name: $1"
 }
 
+# Split a comma/space separated profile value into one item per line.
+split_list() {
+    tr ', ' '\n\n' <<<"$1" | sed '/^$/d'
+}
+
+ipv4_to_int() {
+    local IFS=. a b c d
+    read -r a b c d <<<"$1"
+    printf '%s' "$(((10#$a << 24) | (10#$b << 16) | (10#$c << 8) | 10#$d))"
+}
+
+# Print an IPv4 address or CIDR as a.b.c.d/n; fails on anything else.
+normalize_cidr() {
+    [[ "$1" =~ ^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})(/([0-9]{1,2}))?$ ]] || return 1
+    local i bits=$((10#${BASH_REMATCH[6]:-32}))
+    for i in 1 2 3 4; do
+        ((10#${BASH_REMATCH[i]} <= 255)) || return 1
+    done
+    ((bits <= 32)) || return 1
+    printf '%d.%d.%d.%d/%d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
+        "$((10#${BASH_REMATCH[3]}))" "$((10#${BASH_REMATCH[4]}))" "$bits"
+}
+
+# True when two normalized CIDRs share any address.
+cidr_overlaps() {
+    local m=${1#*/}
+    ((${2#*/} < m)) && m=${2#*/}
+    (($(ipv4_to_int "${1%/*}") >> (32 - m) == $(ipv4_to_int "${2%/*}") >> (32 - m)))
+}
+
+# Validate split-tunnel routes against what keeps this machine reachable; prints them normalized.
+check_routes() {
+    local name="$1" raw route cidr existing ssh_ip
+    ssh_ip=$(normalize_cidr "${SSH_CONNECTION%% *}" 2>/dev/null)
+
+    while IFS= read -r raw; do
+        cidr=$(normalize_cidr "$raw") || die "[$name] routes: '$raw' is not an IPv4 address or CIDR"
+        [ "${cidr#*/}" -ge 8 ] || die "[$name] routes: $cidr is too broad (use /8 or narrower)"
+        if [ -n "$ssh_ip" ] && cidr_overlaps "$cidr" "$ssh_ip"; then
+            die "[$name] routes: $cidr covers your SSH client ${ssh_ip%/*}; routing it into the tunnel would drop this session"
+        fi
+        if [ "$(uname)" = Linux ]; then
+            # Taking over an existing subnet (docker/k8s bridges, the LAN) would break whatever uses it.
+            while IFS= read -r route; do
+                existing=$(normalize_cidr "${route%% *}") || continue
+                cidr_overlaps "$cidr" "$existing" &&
+                    die "[$name] routes: $cidr overlaps the existing route '$route'"
+            done < <(ip -4 route show table main | grep -v '^default ')
+        fi
+        printf '%s\n' "$cidr"
+    done < <(split_list "$2")
+}
+
+# Route the profile's subnets (and DNS domains) through the tunnel interface.
+apply_split_tunnel() {
+    local ifname="$1" routes="$2" dns="$3" domains="$4" route
+    while IFS= read -r route; do
+        if [ "$(uname)" = Darwin ]; then
+            sudo route -n add -net "$route" -interface "$ifname" >/dev/null || return 1
+        else
+            sudo ip route replace "$route" dev "$ifname" || return 1
+        fi
+    done <<<"$routes"
+
+    [ -n "$dns" ] || return 0
+    if ! command -v resolvectl >/dev/null || ! systemctl is-active --quiet systemd-resolved; then
+        printf '%b%s%b\n' "$WARNING" "dns/domains need systemd-resolved; skipped (use IPs, or add the names to /etc/hosts)" "$NC" >&2
+        return 0
+    fi
+    # Only the listed domains go to the tunnel's DNS; default-route=false keeps every other lookup off it.
+    # shellcheck disable=SC2046
+    sudo resolvectl dns "$ifname" $(split_list "$dns") &&
+        sudo resolvectl domain "$ifname" $(split_list "$domains" | sed 's/^~*/~/') &&
+        sudo resolvectl default-route "$ifname" false
+}
+
+rollback_unit() {
+    printf 'vpn-rollback-%s' "$1"
+}
+
+arm_rollback() {
+    local name="$1" minutes="$2" unit
+    command -v systemd-run >/dev/null || die "--safe needs systemd-run (Linux with systemd)"
+    unit=$(rollback_unit "$name")
+    sudo systemctl stop "$unit.timer" "$unit.service" 2>/dev/null
+    sudo systemd-run --quiet --unit "$unit" --on-active="${minutes}min" --timer-property=RemainAfterElapse=no \
+        "$(command -v pkill)" -f "$(kill_pattern "$name.conf")" ||
+        die "Failed to arm the rollback timer."
+}
+
+# Cancel pending rollbacks for one profile, or all when omitted.
+disarm_rollback() {
+    command -v systemctl >/dev/null || return 0
+    local unit
+    unit="$(rollback_unit "${1:-*}").timer"
+    systemctl list-units --plain --no-legend "$unit" 2>/dev/null | grep -q . || return 1
+    sudo systemctl stop "$unit"
+}
+
 vpn_on() {
-    local name="$1"
+    local name="" safe_minutes=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+        --safe) safe_minutes=$SAFE_DEFAULT_MINUTES ;;
+        --safe=*) safe_minutes="${1#--safe=}" ;;
+        -*) die "Unknown option: $1" ;;
+        *) name="$1" ;;
+        esac
+        shift
+    done
     validate_name "$name"
+    if [ -n "$safe_minutes" ] && ! [[ "$safe_minutes" =~ ^[1-9][0-9]*$ ]]; then
+        die "--safe takes whole minutes, e.g. --safe=5"
+    fi
 
     if is_running "$name"; then
         printf '%b%s%b\n' "$GREEN" "$name is already connected." "$NC"
@@ -106,8 +226,24 @@ vpn_on() {
     *) die "Unsupported VPN type for [$name]: $type" ;;
     esac
 
+    local routes dns domains
+    routes=$(profile_value "$body" routes)
+    dns=$(profile_value "$body" dns)
+    domains=$(profile_value "$body" domains)
+    if [ -n "$routes" ]; then
+        routes=$(check_routes "$name" "$routes") || exit 1
+        [ -n "$routes" ] || die "[$name] routes is empty"
+        if [[ -n "$dns" && -z "$domains" || -z "$dns" && -n "$domains" ]]; then
+            die "[$name] dns and domains must be set together"
+        fi
+    elif [ -n "$dns$domains" ]; then
+        die "[$name] dns/domains only apply to a split tunnel; add routes"
+    elif [ -n "$SSH_CONNECTION" ] && [ "$(profile_value "$body" set-routes)" != 0 ]; then
+        die "[$name] has no routes, so the gateway may take over the default route and drop this SSH session. Add 'routes = <client subnets>' (or 'set-routes = 0' to manage routes yourself)."
+    fi
+
     local bin
-    bin=$(command -v openfortivpn) || die "openfortivpn not found. Install it: sudo pacman -S openfortivpn (Arch) / brew install openfortivpn (macOS)"
+    bin=$(command -v openfortivpn) || die "openfortivpn not found. Install it: sudo pacman -S openfortivpn (Arch) / sudo apt install openfortivpn (Debian/Ubuntu) / brew install openfortivpn (macOS)"
 
     mkdir -p "$RUN_DIR" && chmod 700 "$RUN_DIR"
     local cfg="$RUN_DIR/$name.conf"
@@ -115,21 +251,32 @@ vpn_on() {
 
     # openfortivpn reads its config only at startup, so the plaintext copy is removed once it's up.
     trap "rm -f '$cfg'" EXIT
-    (umask 077 && grep -v '^[[:space:]]*type[[:space:]]*=' <<<"$body" >"$cfg")
+    (
+        umask 077
+        if [ -n "$routes" ]; then
+            # Split tunnel: whatever the gateway pushes, leave the routing table and resolv.conf alone.
+            grep -Ev "^[[:space:]]*($SCRIPT_KEYS|set-routes|set-dns|pppd-use-peerdns)[[:space:]]*=" <<<"$body"
+            printf '%s\n' "set-routes = 0" "set-dns = 0" "pppd-use-peerdns = 0"
+        else
+            grep -Ev "^[[:space:]]*($SCRIPT_KEYS)[[:space:]]*=" <<<"$body"
+        fi >"$cfg"
+    )
 
     # With a NOPASSWD rule for openfortivpn, skip the password prompt (sudo -v would still ask for one).
-    if ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; then
+    # Split tunnels and --safe run other commands as root, so they always need sudo credentials.
+    if [ -n "$routes$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; then
         sudo -v || die "sudo authentication failed."
     fi
+    [ -n "$safe_minutes" ] && arm_rollback "$name" "$safe_minutes"
     : >"$log"
     nohup sudo -b "$bin" -c "$cfg" </dev/null >"$log" 2>&1
 
     printf '%s' "Connecting to $name"
-    local i
+    local i up=""
     for ((i = 0; i < CONNECT_TIMEOUT * 2; i++)); do
         if grep -q "Tunnel is up and running" "$log"; then
-            printf '\n%b%s%b\n' "$GREEN" "$name connected. You can close this terminal; disconnect with: vpn-off $name" "$NC"
-            return
+            up=1
+            break
         fi
         if [ "$i" -ge 4 ] && ! is_running "$name"; then
             break
@@ -137,8 +284,32 @@ vpn_on() {
         printf '.'
         sleep 0.5
     done
-
     printf '\n'
+
+    if [ -n "$up" ] && [ -n "$routes" ]; then
+        local ifname
+        ifname=$(sed -n 's/.*Interface \(ppp[0-9]*\) is UP.*/\1/p' "$log" | tail -1)
+        if [ -z "$ifname" ]; then
+            printf '%s\n' "Could not find the tunnel interface in the log." >&2
+            up=""
+        elif ! apply_split_tunnel "$ifname" "$routes" "$dns" "$domains"; then
+            printf '%s\n' "Failed to set up split-tunnel routes/DNS on $ifname." >&2
+            up=""
+        else
+            printf 'Routed via %s: %s\n' "$ifname" "$(tr '\n' ' ' <<<"$routes")"
+            [ -n "$domains" ] && printf 'Resolved via %s: %s\n' "$dns" "$domains"
+        fi
+    fi
+
+    if [ -n "$up" ]; then
+        printf '%b%s%b\n' "$GREEN" "$name connected. You can close this terminal; disconnect with: vpn-off $name" "$NC"
+        if [ -n "$safe_minutes" ]; then
+            printf '%b%s%b\n' "$WARNING" "Auto-disconnect in $safe_minutes min unless you run: vpn confirm $name" "$NC"
+        fi
+        return
+    fi
+
+    [ -n "$safe_minutes" ] && disarm_rollback "$name"
     is_running "$name" && sudo pkill -f "$(kill_pattern "$name.conf")"
     tail -n 20 "$log" >&2
     if grep -q "trusted-cert" "$log"; then
@@ -149,8 +320,9 @@ vpn_on() {
 
 vpn_off() {
     local pattern kill
+    [ -n "$1" ] && validate_name "$1"
+    disarm_rollback "$1"
     if [ -n "$1" ]; then
-        validate_name "$1"
         is_running "$1" || {
             printf '%s\n' "$1 is not connected."
             return
@@ -182,11 +354,25 @@ vpn_status() {
     local name
     while IFS= read -r name; do
         if is_running "$name"; then
-            printf '%b● %s%b  connected\n' "$GREEN" "$name" "$NC"
+            printf '%b● %s%b  connected' "$GREEN" "$name" "$NC"
+            if systemctl is-active --quiet "$(rollback_unit "$name").timer" 2>/dev/null; then
+                printf '%b  (auto-disconnect pending; vpn confirm %s)%b' "$WARNING" "$name" "$NC"
+            fi
+            printf '\n'
         else
             printf '○ %s\n' "$name"
         fi
     done < <(list_profiles)
+}
+
+vpn_confirm() {
+    validate_name "$1"
+    is_running "$1" || die "$1 is not connected."
+    if disarm_rollback "$1"; then
+        printf '%b%s%b\n' "$GREEN" "$1 will stay connected (auto-disconnect cancelled)." "$NC"
+    else
+        printf '%s\n' "$1 has no pending auto-disconnect."
+    fi
 }
 
 case "$(basename "$0")" in
@@ -202,8 +388,9 @@ esac
 check_credentials
 
 case "$cmd" in
-on) vpn_on "$1" ;;
+on) vpn_on "$@" ;;
 off) vpn_off "$1" ;;
 status) vpn_status ;;
-*) die "Usage: vpn on <profile> | vpn off [profile] | vpn status" ;;
+confirm) vpn_confirm "$1" ;;
+*) die "Usage: vpn on [--safe[=MIN]] <profile> | vpn off [profile] | vpn status | vpn confirm <profile>" ;;
 esac
