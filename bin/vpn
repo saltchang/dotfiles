@@ -134,8 +134,11 @@ normalize_cidr() {
         ((10#${BASH_REMATCH[i]} <= 255)) || return 1
     done
     ((bits <= 32)) || return 1
-    printf '%d.%d.%d.%d/%d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
-        "$((10#${BASH_REMATCH[3]}))" "$((10#${BASH_REMATCH[4]}))" "$bits"
+    local addr
+    addr=$(ipv4_to_int "${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}.${BASH_REMATCH[4]}")
+    # Zero the host bits: `ip route` rejects 10.0.0.5/24.
+    addr=$((addr & (0xFFFFFFFF << (32 - bits)) & 0xFFFFFFFF))
+    printf '%d.%d.%d.%d/%d' $((addr >> 24 & 255)) $((addr >> 16 & 255)) $((addr >> 8 & 255)) $((addr & 255)) "$bits"
 }
 
 # True when two normalized CIDRs share any address.
@@ -147,14 +150,18 @@ cidr_overlaps() {
 
 # Validate split-tunnel routes against what keeps this machine reachable; prints them normalized.
 check_routes() {
-    local name="$1" raw route cidr existing ssh_ip
+    local name="$1" raw route cidr existing ssh_ip gw_ip
     ssh_ip=$(normalize_cidr "${SSH_CONNECTION%% *}" 2>/dev/null)
+    gw_ip=$(normalize_cidr "$(getent ahostsv4 "$3" 2>/dev/null | awk 'NR == 1 { print $1 }')" 2>/dev/null)
 
     while IFS= read -r raw; do
         cidr=$(normalize_cidr "$raw") || die "[$name] routes: '$raw' is not an IPv4 address or CIDR"
         [ "${cidr#*/}" -ge 8 ] || die "[$name] routes: $cidr is too broad (use /8 or narrower)"
         if [ -n "$ssh_ip" ] && cidr_overlaps "$cidr" "$ssh_ip"; then
             die "[$name] routes: $cidr covers your SSH client ${ssh_ip%/*}; routing it into the tunnel would drop this session"
+        fi
+        if [ -n "$gw_ip" ] && cidr_overlaps "$cidr" "$gw_ip"; then
+            die "[$name] routes: $cidr covers the VPN gateway ${gw_ip%/*}; the tunnel would be routed into itself"
         fi
         if [ "$(uname)" = Linux ]; then
             # Taking over an existing subnet (docker/k8s bridges, the LAN) would break whatever uses it.
@@ -256,7 +263,7 @@ vpn_on() {
     dns=$(profile_value "$body" dns)
     domains=$(profile_value "$body" domains)
     if [ -n "$routes" ]; then
-        routes=$(check_routes "$name" "$routes") || exit 1
+        routes=$(check_routes "$name" "$routes" "$(profile_value "$body" host)") || exit 1
         [ -n "$routes" ] || die "[$name] routes is empty"
         if [[ -n "$dns" && -z "$domains" || -z "$dns" && -n "$domains" ]]; then
             die "[$name] dns and domains must be set together"
@@ -312,7 +319,12 @@ vpn_on() {
         { [ -n "$routes$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; }; then
         sudo -v || die "sudo authentication failed."
     fi
-    [ -n "$safe_minutes" ] && arm_rollback "$name" "$safe_minutes" "$kill"
+    if [ -n "$safe_minutes" ]; then
+        arm_rollback "$name" "$safe_minutes" "$kill"
+    else
+        # A leftover --safe timer from an earlier connection would kill this one.
+        disarm_rollback "$name"
+    fi
     : >"$log"
     if [ "$client" = openconnect ]; then
         # This script stands in for vpnc-script (see oc_script), so openconnect never touches routes or DNS.
