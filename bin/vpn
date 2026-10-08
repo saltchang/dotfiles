@@ -313,10 +313,12 @@ vpn_on() {
     )
 
     # With a NOPASSWD rule for openfortivpn, skip the password prompt (sudo -v would still ask for one).
-    # Split tunnels and --safe run other commands as root, so they always need sudo credentials.
+    # dns/domains and --safe run resolvectl/systemd-run as root, so they always need sudo credentials.
+    # Split-tunnel routes are added with plain sudo later: no prompt with a NOPASSWD rule for
+    # `ip route replace` (see vpn.sudoers.example), otherwise sudo asks then.
     # sudo -v can prompt even with NOPASSWD (when another rule for the user needs a password), so try -n first.
     if ! sudo -n true 2>/dev/null &&
-        { [ -n "$routes$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; }; then
+        { [ -n "$dns$safe_minutes" ] || ! sudo -n -l "$bin" -c "$cfg" >/dev/null 2>&1; }; then
         sudo -v || die "sudo authentication failed."
     fi
     if [ -n "$safe_minutes" ]; then
