@@ -23,7 +23,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("walker --gapplication-service")
 
     hl.exec_cmd(vars.musicPlayer, { workspace = "special:fun silent" })
-    hl.exec_cmd("env GDK_SCALE=2 steam", { workspace = "special:fun silent" })
+    hl.exec_cmd("env GDK_SCALE=2 ~/.local/dotfiles/bin/steam-ime", { workspace = "special:fun silent" })
     hl.exec_cmd(vars.browser, { workspace = "2 silent" })
     hl.exec_cmd(vars.terminal, { workspace = "4 silent" })
     hl.exec_cmd("~/.local/bin/openwhispr", { workspace = "1 silent" })

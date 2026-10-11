@@ -71,6 +71,10 @@ Kitty itself is used to manage panes (kitty "windows" inside a tab) and tabs —
 - `Alt+f` — toggle fullscreen (zoom) for the current pane via `toggle_layout stack` (requires `stack` in `enabled_layouts`).
 - Tab management uses kitty defaults (`Ctrl+Shift+T` new tab, `Ctrl+Shift+Left/Right` switch, etc.).
 
+### Steam + fcitx5 (Arch)
+
+Steam is launched via `bin/steam-ime`, which loads a patched fcitx5 GTK module into Steam's runtime container. A Hyprland hook in `.config/hypr/config/window-rules.lua` keeps the candidate window visible. Read `scripts/steam-fcitx5/README.md` before touching Steam input, the Steam launch line, or that hook.
+
 ### Local Overrides
 
 Machine-specific config goes in `dotfiles/.zshrc.local` (gitignored via `*.local`). Kitty uses `local.conf` (also gitignored), copied from `local.mac.conf` or `local.arch.conf` during setup.

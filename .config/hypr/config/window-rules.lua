@@ -116,3 +116,14 @@ hl.window_rule({
     size = { 700, 350 },
     center = true,
 })
+
+-- fcitx5 candidate popup for XWayland apps (Steam etc.) maps as a managed float.
+-- Each time fcitx moves/resizes it, Hyprland re-homes it to the monitor's regular
+-- workspace, so an app in a special workspace (Steam lives in special:fun) covers it
+-- after the first key. Pinned windows stay drawn on top. A window rule `pin = true`
+-- did not apply to it, hence the hook; every re-map is a new window, so pin on open.
+hl.on("window.open", function(w)
+    if w.xwayland and w.class:find("^fcitx") and not w.pinned then
+        hl.dispatch(hl.dsp.window.pin({ window = "address:" .. w.address }))
+    end
+end)
