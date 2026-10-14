@@ -1,4 +1,4 @@
-# 下面設定可參考做修改
+# Use the settings below as a reference for customization.
 
 switches:
   - name: ascii_mode
@@ -6,7 +6,7 @@ switches:
     states: ["中文", "英文"]
 
 menu:
-  ### 選字鍵（有實質選字作用）
+  ### Keys that select candidates
   alternative_select_keys: "YHNUJMIKOL"
   alternative_select_labels: []
   page_size: 8 #6 #10
