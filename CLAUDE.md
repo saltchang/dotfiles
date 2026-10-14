@@ -77,6 +77,7 @@ Machine-specific config goes in `dotfiles/.zshrc.local` (gitignored via `*.local
 
 ## Conventions
 
+- **Code comments and docstrings**: Write in English.
 - **Commits**: Conventional Commits format (`feat:`, `fix:`, `chore:`, etc.). Scope is preferred when changes target a specific area (e.g., `feat(nvim):`, `fix(zsh):`).
 - **Indentation**: 4 spaces default, 2 spaces for JSON/YAML. LF line endings, UTF-8.
 - **Shell scripts**: Use `#!/bin/bash`. OS detection via `uname` + `lsb_release`. Color output via ANSI escape codes (GREEN/ERROR/NC pattern).

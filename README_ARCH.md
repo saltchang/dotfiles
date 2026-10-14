@@ -99,7 +99,7 @@ paru -S ghostty
 # Fcitx5 with Rime
 paru -S fcitx5
 paru -S fcitx5-rime
-paru -S rime-bopomofo              # Rime 注音 (bopomofo) schema
+paru -S rime-bopomofo              # Rime Bopomofo schema
 paru -S fcitx5-configtool          # Configuration tool (optional)
 paru -S fcitx5-qt                  # Qt5 support
 paru -S fcitx5-gtk                 # GTK support
