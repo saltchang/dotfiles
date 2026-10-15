@@ -386,7 +386,7 @@ alias lzd='lazydocker'
 # work = ~/.claude-work. Plain `claude` picks work inside $PROJS_BASE/work, personal elsewhere.
 _claude_run() {
     local profile=$1; shift
-    if [[ $profile == work ]]; then
+    if [[ $profile == work && ${CLAUDE_MULTI_PROFILE:-true} == true ]]; then
         echo "[claude] work profile (~/.claude-work)" >&2
         CLAUDE_CONFIG_DIR="$HOME/.claude-work" command claude "$@"
     else
