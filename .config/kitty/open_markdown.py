@@ -17,4 +17,4 @@ def handle_result(args, answer, target_window_id, boss: Boss) -> None:
         return
 
     program = "default" if is_macos else "brave"
-    boss.open_url(args[1], program=program, cwd=window.cwd_of_child)
+    boss.open_url(args[1], program=program)

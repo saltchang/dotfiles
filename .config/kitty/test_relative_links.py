@@ -16,23 +16,29 @@ options = load_config(str(config_dir / "kitty.conf"))
 rules_file = config_dir / "open-actions.conf"
 rules = rules_file.read_text() if rules_file.exists() else ""
 report = "openspec/changes/example-feature/implementation-report.md"
-window = SimpleNamespace(cwd_of_child="/work/project")
-other = SimpleNamespace(cwd_of_child="/work/other project")
+window = SimpleNamespace(cwd_of_child="/work/project", child=SimpleNamespace(child_fd=10))
+other = SimpleNamespace(cwd_of_child="/work/other project", child=SimpleNamespace(child_fd=11))
+foreground_pids = {10: 100, 11: 200}
+process_cwds = {100: "/work/project", 200: "/work/other project"}
 boss = SimpleNamespace(
     window_id_map={1: window, 2: other}, active_window=window, open_url=Mock(), show_error=Mock()
 )
 
 
 def follow_link(url, target_window_id=1):
-    with patch("kitty.open_actions.get_options", return_value=options):
+    with (
+        patch("kitty.open_actions.get_options", return_value=options),
+        patch("os.tcgetpgrp", side_effect=foreground_pids.__getitem__),
+        patch("kitty.child.cwd_of_process", side_effect=process_cwds.__getitem__),
+    ):
         actions = list(actions_for_url(url, actions_spec=rules))
-    if not actions:
-        raise RuntimeError("FAIL：相對連結未被處理，會從 kitty 程序目錄找檔案")
-    action = actions[0]
-    if action.func != "kitten":
-        raise RuntimeError("相對連結必須交給 kitten，不能直接送給系統 opener")
-    handle_result = run_path(str(config_dir / action.args[0]))["handle_result"]
-    handle_result(action.args, None, target_window_id, boss)
+        if not actions:
+            raise RuntimeError("FAIL：相對連結未被處理，會從 kitty 程序目錄找檔案")
+        action = actions[0]
+        if action.func != "kitten":
+            raise RuntimeError("相對連結必須交給 kitten，不能直接送給系統 opener")
+        handle_result = run_path(str(config_dir / action.args[0]))["handle_result"]
+        handle_result(action.args, None, target_window_id, boss)
 
 
 follow_link(report)
@@ -41,6 +47,13 @@ boss.open_url.reset_mock()
 follow_link(report, 2)
 boss.open_url.assert_called_once_with(f"file:///work/other%20project/{report}", cwd="/work/other project")
 print("PASS：原報告相對連結使用 target pane，而非其他 pane 或程序目錄")
+
+window.cwd_of_child = "/work/mcp-parent"
+boss.open_url.reset_mock()
+follow_link(report)
+boss.open_url.assert_called_once_with(f"file:///work/project/{report}", cwd="/work/project")
+window.cwd_of_child = "/work/project"
+print("PASS：MCP 子程序的目錄不會覆蓋前景主程序的工作目錄")
 
 boss.open_url.reset_mock()
 follow_link("docs/報告%20v1%23%2520.md?review=1#摘要")
@@ -69,13 +82,28 @@ follow_link(report, -1)
 boss.open_url.assert_not_called()
 boss.show_error.assert_not_called()
 for cwd in (None, "", "relative/directory"):
-    window.cwd_of_child = cwd
+    process_cwds[100] = cwd
     boss.show_error.reset_mock()
     follow_link(report)
     boss.open_url.assert_not_called()
     boss.show_error.assert_called_once()
-window.cwd_of_child = "/work/project"
+process_cwds[100] = "/work/project"
 print("PASS：缺少 window 安全返回，缺少可靠 cwd 則提示錯誤、不猜目錄")
+
+with (
+    patch("os.tcgetpgrp", return_value=100) as foreground_pid,
+    patch("kitty.child.cwd_of_process", return_value="/work/project") as process_cwd,
+):
+    handle_result = run_path(str(config_dir / "relative_links.py"))["handle_result"]
+    for lookup in (foreground_pid, process_cwd):
+        lookup.side_effect = OSError("foreground process unavailable")
+        boss.open_url.reset_mock()
+        boss.show_error.reset_mock()
+        handle_result(["relative_links.py", report], None, 1, boss)
+        boss.open_url.assert_not_called()
+        boss.show_error.assert_called_once()
+        lookup.side_effect = None
+print("PASS：前景程序無法查詢時提示錯誤，不回退到 MCP 或 shell 的目錄")
 
 markdown_url = f"file:///work/other%20project/{report}"
 for macos, program in ((True, "default"), (False, "brave")):
@@ -83,11 +111,11 @@ for macos, program in ((True, "default"), (False, "brave")):
         open_markdown = run_path(str(config_dir / "open_markdown.py"))["handle_result"]
     boss.open_url.reset_mock()
     open_markdown(["open_markdown.py", markdown_url], None, 2, boss)
-    boss.open_url.assert_called_once_with(markdown_url, program=program, cwd="/work/other project")
+    boss.open_url.assert_called_once_with(markdown_url, program=program)
     boss.open_url.reset_mock()
     open_markdown(["open_markdown.py", markdown_url], None, -1, boss)
     boss.open_url.assert_not_called()
-print("PASS：Markdown 在 macOS 使用系統預設程式，Linux 保留 Brave，並使用 target pane 的 cwd")
+print("PASS：Markdown 在 macOS 使用系統預設程式，Linux 保留 Brave，完整網址不再依賴 pane cwd")
 
 
 def dispatch_action(action):
@@ -107,6 +135,7 @@ boss.launch = Mock()
 boss.listening_on = ""
 window.open_url_handler = None
 window.hyperlink_open_confirmed = MethodType(Window.hyperlink_open_confirmed, window)
+window.cwd_of_child = "/work/mcp-parent"
 
 for policy in ("no", "ask", "yes"):
     security_options = load_config(str(config_dir / "kitty.conf"), overrides=[f"allow_hyperlinks {policy}"])
@@ -124,6 +153,8 @@ for policy in ("no", "ask", "yes"):
             patch("kitty.boss.get_options", return_value=security_options),
             patch("kitty.open_actions.get_options", return_value=security_options),
             patch("kitty.open_actions.config_dir", str(config_dir.resolve())),
+            patch("os.tcgetpgrp", side_effect=foreground_pids.__getitem__),
+            patch("kitty.child.cwd_of_process", side_effect=process_cwds.__getitem__),
             patch("kitty.window.set_clipboard_string") as clipboard,
             patch("subprocess.Popen") as launch,
         ):
@@ -154,6 +185,7 @@ for policy in ("no", "ask", "yes"):
             launch.assert_called_once()
             if launch.call_args.args[0][-1] != f"file:///work/project/{url}":
                 raise RuntimeError(f"原生開檔流程仍使用錯誤路徑：{launch.call_args}")
-            if launch.call_args.kwargs["cwd"] != "/work/project":
-                raise RuntimeError("原生開檔流程未保留來源 pane 的工作目錄")
+            expected_cwd = None if url == report else "/work/project"
+            if launch.call_args.kwargs["cwd"] != expected_cwd:
+                raise RuntimeError(f"原生開檔流程仍使用錯誤目錄：{launch.call_args}")
 print("PASS：原生 OSC 8 流程保留 no／ask／yes、Markdown／圖片規則與預設 opener")

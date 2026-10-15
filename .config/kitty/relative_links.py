@@ -1,8 +1,10 @@
+import os
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from kittens.tui.handler import result_handler
 from kitty.boss import Boss
+from kitty.child import cwd_of_process
 
 
 def main(args):
@@ -23,7 +25,11 @@ def handle_result(args, answer, target_window_id, boss: Boss) -> None:
     if parts.scheme or parts.netloc or not path or Path(path).is_absolute():
         return
 
-    cwd = window.cwd_of_child
+    try:
+        foreground_pgid = os.tcgetpgrp(window.child.child_fd)
+        cwd = cwd_of_process(foreground_pgid)
+    except OSError:
+        cwd = None
     if not cwd or not Path(cwd).is_absolute():
         boss.show_error("無法開啟相對連結", "無法取得來源 pane 的工作目錄，已停止開啟以免使用錯誤路徑。")
         return
