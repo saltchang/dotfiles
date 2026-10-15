@@ -77,6 +77,18 @@ for cwd in (None, "", "relative/directory"):
 window.cwd_of_child = "/work/project"
 print("PASS：缺少 window 安全返回，缺少可靠 cwd 則提示錯誤、不猜目錄")
 
+markdown_url = f"file:///work/other%20project/{report}"
+for macos, program in ((True, "default"), (False, "brave")):
+    with patch("kitty.constants.is_macos", macos):
+        open_markdown = run_path(str(config_dir / "open_markdown.py"))["handle_result"]
+    boss.open_url.reset_mock()
+    open_markdown(["open_markdown.py", markdown_url], None, 2, boss)
+    boss.open_url.assert_called_once_with(markdown_url, program=program, cwd="/work/other project")
+    boss.open_url.reset_mock()
+    open_markdown(["open_markdown.py", markdown_url], None, -1, boss)
+    boss.open_url.assert_not_called()
+print("PASS：Markdown 在 macOS 使用系統預設程式，Linux 保留 Brave，並使用 target pane 的 cwd")
+
 
 def dispatch_action(action):
     if action.func == "launch":
@@ -99,7 +111,7 @@ window.hyperlink_open_confirmed = MethodType(Window.hyperlink_open_confirmed, wi
 for policy in ("no", "ask", "yes"):
     security_options = load_config(str(config_dir / "kitty.conf"), overrides=[f"allow_hyperlinks {policy}"])
     for url, expected_launch in (
-        (report, ("--type=background", "brave", f"file:///work/project/{report}")),
+        (report, None),
         ("images/example%20image.png", ("--type=background", "xdg-open", "/work/project/images/example image.png")),
         ("docs/report.txt", None),
     ):
