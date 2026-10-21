@@ -42,6 +42,11 @@ fi
 
 ./scripts/setup-config-dir.sh --name=Elephant --config-dir=elephant
 
+# Install elephant's systemd user unit; hypr autostart starts it with `systemctl --user start elephant`.
+if command -v elephant &>/dev/null; then
+    elephant service enable
+fi
+
 ./scripts/setup-config-dir.sh --name=Swappy --config-dir=swappy
 
 # Steam: launch through bin/steam-ime so fcitx5 works in the Steam UI (scripts/steam-fcitx5/README.md).

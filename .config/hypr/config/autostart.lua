@@ -16,8 +16,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("clipse -listen")
 
-    -- elephant: backend service for the walker launcher (apps + calc + menus providers)
-    hl.exec_cmd("elephant")
+    -- elephant: backend service for the walker launcher (apps + calc + menus providers).
+    -- Run via its systemd unit (Restart=on-failure); graphical-session.target never activates here, so start it explicitly.
+    hl.exec_cmd("systemctl --user start elephant")
 
     -- walker service: keeps GTK warm so opening the menu is instant instead of ~1s cold start
     hl.exec_cmd("walker --gapplication-service")
