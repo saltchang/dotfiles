@@ -66,6 +66,7 @@ Kitty itself is used to manage panes (kitty "windows" inside a tab) and tabs —
 - `Alt+r` — rotate the current split between horizontal and vertical (`layout_action rotate`).
 - `Alt+p` — open the command palette to search actions and shortcuts (also available via `Ctrl+Shift+F3`).
 - `Alt+n` — new pane via `smart_split.py`: split left/right only when the current pane is at least 1.5 times as wide as it is tall; otherwise split top/bottom. Preserves the current working directory.
+- `Alt+e` — same split logic as `Alt+n`, but opens `nvim` in the new pane.
 - `Alt+d` — split current pane downward (`launch --location=hsplit`).
 - `Alt+Shift+x` — close current pane.
 - `Alt+f` — toggle fullscreen (zoom) for the current pane via `toggle_layout stack` (requires `stack` in `enabled_layouts`).

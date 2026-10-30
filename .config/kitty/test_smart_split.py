@@ -25,7 +25,7 @@ for current, new in ((first, right), (right, third)):
     windows.active_window = current
     handle_result([], None, current.id, boss)
     location, cwd = launched[-1]
-    if cwd != "--cwd=current":
+    if cwd != "--cwd=oldest":
         raise RuntimeError("New panes must preserve the working directory")
     layout.add_non_overlay_window(windows, new, location.removeprefix("--location="))
 
@@ -35,4 +35,8 @@ if not layout.pairs_root.horizontal or layout.pairs_root.two.horizontal:
 handle_result([], None, -1, boss)
 if len(launched) != 2:
     raise RuntimeError("Missing target window must not launch a pane")
-print("PASS: first split left/right, second split top/bottom; cwd preserved; missing window ignored")
+
+handle_result(["smart_split.py", "nvim"], None, first.id, boss)
+if launched[-1][2:] != ("nvim",):
+    raise RuntimeError("Extra kitten args must be passed as the pane command")
+print("PASS: first split left/right, second split top/bottom; cwd preserved; missing window ignored; command passed through")

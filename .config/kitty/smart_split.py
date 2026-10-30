@@ -17,4 +17,5 @@ def handle_result(args, answer, target_window_id, boss: Boss) -> None:
     height = geometry.bottom - geometry.top
     # ponytail: fixed readability threshold; make configurable if displays need different ratios.
     location = "vsplit" if width >= 1.5 * height else "hsplit"
-    boss.launch(f"--location={location}", "--cwd=current")
+    # Extra kitten args (e.g. `nvim`) become the command run in the new pane.
+    boss.launch(f"--location={location}", "--cwd=oldest", *args[1:])
