@@ -433,7 +433,13 @@ def screen_status(agent: str, text: str, previous: str = "unknown") -> str:
     # so search everything after the latest message instead of a fixed window.
     if agent == "claude":
         last_message = max(
-            (i for i in range(control_end) if re.match(r"^\s*[⏺●]\s", lines[i])),
+            # Skip the "● <level>  $<cost> ..." mod band that sits below the spinner.
+            (
+                i
+                for i in range(control_end)
+                if re.match(r"^\s*[⏺●]\s", lines[i])
+                and not re.match(r"^\s*●\s+\S+\s+\$\d", lines[i])
+            ),
             default=-1,
         )
         if re.search(
@@ -502,8 +508,17 @@ def screen_status(agent: str, text: str, previous: str = "unknown") -> str:
 
 def window_status(window) -> tuple[str, str]:
     state = read_state(window.user_vars.get(STATE_VAR, ""), os.getpid(), window.id)
+    from kitty.child import process_data_cache
+
     agent, pid = "", 0
-    for process in window.child.foreground_processes:
+    # Each lookup scans all of /proc; reuse one scan for up to kitty's 1s cache TTL.
+    # cached_process_data() would force a refresh on every call.
+    prev = process_data_cache.start_caching()
+    try:
+        processes = window.child.foreground_processes
+    finally:
+        process_data_cache.stop_caching(prev)
+    for process in processes:
         agent, _ = describe("", os.getpid(), window.id, [process["cmdline"]])
         if agent:
             pid = process.get("pid", 0)
