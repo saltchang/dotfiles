@@ -1,0 +1,17 @@
+# Remind to log out after upgrading Hyprland's stack: the running compositor keeps the old
+# binary and crashes against the new shared libraries (e.g. 0.56.2 -> 0.57.0 on 2026-10-30).
+[Trigger]
+Operation = Upgrade
+Type = Package
+Target = hyprland
+Target = aquamarine
+Target = hyprutils
+Target = hyprlang
+Target = hyprgraphics
+Target = hyprcursor
+Target = nvidia*
+
+[Action]
+Description = Hyprland stack upgraded: log out and back in to avoid a crash
+When = PostTransaction
+Exec = /usr/bin/echo "==> Hyprland stack upgraded. Log out and back in now: hyprctl dispatch hl.dsp.exit()"

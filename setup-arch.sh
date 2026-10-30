@@ -24,6 +24,10 @@ fi
 
 ./scripts/setup-config-dir.sh --name=Hyprland --config-dir=hypr
 
+# Pacman hooks (paru runs through pacman, so they fire for paru upgrades too).
+sudo install -Dm644 -t /etc/pacman.d/hooks pacman-hooks/*.hook
+printf '%bPacman hooks installed to /etc/pacman.d/hooks%b\n' "$GREEN" "$NC"
+
 if command -v hyprpanel &>/dev/null; then
     sleep 1
     hyprctl reload
