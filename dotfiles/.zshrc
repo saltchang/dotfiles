@@ -512,9 +512,9 @@ case $OS_NAME in
             "$ARCH")
                 unu() {
                     if command -v paru &>/dev/null; then
-                        paru -Syu
+                        paru -Syu --noconfirm
                     else
-                        sudo pacman -Syu
+                        sudo pacman -Syu --noconfirm
                     fi
                 }
                 ;;
