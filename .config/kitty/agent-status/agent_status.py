@@ -490,6 +490,9 @@ def screen_status(agent: str, text: str, previous: str = "unknown") -> str:
             r"(?:^|·)\s*[1-9]\d* shells?\s*(?:·|$)", input_footer, re.MULTILINE
         ):
             return "background"
+        # Running subagent rows: "◯ general-purpose  Reading x   7m 55s · ↓ 223.6k tokens".
+        if re.search(r"^\s*◯\s+\S.*\d+[smh]\s*·\s*↓", input_footer, re.MULTILINE):
+            return "background"
     return (
         "done"
         if previous in ("done", "working", "background", "reconnecting", "waiting")

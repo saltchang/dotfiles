@@ -43,7 +43,7 @@ include agent-status/agent-status.conf
 | 狀態 | 顏色 | 意義 |
 | --- | --- | --- |
 | ✻ Working | 青藍→紫→粉紅色波 | 思考或執行任務 |
-| ▣ Background running | 青藍 | 本輪回覆結束，背景 shell／terminal 仍在跑 |
+| ▣ Background running | 青藍 | 本輪回覆結束，背景 shell／terminal 或 Claude subagent 仍在跑 |
 | ◐ Reconnecting | 橘色 | Codex 正在重試連線 |
 | ! Action Required | 紫色 | 需要回答或批准 |
 | ✓ Turn completed | 綠色 | 本輪回覆結束，不代表任務成功 |
@@ -64,6 +64,6 @@ uv run --no-project ~/.config/kitty/agent-status/setup-hooks.py --remove --apply
 ## 限制與排錯
 
 - 限同一個 kitty process，也包含其他 OS windows。SSH／tmux 內的 agents 不支援。
-- 背景狀態只涵蓋 shell／terminal，不包含 subagent 或排程。
+- 背景狀態涵蓋 shell／terminal 與 Claude subagent（讀輸入框下方的 agent 列），不包含 Codex subagent 或排程。
 - 偵測依賴畫面文字；視窗太窄或 agent 改版可能造成誤判，當 coding agent 版本有升級時請注意。
 - 多行使用 kitty 內部 API，已在 kitty v0.48.2 驗證；排版異常時停用擴充並重啟 kitty。
