@@ -53,6 +53,9 @@ fi
 
 ./scripts/setup-config-dir.sh --name=Swappy --config-dir=swappy
 
+# Spotify runs on native Wayland; XWayland renders it black on Hyprland 0.57 + NVIDIA.
+./scripts/setup-config-dir.sh --name="Spotify launcher" --config-dir=spotify-launcher.conf
+
 # Steam: launch through bin/steam-ime so fcitx5 works in the Steam UI (scripts/steam-fcitx5/README.md).
 # The override survives steam package upgrades; GDK_SCALE=2 matches the autostart in hypr/config/autostart.lua.
 if [ -f /usr/share/applications/steam.desktop ]; then

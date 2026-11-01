@@ -21,7 +21,7 @@ The interactive `install.sh` handles bootstrap-only concerns (package managers, 
 1. `setup-dotfiles.sh` - installs zsh if missing, sets zsh as the default shell, and symlinks shell dotfiles from `dotfiles/` to `$HOME`
 2. `setup-terminal.sh --kitty|--ghostty|--iterm2` - terminal configs; each flag also installs the corresponding binary if missing
 3. `setup-editor.sh --nvim|--zed` - editor configs
-4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, walker + elephant (app launcher), swappy, and pacman hooks from `pacman-hooks/` (copied into `/etc/pacman.d/hooks/` with sudo, not symlinked: re-run the script after editing a hook, and on every new machine)
+4. `setup-arch.sh` - Arch-only: hyprland, hyprpanel, walker + elephant (app launcher), swappy, spotify-launcher, and pacman hooks from `pacman-hooks/` (copied into `/etc/pacman.d/hooks/` with sudo, not symlinked: re-run the script after editing a hook, and on every new machine)
 5. `scripts/setup-server-tools.sh` - headless-host tools (uv). Not wired into `install.sh`; run manually on servers (e.g. contabo) where the desktop bootstrap doesn't apply.
 
 Each `setup-*.sh` owns both the install and config for its area, so you can re-run a single script to refresh just that portion (e.g. `./setup-terminal.sh --kitty` to reinstall and reconfigure kitty) without rerunning `install.sh`.
@@ -35,7 +35,7 @@ All setup scripts must be run from the repo root directory.
 Configs are **not** copied -- they are symlinked so edits in the repo are immediately live:
 
 - `dotfiles/*` symlinks to `$HOME/` (`.zshrc`, `.zprofile`, `.p10k.zsh`, `.zpreztorc`, `.prototools`)
-- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, walker, elephant, swappy)
+- `.config/*/` symlinks to `$HOME/.config/*/` (nvim, kitty, zed, hypr, hyprpanel, walker, elephant, swappy, plus the single file `spotify-launcher.conf`)
 - `bin/` symlinks to `$HOME/.local/dotfiles/bin/` (added to PATH)
 
 The shared helper `scripts/setup-config-dir.sh --name=<Name> --config-dir=<dir>` handles the `.config/` symlink pattern.
