@@ -5,14 +5,16 @@
 
 build="$(dirname "$(readlink -f "$0")")/../scripts/steam-fcitx5/build.sh"
 out="$HOME/.local/share/steam-fcitx5"
+# CEF GPU compositing flickers under XWayland on Hyprland 0.57 + NVIDIA.
+cef_flags="-cef-disable-gpu-compositing"
 
 if ! "$build" --check 2>/dev/null; then
     "$build" >/dev/null || true
 fi
 
 if "$build" --check; then
-    exec env GTK_IM_MODULE=fcitx GTK_IM_MODULE_FILE="$out/immodules.cache" /usr/bin/steam "$@"
+    exec env GTK_IM_MODULE=fcitx GTK_IM_MODULE_FILE="$out/immodules.cache" /usr/bin/steam $cef_flags "$@"
 fi
 
 notify-send -u critical "Steam 輸入法未啟用" "steam-fcitx5 檢查沒過，這次用原版 Steam 啟動。修法見 dotfiles/scripts/steam-fcitx5/README.md" 2>/dev/null
-exec /usr/bin/steam "$@"
+exec /usr/bin/steam $cef_flags "$@"
