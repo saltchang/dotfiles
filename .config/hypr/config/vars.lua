@@ -6,7 +6,7 @@ return {
     terminal = "kitty",
     browser = "brave",
     musicPlayer = "spotify-launcher",
-    musicPlayerClass = "Spotify",
+    musicPlayerClass = "[Ss]potify", -- "Spotify" under XWayland, "spotify" on native Wayland
     fileManager = "thunar",
     -- --width/--height: force a fixed size — walker otherwise re-fits the window to
     -- the result count on every keystroke, which makes the sidebar image zoom around
