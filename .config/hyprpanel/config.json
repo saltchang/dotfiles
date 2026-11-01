@@ -127,7 +127,7 @@
   "bar.workspaces.applicationIconEmptyWorkspace": "󰄱",
   "bar.workspaces.workspaces": 1,
   "bar.workspaces.reverse_scroll": false,
-  "bar.workspaces.ignored": "\\-\\d",
+  "bar.workspaces.ignored": "^(-\\d+|0)$",
   "bar.windowtitle.title_map": [
     [
       "kitty",
