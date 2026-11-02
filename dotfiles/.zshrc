@@ -371,7 +371,10 @@ alias mv='mv -iv'
 alias ln='ln -iv'
 alias rm='rm -I -v --preserve-root'
 alias mkdir='mkdir -pv'
-alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
+# Only use the kitty ssh kitten when actually running inside kitty (e.g. not in Termux)
+if [[ "$TERM" == "xterm-kitty" ]] && (( $+commands[kitty] )); then
+    alias ssh='kitty +kitten ssh -v -tt -A' # Use '-vvv' for top-level verbose
+fi
 alias ping='ping -c 5'
 alias sudo='nocorrect sudo '
 
