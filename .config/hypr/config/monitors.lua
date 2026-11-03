@@ -74,6 +74,6 @@ hl.on("monitor.added", function(monitor)
         return
     end
     bindStreamingOutput(monitor.name)
-    -- set_workspace takes a table; a bare string raises "'workspace' is required"
-    monitor:set_workspace({ workspace = vars.streamingWorkspace })
+    -- set_workspace takes a selector (name/id/workspace object); 0.57 rejects a table
+    monitor:set_workspace(vars.streamingWorkspace)
 end)
