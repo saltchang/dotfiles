@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from runpy import run_path
+from shutil import which
 from types import MethodType, SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -117,11 +118,29 @@ for macos, program in ((True, "default"), (False, "brave")):
     boss.open_url.assert_not_called()
 print("PASS：Markdown 在 macOS 使用系統預設程式，Linux 保留 Brave，完整網址不再依賴 pane cwd")
 
+image_url = "file:///work/other%20project/images/%E6%88%AA%E5%9C%96%20%231%2520.png"
+for macos, program in ((True, "open"), (False, "xdg-open")):
+    with (
+        patch("kitty.open_actions.get_options", return_value=options),
+        patch("kitty.utils.is_macos", macos),
+        patch("subprocess.Popen") as launch,
+    ):
+        action, = actions_for_url(image_url, actions_spec=rules)
+        if action.func != "kitten":
+            raise RuntimeError("圖片必須交給跨平台系統 opener，不能寫死啟動指令")
+        open_image = run_path(str(config_dir / action.args[0]))["handle_result"]
+        open_image(action.args, None, 2, boss)
+        launch.assert_called_once()
+        if launch.call_args.args[0] != (program, "/work/other project/images/截圖 #1%20.png"):
+            raise RuntimeError(f"圖片未使用正確的平台 opener 或解碼路徑：{launch.call_args}")
+        launch.reset_mock()
+        open_image(action.args, None, -1, boss)
+        open_image([action.args[0]], None, 2, boss)
+        launch.assert_not_called()
+print("PASS：圖片在 macOS 使用 open、Linux 使用 xdg-open，保留中文與空白檔名")
+
 
 def dispatch_action(action):
-    if action.func == "launch":
-        boss.launch(*action.args)
-        return True
     handler = run_path(str(config_dir / action.args[0]))["handle_result"]
     handler(action.args, None, 1, boss)
     return True
@@ -131,7 +150,6 @@ boss.open_url = MethodType(Boss.open_url, boss)
 boss.dispatch_action = Mock(side_effect=dispatch_action)
 boss.drain_actions = Mock()
 boss.choose = Mock()
-boss.launch = Mock()
 boss.listening_on = ""
 window.open_url_handler = None
 window.hyperlink_open_confirmed = MethodType(Window.hyperlink_open_confirmed, window)
@@ -139,14 +157,13 @@ window.cwd_of_child = "/work/mcp-parent"
 
 for policy in ("no", "ask", "yes"):
     security_options = load_config(str(config_dir / "kitty.conf"), overrides=[f"allow_hyperlinks {policy}"])
-    for url, expected_launch in (
-        (report, None),
-        ("images/example%20image.png", ("--type=background", "xdg-open", "/work/project/images/example image.png")),
-        ("docs/report.txt", None),
+    for url, expected_argument, expected_cwd in (
+        (report, f"file:///work/project/{report}", None),
+        ("images/example%20image.png", "/work/project/images/example image.png", None),
+        ("docs/report.txt", "file:///work/project/docs/report.txt", "/work/project"),
     ):
         boss.dispatch_action.reset_mock()
         boss.choose.reset_mock()
-        boss.launch.reset_mock()
         with (
             patch("kitty.window.get_options", return_value=security_options),
             patch("kitty.window.get_boss", return_value=boss),
@@ -161,31 +178,24 @@ for policy in ("no", "ask", "yes"):
             Window.open_url(window, url, hyperlink_id=82)
             if policy == "no":
                 boss.dispatch_action.assert_not_called()
-                boss.launch.assert_not_called()
                 launch.assert_not_called()
                 continue
             if policy == "ask":
                 boss.choose.assert_called_once()
                 boss.dispatch_action.assert_not_called()
-                boss.launch.assert_not_called()
                 launch.assert_not_called()
                 confirmed = boss.choose.call_args.args[1]
                 confirmed("n")
                 confirmed("c")
                 clipboard.assert_called_once_with(url)
                 boss.dispatch_action.assert_not_called()
-                boss.launch.assert_not_called()
                 launch.assert_not_called()
                 confirmed("o")
-            if expected_launch is not None:
-                boss.launch.assert_called_once_with(*expected_launch)
-                launch.assert_not_called()
-                continue
-            boss.launch.assert_not_called()
             launch.assert_called_once()
-            if launch.call_args.args[0][-1] != f"file:///work/project/{url}":
+            if url.startswith("images/") and which(launch.call_args.args[0][0]) is None:
+                raise RuntimeError(f"圖片 opener 在目前系統不存在：{launch.call_args.args[0][0]}")
+            if launch.call_args.args[0][-1] != expected_argument:
                 raise RuntimeError(f"原生開檔流程仍使用錯誤路徑：{launch.call_args}")
-            expected_cwd = None if url == report else "/work/project"
             if launch.call_args.kwargs["cwd"] != expected_cwd:
                 raise RuntimeError(f"原生開檔流程仍使用錯誤目錄：{launch.call_args}")
 print("PASS：原生 OSC 8 流程保留 no／ask／yes、Markdown／圖片規則與預設 opener")
