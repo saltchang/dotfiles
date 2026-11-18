@@ -29,14 +29,7 @@ default-root-container-layout = 'tiles'
 #               tall monitor (anything higher than wide) gets vertical orientation
 default-root-container-orientation = 'auto'
 
-# Mouse follows focus when focused monitor changes
-# Drop it from your config, if you don't like this behavior
-# See https://nikitabobko.github.io/AeroSpace/guide#on-focus-changed-callbacks
-# See https://nikitabobko.github.io/AeroSpace/commands#move-mouse
-# Fallback value (if you omit the key): on-focused-monitor-changed = []
-on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
-
-on-focus-changed = ['move-mouse window-lazy-center']
+focus-follows-mouse.enabled = false
 
 # You can effectively turn off macOS "Hide application" (cmd-h) feature by toggling this flag
 # Useful if you don't use this macOS feature, but accidentally hit cmd-h or cmd-alt-h key
@@ -137,16 +130,16 @@ ctrl-minus = 'resize smart -50'
 ctrl-equal = 'resize smart +50'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-ctrl-1 = 'workspace 1'
-ctrl-2 = 'workspace 2'
-ctrl-3 = 'workspace 3'
-ctrl-4 = 'workspace 4'
-ctrl-5 = 'workspace 5'
-ctrl-6 = 'workspace 6'
-ctrl-7 = 'workspace 7'
-ctrl-8 = 'workspace 8'
-ctrl-9 = 'workspace 9'
-ctrl-0 = 'workspace 0'
+ctrl-1 = ['workspace 1', 'move-mouse monitor-lazy-center']
+ctrl-2 = ['workspace 2', 'move-mouse monitor-lazy-center']
+ctrl-3 = ['workspace 3', 'move-mouse monitor-lazy-center']
+ctrl-4 = ['workspace 4', 'move-mouse monitor-lazy-center']
+ctrl-5 = ['workspace 5', 'move-mouse monitor-lazy-center']
+ctrl-6 = ['workspace 6', 'move-mouse monitor-lazy-center']
+ctrl-7 = ['workspace 7', 'move-mouse monitor-lazy-center']
+ctrl-8 = ['workspace 8', 'move-mouse monitor-lazy-center']
+ctrl-9 = ['workspace 9', 'move-mouse monitor-lazy-center']
+ctrl-0 = ['workspace 0', 'move-mouse monitor-lazy-center']
 
 # fullscreen
 ctrl-f = 'fullscreen'
@@ -168,7 +161,7 @@ ctrl-shift-9 = 'move-node-to-workspace --focus-follows-window 9'
 ctrl-shift-0 = 'move-node-to-workspace --focus-follows-window 0'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth
-ctrl-tab = 'workspace-back-and-forth'
+ctrl-tab = ['workspace-back-and-forth', 'move-mouse monitor-lazy-center']
 # See: https://nikitabobko.github.io/AeroSpace/commands#move-workspace-to-monitor
 ctrl-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
